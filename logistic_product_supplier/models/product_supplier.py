@@ -29,8 +29,10 @@ from odoo.addons import decimal_precision as dp
 from odoo.tools.translate import _
 from odoo import exceptions
 
+from datetime import timedelta
 
 _logger = logging.getLogger(__name__)
+
 
 class ProductTemplateSupplierStock(models.Model):
     """ Model name: ProductTemplateSupplierStock
@@ -86,7 +88,7 @@ class ProductTemplateSupplierStock(models.Model):
         new_qty = current_line.product_uom_qty - 1.0
         if new_qty <= 0.0:
             current_line.unlink()
-        elif current_line: # Update:
+        elif current_line:  # Update:
             current_line.write({
                 'purchase_price': self.quotation,
                 'product_uom_qty': new_qty,
@@ -165,6 +167,7 @@ class ProductTemplateSupplierStock(models.Model):
             'product_uom_qty': used_qty,
             })
 
+
     @api.multi
     def assign_to_purchase_this(self):
         """ Assign max stock from this supplier (or remain)
@@ -197,7 +200,7 @@ class ProductTemplateSupplierStock(models.Model):
         if used_qty <= 0.0:
             return True
 
-        if current_line: # Update:
+        if current_line:  # Update:
             current_line.write({
                 'purchase_price': self.quotation,
                 'product_uom_qty': used_qty,
@@ -275,6 +278,49 @@ class SaleOrderLine(models.Model):
 
     _inherit = 'sale.order.line'
 
+    # -------------------------------------------------------------------------
+    # Utility:
+    # -------------------------------------------------------------------------
+    @api.multi
+    def calculate_supplier_delivery_date(self):
+        """ Calc delivery date depend on passed partial list
+        """
+        line = self
+        max_days = 0
+        for partial in line.purchase_split_ids:
+            try:
+                supplier_day = partial.supplier_id.mmac_b2b_daytoproblem
+            except:
+                supplier_day = 2  # Default 2 days if error
+            if supplier_day > max_days:
+                max_days = supplier_day
+
+        if not max_days:
+            current = False
+        else:
+            current = fields.Datetime.now()
+            excluded_day = (5, 6)
+            while max_days > 0:
+                current += timedelta(days=1)
+                if current.weekday() in excluded_day:
+                    continue  # add another day
+                else:
+                    max_days -= 1  # Day left
+            _logger.warning('Update date for delivery')
+
+        return line.write({
+            'supplier_delivery_date': current,
+        })
+
+    # Override for delivery date
+    @api.multi
+    def workflow_manual_order_line_pending(self):
+        """ Override method for update delivery date:
+        """
+        self.calculate_supplier_delivery_date()
+        return super(SaleOrderLine, self).workflow_manual_order_line_pending()
+
+
     @api.multi
     def clean_all_purchase_selected(self):
         """ Clean all selected elements
@@ -326,6 +372,11 @@ class SaleOrderLine(models.Model):
         'Descrizione stato', compute='_get_purchase_state', multi=True,
         size=40,
         )
+    supplier_delivery_date = fields.Date(
+        'Previsione arrivo',
+        help='Data di consegna prevista in funzione dei giorni di lead time'
+             'previsti nella anagrafica del fornitore, se la consegna'
+             'è divisa viene preso il fornitore peggiore come valore')
 
 
 class ResPartner(models.Model):

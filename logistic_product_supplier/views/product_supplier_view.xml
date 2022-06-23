@@ -147,8 +147,11 @@
                              <field name="product_uom_qty" />
                              <field name="state_qty" readonly="1" />
 
-                             <separator string="Purchase stock" colspan="2"/>
+                             <button name="calculate_supplier_delivery_date" type="object" string="Data arrivo prevista" colspan="1"/>
+                             <field name="supplier_delivery_date" nolabel="1" />
                              <field name="price_unit" />
+
+                             <separator string="Purchase stock" colspan="4"/>
 
                              <field name="product_supplier_ids" nolabel="1" editable="bottom" colspan="4" readonly="1">
                                 <tree string="Supplier stock" editable="bottom" decoration-info="best_price==True" decoration-danger="stock_qty&lt;=0">
