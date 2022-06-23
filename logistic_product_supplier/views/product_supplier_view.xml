@@ -134,7 +134,7 @@
                                 <field name="state_description" nolabel="1" readonly="1" colspan="4" attrs="{'invisible': [('state_check','=',True)]}"/>
 
                             </div>
-                            <div style="background-color: green;text-align: center;font-weight:bold;color:white;">
+                            <div style="background-color: green;text-align: center;font-weight:bold;color:white;" colspan="4" >
                                 <field name="state_description" nolabel="1"  readonly="1" colspan="4" attrs="{'invisible': [('state_check','=',False)]}"/>
                             </div>
 
