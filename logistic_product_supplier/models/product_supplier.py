@@ -22,6 +22,7 @@
 ###############################################################################
 
 import os
+import pdb
 import sys
 import logging
 from odoo import api, fields, models, tools, exceptions, SUPERUSER_ID
@@ -29,7 +30,7 @@ from odoo.addons import decimal_precision as dp
 from odoo.tools.translate import _
 from odoo import exceptions
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 _logger = logging.getLogger(__name__)
 
@@ -298,10 +299,10 @@ class SaleOrderLine(models.Model):
         if not max_days:
             current = False
         else:
-            current = fields.Datetime.now()
+            current = datetime.now()
             excluded_day = (5, 6)
             while max_days > 0:
-                current += timedelta(days=1)
+                current = current + timedelta(days=1)
                 if current.weekday() in excluded_day:
                     continue  # add another day
                 else:
