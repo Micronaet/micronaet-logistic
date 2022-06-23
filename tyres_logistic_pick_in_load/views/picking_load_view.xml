@@ -179,6 +179,7 @@
                      <field name="order_id" readonly="1" string="Rif." invisible="1"/>
                      <!--<field name="customer_order_date" readonly="1" invisible="not context.get('internal_view')"/>-->
                      <field name="purchase_order_date" readonly="1" invisible="not context.get('internal_view')"/>
+                     <field name="supplier_delivery_date" invisible="context.get('open_mode') != 'office'" readonly="1"/>
                      <field name="internal_note" string="Note" invisible="not context.get('internal_view')"/>
 
                      <button name="open_detail_delivery_in" string="Open detail for line" type="object" icon="fa-list-alt fa-2x"/>
