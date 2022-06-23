@@ -47,7 +47,7 @@
             <field name="model">product.template.supplier.stock</field>
             <field name="arch" type="xml">
                 <form string="Supplier stock">
-                   <group colspan="4" col="4">                    
+                   <group colspan="4" col="4">
                         <field name="best_price" />
                         <field name="product_id" />
                         <field name="supplier_id" />
@@ -58,7 +58,7 @@
                 </form>
             </field>
         </record>
-        
+
         <record model="ir.actions.act_window" id="action_view_product_template_supplier_stock_tree">
             <field name="name">Product quotation</field>
             <field name="res_model">product.template.supplier.stock</field>
@@ -66,8 +66,8 @@
             <field name="view_mode">tree,form</field>
             <field name="view_id" ref="view_product_template_supplier_stock_tree"/>
         </record>
-        
-        
+
+
         <record model="ir.ui.view" id="view_product_template_kit_page_form">
             <field name="name">product.template.form</field>
             <field name="model">product.template</field>
@@ -78,13 +78,13 @@
                         <group colspan="4" col="4">
                              <separator string="Supplier information:" colspan="4"/>
                              <field name="supplier_stock_ids" colspan="4" nolabel="1"  /><!--readonly="1"-->
-                        </group>                        
+                        </group>
                     </page>
                 </xpath>
             </field>
         </record>
-        
-        <!--sale.order-->        
+
+        <!--sale.order-->
         <record model="ir.ui.view" id="view_sale_order_purchase_button_form">
             <field name="name">sale.order.purchase.button.form</field>
             <field name="model">sale.order</field>
@@ -96,9 +96,9 @@
                     <button name="workflow_manual_order_pending" string="Go in purchase" type="object" icon="fa-gear" />
                 </xpath>
             </field>
-        </record>    
+        </record>
 
-        <!--sale.order.line-->        
+        <!--sale.order.line-->
          <record model="ir.ui.view" id="view_sale_order_line_purchase_management_tree">
              <field name="name">sale.order.line.purchase.management.tree</field>
              <field name="model">sale.order.line</field>
@@ -127,13 +127,23 @@
                      </header>
                      <sheet>
                          <group colspan="4" col="4">
+                            <!--<button name="dummy" string="" type="object" icon="/logistic_product_supplier/static/src/img/button_red.jpg" attrs="{'invisible': [('state_check','=',True)]}" colspan="1"/>
+                            <button name="dummy" string="" type="object" icon="/logistic_product_supplier/static/src/img/button_green.jpg" attrs="{'invisible': [('state_check','=',False)]}" colspan="1"/>
+                            <newline/>-->
+                            <div style="background-color: red;text-align: center;font-weight:bold;color:white;" colspan="4">
+                                <field name="state_description" nolabel="1" readonly="1" colspan="4" attrs="{'invisible': [('state_check','=',True)]}"/>
+
+                            </div>
+                            <div style="background-color: green;text-align: center;font-weight:bold;color:white;">
+                                <field name="state_description" nolabel="1"  readonly="1" colspan="4" attrs="{'invisible': [('state_check','=',False)]}"/>
+                            </div>
+
                              <field name="order_id" />
-                             <button name="dummy" string="" type="object" icon="/logistic_product_supplier/static/src/img/button_red.jpg" attrs="{'invisible': [('state_check','=',True)]}" colspan="1"/>
-                             <button name="dummy" string="" type="object" icon="/logistic_product_supplier/static/src/img/button_green.jpg" attrs="{'invisible': [('state_check','=',False)]}" colspan="1"/>
-                             
-                             <field name="product_id" />                          
+                             <newline/>
+
+                             <field name="product_id" />
                              <field name="name" />
-                             
+
                              <field name="product_uom_qty" />
                              <field name="state_qty" readonly="1" />
 
@@ -156,9 +166,9 @@
                                     <button name="assign_to_purchase_none" string="0" type="object" context="{'sale_order_id': parent.id}" icon="fa-bitbucket"/> <!--fa-dot-circle-o-->
                                     <button name="assign_to_purchase_all" string="all" type="object" context="{'sale_order_id': parent.id}" icon="fa-fast-forward"/>
                                 </tree>
-                                <form/>                                
+                                <form/>
                              </field>
-                             
+
                              <separator string="Purchase order:" colspan="3"/>
                              <button name="clean_all_purchase_selected" string="Clean selection" type="object" colspan="1" confirm="Delete all selection for purchase order?"/>
                              <field name="purchase_split_ids" nolabel="1" colspan="4">
@@ -173,15 +183,15 @@
                  </form>
              </field>
          </record>
-        
-       
-        <menuitem 
-            parent="stock.menu_product_variant_config_stock" 
-            id="menu_product_template_supplier_stock_bom" 
+
+
+        <menuitem
+            parent="stock.menu_product_variant_config_stock"
+            id="menu_product_template_supplier_stock_bom"
             action="action_view_product_template_supplier_stock_tree"
             sequence="10"
             />
-        
+
     </data>
 </openerp>
 

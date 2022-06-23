@@ -195,12 +195,12 @@
                      <field name="user_select_id" invisible="1" />
                      <field name="check_status" invisible="1" />
 
-                     <button name="fast_filter_larghezza" string="Filter this width" type="object" icon="fa-search fa-2x"  attrs="{'invisible': [('larghezza','=',False)]}" invisible="context.get('open_mode') == 'office')"/>
-                     <field name="larghezza" readonly="1" string="L." invisible="context.get('open_mode') == 'office')"/>
-                     <button name="fast_filter_spalla" string="Filter this shoulder" type="object" icon="fa-search fa-2x"  attrs="{'invisible': [('spalla','=',False)]}" invisible="context.get('open_mode') == 'office')"/>
-                     <field name="spalla" readonly="1" string="Sp." invisible="context.get('open_mode') == 'office')"/>
-                     <button name="fast_filter_raggio" string="Filter this ray" type="object" icon="fa-search fa-2x"  attrs="{'invisible': [('raggio','=',False)]}" invisible="context.get('open_mode') == 'office')"/>
-                     <field name="raggio" readonly="1" string="r." invisible="context.get('open_mode') == 'office')"/>
+                     <button name="fast_filter_larghezza" string="Filter this width" type="object" icon="fa-search fa-2x"  attrs="{'invisible': [('larghezza','=',False)]}" invisible="context.get('open_mode') == 'office'"/>
+                     <field name="larghezza" readonly="1" string="L." invisible="context.get('open_mode') == 'office'"/>
+                     <button name="fast_filter_spalla" string="Filter this shoulder" type="object" icon="fa-search fa-2x"  attrs="{'invisible': [('spalla','=',False)]}" invisible="context.get('open_mode') == 'office'"/>
+                     <field name="spalla" readonly="1" string="Sp." invisible="context.get('open_mode') == 'office'"/>
+                     <button name="fast_filter_raggio" string="Filter this ray" type="object" icon="fa-search fa-2x"  attrs="{'invisible': [('raggio','=',False)]}" invisible="context.get('open_mode') == 'office'"/>
+                     <field name="raggio" readonly="1" string="r." invisible="context.get('open_mode') == 'office'"/>
 
                      <!--Total: -->
                      <field name="product_qty" readonly="1" string="Ord." invisible="1"/>

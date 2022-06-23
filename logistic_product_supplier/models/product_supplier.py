@@ -295,8 +295,13 @@ class SaleOrderLine(models.Model):
                 covered_qty += purchase.product_uom_qty
             if abs(covered_qty - product_uom_qty) < gap:
                 line.state_check = True
+                line.state_description = 'COMPLETO'
             else:
                 line.state_check = False
+                if covered_qty:
+                    line.state_description = 'PARZIALE'
+                else:
+                    line.state_description = 'NON ASSEGNATO'
             line.state_qty = covered_qty
         return
     # -------------------------------------------------------------------------
@@ -316,6 +321,10 @@ class SaleOrderLine(models.Model):
         )
     state_check = fields.Boolean(
         'OK', compute='_get_purchase_state', multi=True,
+        )
+    state_description = fields.Char(
+        'Descrizione stato', compute='_get_purchase_state', multi=True,
+        size=40,
         )
 
 
