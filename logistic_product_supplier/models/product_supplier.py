@@ -150,7 +150,7 @@ class ProductTemplateSupplierStock(models.Model):
         purchase_pool = self.env['sale.order.line.purchase']
 
         line = self.get_context_sale_order_object()
-        line.clean_all_purchase_selected() # Remove all
+        line.clean_all_purchase_selected()  # Remove all
 
         # Collect fields:
         product_uom_qty = line.product_uom_qty
@@ -257,6 +257,41 @@ class SaleOrderLinePurchase(models.Model):
     _rec_name = 'line_id'
 
     # -------------------------------------------------------------------------
+    # Utility:
+    # -------------------------------------------------------------------------
+    @api.multi
+    def update_supplier_delivery_date(self):
+        """ Calc delivery date depend on passed partial list
+        """
+        try:
+            supplier_day = self.supplier_id.mmac_b2b_daytoproblem
+        except:
+            supplier_day = 2  # Default 2 days if error
+
+        current = datetime.now()
+        excluded_day = (5, 6)
+        while supplier_day > 0:
+            current = current + timedelta(days=1)
+            if current.weekday() in excluded_day:
+                continue  # add another day
+            else:
+                supplier_day -= 1  # Day left
+        _logger.warning('Update date for delivery')
+        return self.write({
+            'supplier_delivery_date': current,
+        })
+
+    # Override:
+    @api.model
+    def create(self, values):
+        """ Override for setup default office from fiscal position
+        """
+
+        line = super(SaleOrderLinePurchase, self).create(values)
+        line.update_supplier_delivery_date()  # Update delivery data
+        return line
+
+    # -------------------------------------------------------------------------
     # COLUMNS:
     # -------------------------------------------------------------------------
     line_id = fields.Many2one('sale.order.line', 'Line')
@@ -270,6 +305,10 @@ class SaleOrderLinePurchase(models.Model):
         'res.partner', 'Partner', index=True, ondelete='cascade',
         required=True, domain="[('supplier', '=', True)]",
         )
+    supplier_delivery_date = fields.Date(
+        'Data consegna prevista',
+        help='Calcolata in funzione dei giorni di lead time impostati nel '
+             'fornitore')
     # -------------------------------------------------------------------------
 
 
@@ -278,48 +317,6 @@ class SaleOrderLine(models.Model):
     """
 
     _inherit = 'sale.order.line'
-
-    # -------------------------------------------------------------------------
-    # Utility:
-    # -------------------------------------------------------------------------
-    @api.multi
-    def calculate_supplier_delivery_date(self):
-        """ Calc delivery date depend on passed partial list
-        """
-        line = self
-        max_days = 0
-        for partial in line.purchase_split_ids:
-            try:
-                supplier_day = partial.supplier_id.mmac_b2b_daytoproblem
-            except:
-                supplier_day = 2  # Default 2 days if error
-            if supplier_day > max_days:
-                max_days = supplier_day
-
-        if not max_days:
-            current = False
-        else:
-            current = datetime.now()
-            excluded_day = (5, 6)
-            while max_days > 0:
-                current = current + timedelta(days=1)
-                if current.weekday() in excluded_day:
-                    continue  # add another day
-                else:
-                    max_days -= 1  # Day left
-            _logger.warning('Update date for delivery')
-
-        return line.write({
-            'supplier_delivery_date': current,
-        })
-
-    # Override for delivery date
-    @api.multi
-    def workflow_manual_order_line_pending(self):
-        """ Override method for update delivery date:
-        """
-        self.calculate_supplier_delivery_date()
-        return super(SaleOrderLine, self).workflow_manual_order_line_pending()
 
 
     @api.multi
@@ -373,11 +370,6 @@ class SaleOrderLine(models.Model):
         'Descrizione stato', compute='_get_purchase_state', multi=True,
         size=40,
         )
-    supplier_delivery_date = fields.Date(
-        'Previsione arrivo',
-        help='Data di consegna prevista in funzione dei giorni di lead time'
-             'previsti nella anagrafica del fornitore, se la consegna'
-             'è divisa viene preso il fornitore peggiore come valore')
 
 
 class ResPartner(models.Model):

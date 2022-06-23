@@ -2459,7 +2459,7 @@ class SaleOrderLine(models.Model):
                 purchase_db[supplier] = []
             purchase_db[supplier].append(line)
 
-        selected_ids = [] # ID: to return view list
+        selected_ids = []  # ID: to return view list
 
         # 15 gen 2019: Cause a strange case there's some uncovered line
         # but covered with stock, change here the availability

@@ -3602,16 +3602,16 @@ class SaleOrderLine(models.Model):
         if lines:
             # Access company parameter from first line
             company = lines[0].order_id.company_id
-        else: # No lines found:
+        else:  # No lines found:
             _logger.warning(
                 'No pending line to order (could happen in undo)!')
-            # TODO problem if order was yet ready, need to be chacked here!
+            # todo problem if order was yet ready, need to be checked here!
             return True
 
         # ---------------------------------------------------------------------
         #                 Collect data for purchase order:
         # ---------------------------------------------------------------------
-        purchase_db = {} # supplier is the key
+        purchase_db = {}  # supplier is the key
         for line in lines:
             product = line.product_id
             order = line.order_id
@@ -3638,7 +3638,7 @@ class SaleOrderLine(models.Model):
             for splitted in purchase_db[key]:
                 product = splitted.line_id.product_id
                 line = splitted.line_id
-                if not product: # or splitted.dropship_manage:
+                if not product:  # or splitted.dropship_manage:
                     _logger.warning('No product on this line')
                     continue
 
@@ -3648,16 +3648,16 @@ class SaleOrderLine(models.Model):
                 # -------------------------------------------------------------
                 # Create/Get header purchase.order (only if line was created):
                 # -------------------------------------------------------------
-                # TODO if order was deleted restore logistic_state to uncovered
+                # todo if order was deleted restore logistic_state to uncovered
                 if not purchase_id:
                     partner = supplier or company.partner_id # Use company
                     new_purchase = purchase_pool.create({
                         'partner_id': partner.id,
                         'date_order': now,
                         'date_planned': now,
-                        #'name': # TODO counter?
-                        #'partner_ref': '',
-                        #'logistic_state': 'draft',
+                        # 'name': # TODO counter?
+                        # 'partner_ref': '',
+                        # 'logistic_state': 'draft',
                         })
                     purchase_id = new_purchase.id
                     selected_purchase.append(new_purchase)
@@ -3671,6 +3671,8 @@ class SaleOrderLine(models.Model):
                     'product_uom': product.uom_id.id,
                     'price_unit': purchase_price,
                     'dropship_manage': splitted.dropship_manage,
+                    'supplier_delivery_date':
+                        splitted.supplier_delivery_date,
 
                     # Link to sale:
                     'logistic_sale_id': line.id, # multi line!

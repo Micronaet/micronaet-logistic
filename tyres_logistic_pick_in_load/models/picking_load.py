@@ -1415,7 +1415,7 @@ class PurchaseOrderLine(models.Model):
     # Related for filter
     supplier_delivery_date = fields.Date(
         'Previsione arrivo',
-        related='logistic_sale_id.supplier_delivery_date')
+        )
     raggio = fields.Char(
         'Ray', related='product_id.raggio', store=True)
     larghezza = fields.Char(
