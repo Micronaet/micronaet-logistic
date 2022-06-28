@@ -522,13 +522,13 @@ class StockPicking(models.Model):
         return phone.replace(' ', '').replace(country_code, '')
 
     # -------------------------------------------------------------------------
-    # XXX IMPORTANT: To beoverrided in another module:
+    # XXX IMPORTANT: To be overridden in another module:
     # -------------------------------------------------------------------------
     @api.multi
     def fatturapa_get_details(self):
-        """ Extract line detail sumary
+        """ Extract line detail summary
         """
-        # XXX NOT USED HERE (OVERRIDED)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # todo NOT USED HERE (OVERRIDDEN) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         self.ensure_one()
 
         picking = self[0]
@@ -559,14 +559,14 @@ class StockPicking(models.Model):
             # -----------------------------------------------------------------
             i += 1
             detail_table[str(i)] = {
-                'mode': '', # No mode = product line (else SC, PR, AB, AC)
-                'discount': '', # No discount
-                'nature': '', # No nature (always 22)
+                'mode': '',  # No mode = product line (else SC, PR, AB, AC)
+                'discount': '',  # No discount
+                'nature': '',  # No nature (always 22)
                 'product': line.product_id, # Browse
                 'price': price,
                 'qty': qty,
-                'vat': vat, # %
-                'retention': '', # No retention
+                'vat': vat,  # %
+                'retention': '',  # No retention
                 'subtotal': subtotal, # VAT excluded
                 }
 
@@ -1351,13 +1351,13 @@ class StockPicking(models.Model):
             self.start_tag('2.2', 'DatiBeniServizi'))
 
         # ---------------------------------------------------------------------
-        #                        INVOCE DETAILS:
+        #                        INVOICE DETAILS:
         # ---------------------------------------------------------------------
         for seq in sorted(detail_table):
             record = detail_table[seq]
             product = record['product']
             default_code = product.product_tmpl_id.default_code
-            name = record.get('name', product.name) # Name from sale
+            name = record.get('name', product.name)  # Name from sale
             uom = product.uom_id.fatturapa_code or product.uom_id.name
 
             f_invoice.write(
@@ -1366,15 +1366,15 @@ class StockPicking(models.Model):
             f_invoice.write(
                 self.get_tag('2.2.1.1', 'NumeroLinea', seq))
 
-            f_invoice.write(# Solo se SC PR AB AC (spesa accessoria)
+            f_invoice.write(  # Solo se SC PR AB AC (spesa accessoria)
                 self.get_tag('2.2.1.2', 'TipoCessionePrestazione',
                     record['mode'], cardinality='0:1'))
 
             # XXX Loop on every code passed:
             f_invoice.write(
                 self.start_tag('2.2.1.3', 'CodiceArticolo'))
-            f_invoice.write(# PROPRIETARIO EAN TARIC SSC
-                self.get_tag('2.2.1.3.1', 'CodiceTipo', 'PROPRIETARIO')) # TODO
+            f_invoice.write(  # PROPRIETARIO EAN TARIC SSC
+                self.get_tag('2.2.1.3.1', 'CodiceTipo', 'PROPRIETARIO')) # todo
             f_invoice.write(
                 self.get_tag('2.2.1.3.2', 'CodiceValore', default_code))
             f_invoice.write(
@@ -1387,13 +1387,13 @@ class StockPicking(models.Model):
                 format_param.format_decimal(record['qty'])))
             f_invoice.write(
                 self.get_tag('2.2.1.6', 'UnitaMisura', uom))
-            #f_invoice.write(
+            # f_invoice.write(
             #    self.get_tag('2.2.1.7', 'DataInizioPeriodo', ,
             #        cardinality='0:1'))
-            #f_invoice.write(
+            # f_invoice.write(
             #    self.get_tag('2.2.1.8', 'DataFinePeriodo', ,
             #        cardinality='0:1'))
-            f_invoice.write(# unitario, totale sconto (anche negativo)
+            f_invoice.write(  # unitario, totale sconto (anche negativo)
                 # Anche negativo # Vedi 2.2.1.2
                 self.get_tag('2.2.1.9', 'PrezzoUnitario',
                 format_param.format_decimal(record['price'], decimal=6)))

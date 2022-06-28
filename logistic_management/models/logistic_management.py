@@ -423,14 +423,13 @@ class StockPicking(models.Model):
         """ Extract line detail sumary
         """
         self.ensure_one()
-
         picking = self[0]
 
         # Result dict:
         detail_table = {}
         vat_table = {}
         ddt_reference = {}
-        # TODO order?
+        # todo order?
 
         # XXX Always present and one only!
         ddt_number = (picking.ddt_number or '').split('/')[-1]
@@ -439,18 +438,18 @@ class StockPicking(models.Model):
         i = 0
         for move in picking.move_lines_for_report():
             # Parameters:
-            price = float(move[7]) # price_reduce from sale order line
-            qty = float(move[1]) # q. from sale order line
+            price = float(move[7])  # price_reduce from sale order line
+            qty = float(move[1])  # q. from sale order line
             subtotal = float(move[9])
             vat = move[3].amount
-            subtotal_vat = float(move[10]) - subtotal # XXX check approx!
+            subtotal_vat = float(move[10]) - subtotal  # XXX check approx!
             name = move[16].name
 
             # -----------------------------------------------------------------
             # Detail data:
             # -----------------------------------------------------------------
             i += 1
-            # TODO remove from here: self.qweb_format_float(
+            # todo remove from here: self.qweb_format_float(
             detail_table[str(i)] = {
                 'mode': '',  # No mode = product line (else SC, PR, AB, AC)
                 'discount': '',  # No discount
@@ -1103,7 +1102,7 @@ class StockPicking(models.Model):
 
         refund_line = {}  # Move line with refund product
         res = []
-        kit_add = [] # Kit yet addes
+        kit_add = []  # Kit yet added
         last_order = False
         sorted_lines = sorted(self.move_lines, key=lambda x: (
             x.logistic_unload_id.unification_origin_id,
@@ -1119,11 +1118,18 @@ class StockPicking(models.Model):
             sorted_lines[0].picking_id.ddt_date,
             )
 
-        #total = []
-        refund_kit = [] # Kit will be printed once!
+        # total = []
+        refund_kit = []  # Kit will be printed once!
         for line in sorted_lines:
             picking = line.picking_id
-            if picking.stock_mode == 'in': # Refund
+            # 28/06/2022 introducing new approx decimal on unit price:
+            # > Approx 2 to 6 after this date
+            if picking.create_date >= '2022-06-28':
+                approx_unit = 6
+            else:
+                approx_unit = 2
+
+            if picking.stock_mode == 'in':  # Refund
                 if line.product_id.is_refund:
                     refund_line[line] = self.get_refund_product_price(line)
                 # Kit component?
@@ -1132,11 +1138,11 @@ class StockPicking(models.Model):
                         sale_line = line.logistic_refund_id.kit_line_id
                         refund_kit.append(line.logistic_refund_id.kit_line_id)
                     else:
-                        continue # Kit yet printed
-                else: # Product line
+                        continue  # Kit yet printed
+                else:  # Product line
                     sale_line = line.logistic_refund_id
 
-            else: # DDT:
+            else:  # DDT:
                 sale_line = line.logistic_unload_id
 
             if sale_line.kit_line_id:
@@ -1159,7 +1165,7 @@ class StockPicking(models.Model):
             # -----------------------------------------------------------------
             # Order reference:
             # -----------------------------------------------------------------
-            if not sale_line.unification_origin_id: # Merged
+            if not sale_line.unification_origin_id:  # Merged
                 current_order = picking.sale_order_id
             else: # Original:
                 current_order = sale_line.unification_origin_id
@@ -1192,22 +1198,27 @@ class StockPicking(models.Model):
                 # Unit:
                 # -------------------------------------------------------------
                 self.qweb_format_float(
-                    sale_line.price_unit),  # 4. Unit no discount
+                    sale_line.price_unit,
+                    decimal=approx_unit,
+                    ),  # 4. Unit no discount
                 self.qweb_format_float(
-                    sale_line.price_reduce),  # 5. Unit discounted
+                    sale_line.price_reduce,
+                    decimal=approx_unit,
+                    ),  # 5. Unit discounted
                 refund_vat or self.qweb_format_float(
-                    sale_line.price_tax),  # XXX 6. VAT Total
+                    sale_line.price_tax,
+                    decimal=2,
+                    ),  # XXX 6. VAT Total
 
                 # -------------------------------------------------------------
                 # Price net price:
                 # -------------------------------------------------------------
                 # XXX 7. Unit no VAT
                 refund_unit_net or self.qweb_format_float(
-                    sale_line.price_reduce_taxexcl, decimal=6),
+                    sale_line.price_reduce_taxexcl, decimal=approx_unit),
                 # 8. Unit+VAT=price_unit-red
                 self.qweb_format_float(
-                    sale_line.price_reduce_taxinc, decimal=6),
-
+                    sale_line.price_reduce_taxinc, decimal=approx_unit),
 
                 # -------------------------------------------------------------
                 # Total:
@@ -1233,7 +1244,7 @@ class StockPicking(models.Model):
                 ddt_reference,  # 15
                 sale_line,  # 16 For every extra reference
                 ))
-            ddt_reference = '' # only first line print DDT reference
+            ddt_reference = ''  # only first line print DDT reference
         _logger.warning('>>> Picking line: %s ' % (res, ))
         _logger.warning(res)
         return res
