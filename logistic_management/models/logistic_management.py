@@ -1198,16 +1198,13 @@ class StockPicking(models.Model):
                 # Unit:
                 # -------------------------------------------------------------
                 self.qweb_format_float(
-                    sale_line.price_unit,
-                    decimal=approx_unit,
+                    sale_line.price_unit, decimal=approx_unit,
                     ),  # 4. Unit no discount
                 self.qweb_format_float(
-                    sale_line.price_reduce,
-                    decimal=approx_unit,
+                    sale_line.price_reduce, decimal=approx_unit,
                     ),  # 5. Unit discounted
                 refund_vat or self.qweb_format_float(
-                    sale_line.price_tax,
-                    decimal=2,
+                    sale_line.price_tax, decimal=2,
                     ),  # XXX 6. VAT Total
 
                 # -------------------------------------------------------------
