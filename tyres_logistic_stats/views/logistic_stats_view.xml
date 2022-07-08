@@ -51,7 +51,7 @@
                 <tree string="Sale order stats" decoration-success="stat_level=='positive'" decoration-it="stat_level=='unset'" decoration-danger="stat_level=='negative'">
                     <field name="name" />
                     <field name="stat_lines" widget="html"/>
-                    <field name="date_order" invisible="1" />
+                    <field name="date_order" />
                     <field name="validity_date" invisible="1" />
                     <field name="stat_excluded" invisible="1" />
                     <field name="fiscal_position_id"  />
