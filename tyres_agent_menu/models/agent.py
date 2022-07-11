@@ -69,7 +69,7 @@ class SaleOrder(models.Model):
             'target': 'current',
             'nodestroy': False,
             'flags': {'initial_mode': 'view'},
-            'context': {'create': False, 'delete': False, 'write': False},
+            'context': {'create': False, 'delete': False},
             }
 
 
