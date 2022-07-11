@@ -1117,6 +1117,7 @@
              name="Logistic"
              sequence="0"
              action="action_sale_order_dashboard_form"
+             groups="tyres_logistic_management.group_logistic_no_agent"
              />
              <menuitem
                  id="menu_logistic_left_order_root"
@@ -1440,7 +1441,6 @@
              parent="stock.menu_stock_root"
              name="Logistic management"
              sequence="30"
-             groups="tyres_logistic_management.group_logistic_no_agent"
              />
              <menuitem
                  id="menu_sale_order_line_logistic"
