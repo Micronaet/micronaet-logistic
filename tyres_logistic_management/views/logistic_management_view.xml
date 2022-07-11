@@ -1117,7 +1117,6 @@
              name="Logistic"
              sequence="0"
              action="action_sale_order_dashboard_form"
-             groups="tyres_logistic_management.group_logistic_no_agent"
              />
              <menuitem
                  id="menu_logistic_left_order_root"
