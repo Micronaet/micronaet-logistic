@@ -55,6 +55,7 @@ class SaleOrder(models.Model):
             raise exceptions.Warning(
                 'Nessun ordine visibile, controllare il team di agente per '
                 'impostarli!')
+
         return {
             'type': 'ir.actions.act_window',
             'name': _('Ordini agente'),
@@ -67,6 +68,8 @@ class SaleOrder(models.Model):
             'context': self.env.context,
             'target': 'current',
             'nodestroy': False,
+            'flags': {'initial_mode': 'view'},
+            'context': {'create': False, 'delete': False, 'write': False},
             }
 
 
