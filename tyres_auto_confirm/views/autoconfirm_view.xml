@@ -193,6 +193,7 @@
              id="menu_logistic_auto_confirm_root"
              name="Autoprint"
              sequence="2"
+             groups="tyres_auto_confirm.group_auto_confirm_manager"
              />
             <menuitem
                 id="menu_logistic_auto_confirm_management"
