@@ -50,9 +50,8 @@ class SaleOrder(models.Model):
         search_view_id = model_pool.get_object_reference(
             'sale', 'view_sales_order_filter')[1]
 
-        pdb.set_trace()
-        team_id = self.env.user.agent_team_id.id
-        if not team_id:
+        agent_team_id = self.env.user.agent_team_id.id
+        if not agent_team_id:
             raise exceptions.Warning(
                 'Nessun ordine visibile, controllare il team di agente per '
                 'impostarli!')
@@ -64,7 +63,7 @@ class SaleOrder(models.Model):
             'res_model': 'sale.order',
             'view_id': tree_view_id,
             'views': [(tree_view_id, 'tree'), (form_view_id, 'form')],
-            'domain': [('team_id', '=', team_id)],
+            'domain': [('team_id', '=', agent_team_id)],
             'context': self.env.context,
             'target': 'current',
             'nodestroy': False,
