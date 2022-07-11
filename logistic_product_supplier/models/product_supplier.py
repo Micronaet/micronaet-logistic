@@ -318,7 +318,6 @@ class SaleOrderLine(models.Model):
 
     _inherit = 'sale.order.line'
 
-
     @api.multi
     def clean_all_purchase_selected(self):
         """ Clean all selected elements

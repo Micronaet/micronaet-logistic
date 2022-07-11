@@ -34,7 +34,7 @@
         </record>
 
         <!-- Menu Agent: -->
-        <menuitem id="tyres_agent_root_menu" name="Agenti" sequence="10" groups="tyres_agent_menu.group_logistic_agent_manager"/>
+        <menuitem id="tyres_agent_root_menu" name="Agenti" sequence="10" groups="tyres_logistic_management.group_logistic_agent_manager"/>
             <menuitem id="tyres_agent_menu" name="Agenti" sequence="10" parent="tyres_agent_root_menu"/>
                 <menuitem
                     id="tyres_agent_order_menu"

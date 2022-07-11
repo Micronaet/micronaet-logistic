@@ -33,7 +33,7 @@
         'account',
         'sale',
         'tyres_logistic_management',
-        'mmac_odoo4',
+        'mmac_odoo4',  # for mmac.reso
         ],
     'data': [
         'security/ir.model.access.csv',

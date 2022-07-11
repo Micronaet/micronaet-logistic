@@ -1,6 +1,2 @@
 "id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
-access_sale_order_agent,sale.order,model_sale_order,tyres_agent_menu.group_logistic_agent_manager,1,0,0,0
-access_sale_order_line_agent,sale.order.line,model_sale_order_line,tyres_agent_menu.group_logistic_agent_manager,1,0,0,0
-
-access_mmac_reso_agent,mmac.reso,model_mmac_reso,tyres_agent_menu.group_logistic_agent_manager,1,0,0,0
-
+access_sale_order_agent,sale.order,model_sale_order,tyres_logistic_management.group_logistic_agent_manager,1,0,0,0
