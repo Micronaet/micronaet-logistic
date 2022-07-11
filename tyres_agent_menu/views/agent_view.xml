@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <!-- sale.order -->
+        <record id="ir_all_order_server_action" model="ir.actions.server">
+             <field name="name">Ordini agente</field>
+             <field name="type">ir.actions.server</field>
+             <field name="model_id" ref="model_sale_order" />
+             <field name="binding_model_id" ref="model_sale_order" />
+             <field name="state">code</field>
+             <field name="code">action = env['sale.order'].sale_order_for_this_agent()</field>
+         </record>
+
+        <!-- res.users -->
+        <record id="view_users_agent_form" model="ir.ui.view">
+            <field name="name">User agent</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='tz']" position="after">
+                    <field name="agent_team_id"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="view_users_agent_tree" model="ir.ui.view">
+            <field name="name">User agent list</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='login_date']" position="before">
+                    <field name="agent_team_id"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Menu Agent: -->
+        <menuitem id="tyres_agent_root_menu" name="Agenti" sequence="10"/>
+            <menuitem id="tyres_agent_menu" name="Agenti" sequence="10" parent="tyres_agent_root_menu"/>
+                <menuitem
+                    id="tyres_agent_order_menu"
+                    name="Ordini" sequence="10" parent="tyres_agent_menu"
+                    action="ir_all_order_server_action"
+                    />
+
+    </data>
+</openerp>
