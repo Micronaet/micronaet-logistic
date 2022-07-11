@@ -56,6 +56,8 @@ class SaleOrder(models.Model):
                 'Nessun ordine visibile, controllare il team di agente per '
                 'impostarli!')
 
+        ctx = self.with_context(
+            create=False, delete=False, edit=False).env.context
         return {
             'type': 'ir.actions.act_window',
             'name': _('Ordini agente'),
@@ -65,11 +67,11 @@ class SaleOrder(models.Model):
             'view_id': tree_view_id,
             'views': [(tree_view_id, 'tree'), (form_view_id, 'form')],
             'domain': [('team_id', '=', agent_team_id)],
-            'context': self.env.context,
+            'context': ctx,
+            # 'context': {'create': False, 'delete': False, 'edit': False},
             'target': 'current',
             'nodestroy': False,
-            'flags': {'initial_mode': 'view'},
-            'context': {'create': False, 'delete': False},
+            'flags': {'form_view_initial_mode': 'view'},
             }
 
 

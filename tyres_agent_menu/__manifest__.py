@@ -33,8 +33,10 @@
         'account',
         'sale',
         'tyres_logistic_management',
+        'mmac_odoo4',
         ],
     'data': [
+        'security/ir.model.access.csv',
         'views/agent_view.xml',
         ],
     'demo': [],
