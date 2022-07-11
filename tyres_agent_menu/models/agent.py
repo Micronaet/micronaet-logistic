@@ -22,6 +22,7 @@
 ###############################################################################
 
 import os
+import pdb
 import sys
 import logging
 import odoo
@@ -49,7 +50,12 @@ class SaleOrder(models.Model):
         search_view_id = model_pool.get_object_reference(
             'sale', 'view_sales_order_filter')[1]
 
-        team_id = self.env.user.team_id.id
+        pdb.set_trace()
+        team_id = self.env.user.agent_team_id.id
+        if not team_id:
+            raise exceptions.Warning(
+                'Nessun ordine visibile, controllare il team di agente per '
+                'impostarli!')
         return {
             'type': 'ir.actions.act_window',
             'name': _('Ordini agente'),
