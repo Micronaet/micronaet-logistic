@@ -27,6 +27,47 @@
                  </button>
              </field>
         </record>
+
+        <record model="ir.ui.view" id="view_mmac_sale_order_logistic_form">
+             <field name="name">mmac.sale.order.logistic.form</field>
+             <field name="model">sale.order</field>
+             <field name="inherit_id" ref="mmac_odoo4.view_mmac_sale_order_logistic_form"/>
+             <field name="arch" type="xml">
+                 <button name="gen_pfu_order_line" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                 </button>
+                 <button name="gen_pfu_b2b_order_line" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                 </button>
+                 <button type="object" name="cancel_print_quotation" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                 </button>
+                 <button name="generate_record_trasporto" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                 </button>
+                 <button name="generate_record_contrassegno" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                 </button>
+                 <button name="generate_record_servizi" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                 </button>
+                 <button name="generate_record_resi" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                 </button>
+                 <button name="shippy_get_rates" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                 </button>
+                 <button name="shippy_reset" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                 </button>
+                 <button name="shippy_ship" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                 </button>
+                 <button name="gen_reso_wizard_data" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                 </button>
+             </field>
+        </record>
     </data>
 </odoo>
 
