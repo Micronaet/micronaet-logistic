@@ -33,6 +33,7 @@
         'account',
         'sale',
         'tyres_logistic_management',
+        'tyres_logistic_carrier',
         'mmac_odoo4',  # for mmac.reso
         ],
     'data': [

@@ -82,6 +82,27 @@
                  </button>
              </field>
         </record>
+
+        <record model="ir.ui.view" id="view_sale_order_agent_hide_form">
+            <field name="name">sale.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="tyres_logistic_carrier.view_sale_order_form"/>
+            <field name="arch" type="xml">
+                <button name="set_carrier_ok_yes" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_no_agent</attribute>
+                 </button>
+                <button name="set_carrier_ok_no" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_no_agent</attribute>
+                 </button>
+                <button name="load_template_parcel" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_no_agent</attribute>
+                 </button>
+                <button name="set_default_carrier_description" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_no_agent</attribute>
+                 </button>
+            </field>
+        </record>
+
     </data>
 </odoo>
 
