@@ -38,6 +38,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/agent_view.xml',
+        'views/logistic_view.xml',
         ],
     'demo': [],
     'css': [],

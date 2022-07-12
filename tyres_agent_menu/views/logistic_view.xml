@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_sale_order_logistic_agent_hide_form">
+            <field name="name">sale.order.logistic.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="tyres_logistic_management.view_sale_order_logistic_form"/>
+            <field name="arch" type="xml">
+                <button name="return_order_line_list_view" position="attributes">
+                    <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                </button>
+                <button name="locked_delivery_on" position="attributes">
+                    <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                </button>
+                <button name="locked_delivery_off" position="attributes">
+                    <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                </button>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_salee_order_logistic_agent_hide_form">
+             <field name="name">sale.order.form</field>
+             <field name="model">sale.order</field>
+             <field name="inherit_id" ref="sale.view_order_form"/>
+             <field name="arch" type="xml">
+                 <button name="print_quotation" position="attributes">
+                     <attribute name="groups">tyres_logistic_management.group_logistic_agent_manager</attribute>
+                 </button>
+             </field>
+        </record>
+    </data>
+</odoo>
+
