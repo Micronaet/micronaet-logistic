@@ -68,6 +68,20 @@
                  </button>
              </field>
         </record>
+
+        <record model="ir.ui.view" id="view_mmac_sale_order_carrier_agent_hide_form">
+             <field name="name">mmac.sale.order.carrier.form</field>
+             <field name="model">sale.order</field>
+             <field name="inherit_id" ref="mmac_odoo4.view_mmac_sale_order_carrier_form"/>
+             <field name="arch" type="xml">
+                 <button name="shippy_ship" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_no_agent</attribute>
+                 </button>
+                 <button name="auto_parcel_assign" position="attributes">
+                      <attribute name="groups">tyres_logistic_management.group_logistic_no_agent</attribute>
+                 </button>
+             </field>
+        </record>
     </data>
 </odoo>
 
