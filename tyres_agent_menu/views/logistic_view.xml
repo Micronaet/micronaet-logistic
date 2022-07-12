@@ -116,6 +116,17 @@
                  </button>
              </field>
         </record>
+
+        <!--Picking-->
+         <record model="ir.ui.view" id="view_stock_picking_confirm_out_form">
+             <field name="name">stock.picking.form</field>
+             <field name="model">stock.picking</field>
+             <field name="inherit_id" ref="tyres_logistic_management.view_stock_picking_confirm_out_form"/>
+             <field name="arch" type="xml">
+                 <button name="workflow_ready_to_done_done_picking" position="attributes">
+                     <attribute name="groups">tyres_logistic_management.group_logistic_no_agent</attribute>
+                 </button>
+             </field>
+         </record>
     </data>
 </odoo>
-
