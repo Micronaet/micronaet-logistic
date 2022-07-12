@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <odoo>
     <data>
+        <!--Hide header button:-->
         <record model="ir.ui.view" id="view_sale_order_logistic_agent_hide_form">
             <field name="name">sale.order.logistic.form</field>
             <field name="model">sale.order</field>
@@ -27,7 +28,6 @@
                  </button>
              </field>
         </record>
-
         <record model="ir.ui.view" id="view_mmac_sale_order_logistic_form">
              <field name="name">mmac.sale.order.logistic.form</field>
              <field name="model">sale.order</field>
@@ -69,6 +69,7 @@
              </field>
         </record>
 
+        <!--Hide header shippy button:-->
         <record model="ir.ui.view" id="view_mmac_sale_order_carrier_agent_hide_form">
              <field name="name">mmac.sale.order.carrier.form</field>
              <field name="model">sale.order</field>
@@ -83,6 +84,7 @@
              </field>
         </record>
 
+        <!--hide button in carrier page:-->
         <record model="ir.ui.view" id="view_sale_order_agent_hide_form">
             <field name="name">sale.order.form</field>
             <field name="model">sale.order</field>
@@ -103,6 +105,17 @@
             </field>
         </record>
 
+        <!--hide picking renew PDF invoice-->
+        <record model="ir.ui.view" id="view_sale_order_logistic_form">
+             <field name="name">sale.order.logistic.form</field>
+             <field name="model">sale.order</field>
+             <field name="inherit_id" ref="tyres_logistic_management.view_sale_order_logistic_form"/>
+             <field name="arch" type="xml">
+                 <button name="api_save_invoice_pdf" position="attributes">
+                     <attribute name="groups">tyres_logistic_management.group_logistic_no_agent</attribute>
+                 </button>
+             </field>
+        </record>
     </data>
 </odoo>
 
