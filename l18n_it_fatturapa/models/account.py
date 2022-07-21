@@ -1358,8 +1358,9 @@ class StockPicking(models.Model):
             record = detail_table[seq]
             product = record['product']
             default_code = product.product_tmpl_id.default_code
-            pdb.set_trace()
-            name = record.get('name', product.name)  # Name from sale
+            name = record.get('name', False)  # Name from sale
+            if not name:
+                name = product.name
             uom = product.uom_id.fatturapa_code or product.uom_id.name
 
             f_invoice.write(
