@@ -1166,6 +1166,7 @@ class StockPicking(models.Model):
                 replaced_product = False
 
             # Use move product if not present original:
+            pdb.set_trace()
             if not original_product:
                 original_product = move_product
 
