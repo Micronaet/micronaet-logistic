@@ -23,6 +23,7 @@
 ###############################################################################
 
 import os
+import pdb
 import sys
 import logging
 import string
@@ -1357,6 +1358,7 @@ class StockPicking(models.Model):
             record = detail_table[seq]
             product = record['product']
             default_code = product.product_tmpl_id.default_code
+            pdb.set_trace()
             name = record.get('name', product.name)  # Name from sale
             uom = product.uom_id.fatturapa_code or product.uom_id.name
 
