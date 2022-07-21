@@ -1123,6 +1123,7 @@ class StockPicking(models.Model):
         # total = []
         refund_kit = []  # Kit will be printed once!
         for line in sorted_lines:
+            move_product = line.product_id
             picking = line.picking_id
             # 28/06/2022 introducing new approx decimal on unit price:
             # > Approx 2 to 6 after this date
@@ -1132,7 +1133,7 @@ class StockPicking(models.Model):
                 approx_unit = 2
 
             if picking.stock_mode == 'in':  # Refund
-                if line.product_id.is_refund:
+                if move_product.is_refund:
                     refund_line[line] = self.get_refund_product_price(line)
                 # Kit component?
                 if line.logistic_refund_id.kit_line_id:
@@ -1154,7 +1155,7 @@ class StockPicking(models.Model):
             # Similar / Alternative case:
             quantity = int(sale_line.product_uom_qty)
             if line in refund_line:
-                original_product = line.product_id
+                original_product = move_product
                 replaced_product = False
                 quantity = int(line.product_uom_qty)
             elif sale_line.origin_product_id:
@@ -1163,6 +1164,10 @@ class StockPicking(models.Model):
             else:
                 original_product = sale_line.product_id
                 replaced_product = False
+
+            # Use move product if not present original:
+            if not original_product:
+                original_product = move_product
 
             # -----------------------------------------------------------------
             # Order reference:
@@ -1193,7 +1198,7 @@ class StockPicking(models.Model):
                 quantity,  # 1. XXX Note: Not stock.move q
                 replaced_product,  # 2. Replaced product
 
-                # TODO price_subtotal (use stock.move or sale.order.line?
+                # todo price_subtotal (use stock.move or sale.order.line?
                 refund_tax or sale_line.tax_id,  # XXX 3. Sale tax
 
                 # -------------------------------------------------------------
