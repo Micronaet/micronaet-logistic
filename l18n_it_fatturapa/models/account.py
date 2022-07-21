@@ -733,8 +733,8 @@ class StockPicking(models.Model):
         # ---------------------------------------------------------------------
         payment = sale.payment_term_id
         params['payment'] = {
-            'pt': payment.fatturapa_pt_id.code, # Payment term TP*
-            'pm': payment.fatturapa_pm_id.code, # Payment method MP*
+            'pt': payment.fatturapa_pt_id.code,  # Payment term TP*
+            'pm': payment.fatturapa_pm_id.code,  # Payment method MP*
             }
 
         # ---------------------------------------------------------------------
@@ -772,18 +772,21 @@ class StockPicking(models.Model):
         # Partner:
         # ---------------------------------------------------------------------
         partner_vat = self.clean_vat(partner.vat, italy_code)
-        fiscalcode = (partner_vat or partner.fatturapa_private_fiscalcode \
+        fiscalcode = (
+            partner_vat or partner.fatturapa_private_fiscalcode
             or partner.fatturapa_fiscalcode).lstrip(italy_code)
         params['partner'] = {
             'company': '' if partner.fatturapa_name else partner.name,
+            # name:
             'name': partner.fatturapa_name,
             'surname': partner.fatturapa_surname,
+
             # Address:
             'street': partner.street,
-            'number': '', # in street!
+            'number': '',  # in street!
             'city': partner.city,
             'zip': partner.zip,
-            'province': '', #'BS' # 0.1 TODO
+            'province': '',  # 'BS' # 0.1 TODO
             'country': italy_code, #TODO
 
             # 'empty_unique': fiscal_position.fatturapa_empty_code,
@@ -791,13 +794,10 @@ class StockPicking(models.Model):
             'unique_pec': partner.fatturapa_pec,
             'fiscalcode': fiscalcode,
 
-            # name:
-            'name': partner.fatturapa_name,
-            'surname': partner.fatturapa_surname,
 
             'vat': partner_vat,
-            'vat_code' : partner_vat[:2],
-            'vat_number':  partner_vat[2:],
+            'vat_code': partner_vat[:2],
+            'vat_number': partner_vat[2:],
             }
 
         # partner_fiscal = 'RF01' # TODO Regime ordinario
@@ -1057,11 +1057,11 @@ class StockPicking(models.Model):
 
         f_invoice.write(
             self.start_tag('1.4.1.3', 'Anagrafica'))
-        if params['partner']['company']: # 1.4.1.3.1 (alternative 1.2.1.3.2   1.2.1.3.3)
+        if params['partner']['company']:  # 1.4.1.3.1 (alternative 1.2.1.3.2   1.2.1.3.3)
             f_invoice.write(
                 self.get_tag('1.4.1.3.1', 'Denominazione',
                 params['partner']['company']))
-        else: # 1.4.3.1.2 (altenative 1.2.1.3.1)
+        else:  # 1.4.3.1.2 (altenative 1.2.1.3.1)
             f_invoice.write(
                 self.get_tag('1.4.1.3.2', 'Nome',
                 params['partner']['name']))

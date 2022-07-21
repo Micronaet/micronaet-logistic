@@ -1078,7 +1078,7 @@ class StockPicking(models.Model):
         partner = self.partner_id
         position = partner.property_account_position_id
 
-        taxes = product.taxes_id[0] # product
+        taxes = product.taxes_id[0]  # product
         for replace in position.tax_ids:
             if replace.tax_src_id == taxes:
                 taxes = replace.tax_dest_id
@@ -1091,7 +1091,9 @@ class StockPicking(models.Model):
         else:
             vat = 0
             net = total
-        return (taxes[0], total / q if q else 0.0, net, vat, total)
+
+        # Tax obj, Unit price net, Net total, VAT total, Total amount
+        return taxes[0], net / q if q else 0.0, net, vat, total
 
     @api.model
     def move_lines_for_report(self):
@@ -1167,7 +1169,7 @@ class StockPicking(models.Model):
             # -----------------------------------------------------------------
             if not sale_line.unification_origin_id:  # Merged
                 current_order = picking.sale_order_id
-            else: # Original:
+            else:  # Original:
                 current_order = sale_line.unification_origin_id
 
             if not last_order or current_order != last_order:
