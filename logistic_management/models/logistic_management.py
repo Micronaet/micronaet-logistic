@@ -1186,7 +1186,7 @@ class StockPicking(models.Model):
             # -----------------------------------------------------------------
             # Extract if present refund 3 total (used for force)
             (refund_tax, refund_unit_net, refund_net, refund_vat, refund_total
-                ) = refund_line.get(line, (False, False, False, False, False))
+             ) = refund_line.get(line, (False, False, False, False, False))
 
             res.append((
                 original_product,  # 0. Product browse
