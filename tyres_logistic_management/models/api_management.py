@@ -62,6 +62,9 @@ class ResCompany(models.Model):
     api_pick_internal_area = fields.Boolean(
         'Scarico interno',
         help='Scarico merce assegnata agli ordini da magazzino interno')
+    # todo needed? not with api_pick_load_area
+    api_pick_refund = fields.Boolean(
+        'Resi', help='Attivazione gestione resi con le API')
     api_pick_load_area = fields.Boolean(
         'Carico a magazzino',
         help='Carico merce extra presa per il magazzino')
