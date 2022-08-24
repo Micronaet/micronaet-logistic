@@ -67,6 +67,8 @@ class ResCompany(models.Model):
     # todo needed? not with api_pick_load_area
     # api_pick_refund = fields.Boolean(
     #     'Resi', help='Attivazione gestione resi con le API')
+    api_pick_undo = fields.Boolean(
+         'Undo', help='Gestire le operazioni di UNDO con le API')
     api_pick_load_area = fields.Boolean(
         'Carico a magazzino',
         help='Carico merce utilizzato in varie modalità:'

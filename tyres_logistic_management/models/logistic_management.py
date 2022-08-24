@@ -3274,20 +3274,22 @@ class SaleOrderLine(models.Model):
     @api.multi
     def unlink_for_undo(self):
         """ Undo will unlink all document linked to this line
+            Folder delivery, file _undo_
         """
         # todo: Order has no pending delivery when unlink call!
         company = self.env.user.company_id
         company_pool = self.env['res.company']
         picking_pool = self.env['stock.picking']
 
+        # Setup always made for remove warning if field not present:
+        location = token = ''
+
         # ---------------------------------------------------------------------
         # API Mode:
         # ---------------------------------------------------------------------
-        # load and undo mode ON:
-        api_pick_load_area = \
-            company.api_management and company.api_invoice_area
-
-        if api_pick_load_area:  # API Mode
+        # Load and Undo mode ON:
+        api_mode = company.api_management and company.api_pick_undo
+        if api_mode:  # API Mode
             # API Call setup:
             _logger.info('UNDO operation in API mode')
             url = company.api_root_url
@@ -3302,6 +3304,7 @@ class SaleOrderLine(models.Model):
 
         # Parameter:
         now = fields.Datetime.now()
+
         logistic_root_folder = os.path.expanduser(company.logistic_root_folder)
         # Path is only for File mode?!?
         path = os.path.join(logistic_root_folder, 'delivery')
@@ -3383,7 +3386,7 @@ class SaleOrderLine(models.Model):
                 # -------------------------------------------------------------
                 # API Mode ON:
                 # -------------------------------------------------------------
-                if api_pick_load_area:  # API Mode
+                if api_mode:  # API Mode
                     zulu_date = picking_pool.get_zulu_date(now)
                     api_order = {
                         'documentNo': 'undo order',
@@ -3396,7 +3399,7 @@ class SaleOrderLine(models.Model):
                             api_order['details'].append({
                                 'sku': line.product_id.default_code,
                                 'quantity': line.product_qty,
-                                'supplierCode': line.price_unit,  # todo Check!
+                                'unitValue': line.price_unit,  # todo Check!
                                 }
                             )
                     # todo Send api_order to account here:
@@ -3408,7 +3411,7 @@ class SaleOrderLine(models.Model):
                             'Authorization': 'bearer %s' % token,
                             'accept': 'text/plain',
                             'Content-Type': 'application/json',
-                        }
+                            }
                         # Send invoice:
                         _logger.info('Calling: %s\nJSON: %s [Attempt: %s]' % (
                             location, json_dumps, loop_times))
@@ -3430,7 +3433,7 @@ class SaleOrderLine(models.Model):
                     # check_import_reply procedure!
 
                 # -------------------------------------------------------------
-                # File mode:
+                #                         File mode:
                 # -------------------------------------------------------------
                 else:  # File mode:
                     order_file = os.path.join(
@@ -3455,7 +3458,7 @@ class SaleOrderLine(models.Model):
                     order_file.close()
 
             # Check if procedure if fast to confirm reply (instead scheduled!):
-            # self.check_import_reply() # Needed?
+            # self.check_import_reply() # Needed? (document was deleted)
 
             # Remove all lines:
             comment += _('Remove delivery/internal line in Pick IN doc.<br/>')

@@ -514,6 +514,7 @@
                                          <field name="api_fees_area"/>
                                          <field name="api_pick_internal_area"/>
                                          <field name="api_pick_load_area"/>
+                                         <field name="api_pick_undo"/>
                                          <!--<field name="api_pick_refund"/>-->
                                      </group>
                                  </page>
