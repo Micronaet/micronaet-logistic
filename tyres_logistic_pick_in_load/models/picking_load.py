@@ -27,12 +27,30 @@ import zipfile
 import logging
 import shutil
 import base64
+import json
+import requests
 from odoo import api, fields, models, tools, exceptions, SUPERUSER_ID
 from odoo.addons import decimal_precision as dp
 from odoo.tools.translate import _
 import pdb
 
 _logger = logging.getLogger(__name__)
+
+
+class ResCompany(models.Model):
+    """ Model name: Res Company utility
+    """
+
+    _inherit = 'res.company'
+
+    def get_zulu_date(self, date):
+        """ Return this date in Zulu format
+            2021-04-28T09:15:50.692Z
+        """
+        date = str(date)  # if datetime format
+        zulu_date = '%sT%sZ' % (
+            date[:10], date[11:])
+        return zulu_date
 
 
 class AccountFiscalPositionPrint(models.Model):
@@ -567,7 +585,7 @@ class StockPickingDelivery(models.Model):
         company_pool = self.env['res.company']
 
         # Parameter:
-        company = company_pool.search([])[0]
+        company = self.env.user.company_id
         logistic_root_folder = os.path.expanduser(company.logistic_root_folder)
 
         refund_order_check = []
@@ -636,6 +654,53 @@ class StockPickingDelivery(models.Model):
             shutil.move(origin, destination)
         return True
 
+    @api.model
+    def api_check_import_reply(self, picking):
+        """ Check import reply for get confirmation EXTRA BF
+            Folder checked: delivery, refund
+        """
+        # Pool used:
+        quant_pool = self.env['stock.picking.delivery.quant']
+        pick_id = picking.id
+
+        # Parameter:
+        refund_order_check = []  # no need here?
+
+        # Use same procedure to check delivery in product and refunds:
+        # not used for undo (document was deleted!)
+        quants = quant_pool.search([
+            ('order_id', '=', pick_id)])
+        quants.write({'account_sync': True, })
+
+        # ---------------------------------------------------------------------
+        # Check if refund order (need extra check on move):
+        # ---------------------------------------------------------------------
+        for move in picking.move_line_ids:
+            order = move.logistic_load_id.order_id
+            if order.logistic_source == 'refund' and \
+                    order not in refund_order_check:
+                refund_order_check.append(order)
+
+        # ---------------------------------------------------------------------
+        # Close refund order:
+        # ---------------------------------------------------------------------
+        for refund_order in refund_order_check:
+            close = True
+            for line in refund_order.order_line:
+                # integer check:
+                if int(line.product_uom_qty) != \
+                        int(line.logistic_received_qty):
+                    close = False
+                    break
+            if close:
+                refund_order.write({
+                    'logistic_state': 'done',
+                    })
+                _logger.info('Refund all complete: %s' % refund_order.name)
+            else:
+                _logger.info('Refund not complete: %s' % refund_order.name)
+        return True
+
     # -------------------------------------------------------------------------
     #                            WORKFLOW ACTION:
     # -------------------------------------------------------------------------
@@ -650,26 +715,22 @@ class StockPickingDelivery(models.Model):
         picking_pool = self.env['stock.picking']
         # move_pool = self.env['stock.move']
         quant_pool = self.env['stock.picking.delivery.quant']
-
-        # Sale order detail:
         sale_line_pool = self.env['sale.order.line']
-
-        # Purchase order detail:
         purchase_pool = self.env['purchase.order']
-
-        # Partner:
-        company_pool = self.env['res.company']
+        company_pool = self.env['res.company']  # For format function
 
         # ---------------------------------------------------------------------
         #                          Load parameters
         # ---------------------------------------------------------------------
-        company = company_pool.search([])[0]
+        company = self.env.user.company_id
         logistic_pick_in_type = company.logistic_pick_in_type_id
 
         logistic_pick_in_type_id = logistic_pick_in_type.id
         location_from = logistic_pick_in_type.default_location_src_id.id
         location_to = logistic_pick_in_type.default_location_dest_id.id
 
+        # 2 Manage mode:
+        api_mode = company.api_pick_load_area  # Load checkbox parameter
         logistic_root_folder = os.path.expanduser(company.logistic_root_folder)
 
         # ---------------------------------------------------------------------
@@ -743,6 +804,11 @@ class StockPickingDelivery(models.Model):
         # This delivery order quants:
         quants = quant_pool.search([('order_id', '=', self.id)])
 
+        # Default data (to remove warning when not used):
+        supplier_code = comment_line = ''
+        order_file = refund_source = False
+
+
         # Create extra delivery order in exchange file:
         if quants:
             folder_path = {}
@@ -765,19 +831,28 @@ class StockPickingDelivery(models.Model):
                 refund_source = sale_order.refund_source_id
             else:
                 load_mode = 'delivery'
-            order_file = open(
-                os.path.join(
-                    folder_path[load_mode],
-                    'pick_in_%s.csv' % self.id),  # Delivery ID reference here!
-                'w')
+
+            # -----------------------------------------------------------------
+            # 2 Manage mode:
+            # -----------------------------------------------------------------
+            if api_mode:
+                order_json = {}
+            else:
+                order_file = open(
+                    os.path.join(
+                        folder_path[load_mode],
+                        'pick_in_%s.csv' % self.id),  # Delivery ID ref. here!
+                    'w')
 
             if load_mode == 'delivery':
                 # -------------------------------------------------------------
                 # NORMAL DELIVERY (ONLY HEADER):
                 # -------------------------------------------------------------
                 header = 'SKU|QTA|PREZZO|CODICE FORNITORE|RIF. DOC.|DATA\r\n'
+                api_endpoint = 'warehousemanagement/load'
 
-            else:
+            else:  # Refund
+                api_endpoint = 'returnfromcustomer'
                 # -------------------------------------------------------------
                 # REFUND DOCUMENT (HEADER + COMMENT):
                 # -------------------------------------------------------------
@@ -830,39 +905,144 @@ class StockPickingDelivery(models.Model):
                 # Header title + comment:
                 header = 'TIPO|SKU|QTA|PREZZO|CODICE CLIENTE|AGENTE|DATA\r\n'
                 header += comment_line
-            order_file.write(header)
+
+            if not api_mode:
+                order_file.write(header)
 
             # -----------------------------------------------------------------
-            # COMMOM PART: Extract quants for lines:
+            # COMMON PART: Extract quants for lines:
             # -----------------------------------------------------------------
             for quant in quants:
                 delivery_order = quant.order_id
+                # -------------------------------------------------------------
+                #                          Delivery:
+                # -------------------------------------------------------------
                 if load_mode == 'delivery':
-                    order_file.write('%s|%s|%s|%s|%s|%s\r\n' % (
-                        quant.product_id.default_code,
-                        quant.product_qty,
-                        quant.price,
-                        delivery_order.supplier_id.sql_supplier_code or '',
-                        delivery_order.name,
-                        company_pool.formatLang(
-                            delivery_order.date, date=True),
-                        ))
-                else:  # 'refund' mode
-                    order_file.write('A|%s|%s|%s|%s|%s|%s\r\n' % (
-                        quant.product_id.default_code,
-                        quant.product_qty,
-                        quant.price,
-                        # delivery_order.supplier_id.sql_supplier_code or '',
-                        supplier_code,
-                        refund_source.team_id.channel_ref or '',
-                        # delivery_order.name,
-                        company_pool.formatLang(
-                            delivery_order.date, date=True),
-                        ))
-            order_file.close()
+                    # ---------------------------------------------------------
+                    # 2 Manage mode:
+                    # ---------------------------------------------------------
+                    if api_mode:
+                        # Header part
+                        if not order_json:  # Header not loaded
+                            order_json.update({
+                                'documentNo': delivery_order.name,
+                                'documentDate': company_pool.get_zulu_date(
+                                    delivery_order.date),
+                                'supplierCode':
+                                    delivery_order.supplier_id.
+                                    sql_supplier_code or '',
+                                'details': [],
+                            })
+                        # Detail append:
+                        order_json['details'].append({
+                            'sku': quant.product_id.default_code,
+                            'quantity': quant.product_qty,
+                            'unitValue': quant.price,
+                        })
+                    else:
+                        order_file.write('%s|%s|%s|%s|%s|%s\r\n' % (
+                            quant.product_id.default_code,
+                            quant.product_qty,
+                            quant.price,
+                            delivery_order.supplier_id.sql_supplier_code or '',
+                            delivery_order.name,
+                            company_pool.formatLang(
+                                delivery_order.date, date=True),
+                            ))
+
+                # -------------------------------------------------------------
+                #                             Refund:
+                # -------------------------------------------------------------
+                else:
+                    # ---------------------------------------------------------
+                    # 2 Manage mode:
+                    # ---------------------------------------------------------
+                    if api_mode:
+                        # Header part
+                        if not order_json:  # Header not loaded
+                            order_json.update({
+                                'custumerCode': supplier_code,
+                                'documentDate': company_pool.get_zulu_date(
+                                    delivery_order.date),
+                                'salesPerson':
+                                    refund_source.team_id.channel_ref or '',
+                                'notes': comment_line[2:],  # Remove 'C|'
+                                'details': [],
+                            })
+                        # Detail append:
+                        order_json['details'].append({
+                            'sku': quant.product_id.default_code,
+                            'quantity': quant.product_qty,
+                            'unitValue': quant.price,
+                            # "type": "string",
+                            # 'description': "string",
+                            # 'notes': "string"
+                        })
+                    else:
+                        order_file.write('A|%s|%s|%s|%s|%s|%s\r\n' % (
+                            quant.product_id.default_code,
+                            quant.product_qty,
+                            quant.price,
+                            # delivery_order.supplier_id.sql_supplier_code
+                            # or '',
+                            supplier_code,
+                            refund_source.team_id.channel_ref or '',
+                            # delivery_order.name,
+                            company_pool.formatLang(
+                                delivery_order.date, date=True),
+                            ))
+
+            api_error = ''
+            if api_mode:
+                # -------------------------------------------------------------
+                # API Call:
+                # -------------------------------------------------------------
+                url = company.api_root_url
+                location = '%s/%s' % (url, api_endpoint)
+                token = company.api_token or company.api_get_token()
+                json_dumps = json.dumps(order_json)
+
+                loop_times = 1
+                while loop_times <= 2:  # Loop twice if token error
+                    loop_times += 1
+                    header = {
+                        'Authorization': 'bearer %s' % token,
+                        'accept': 'text/plain',
+                        'Content-Type': 'application/json',
+                    }
+
+                    # Send invoice:
+                    _logger.info('Calling: %s\nJSON: %s [Attempt: %s]' % (
+                        location, json_dumps, loop_times))
+                    reply = requests.post(
+                        location, data=json_dumps, headers=header)
+                    _logger.info('Calling: %s\nJSON: %s\nReply: %s' % (
+                        location, json_dumps, reply))
+                    if reply.ok:
+                        reply_json = reply.json()
+                        _logger.warning(
+                            'Load generated: %s' % reply_json)
+                    elif reply.status_code == 401:  # Token error
+                        token = company.api_get_token()
+                    else:
+                        api_error = reply.text
+                        _logger.error(
+                            'Load not received: \n%s!' % reply.text)
+            else:
+                order_file.close()
 
         # Check if procedure if fast to confirm reply (instead scheduled!):
-        self.check_import_reply()
+        # todo manage in api mode:
+        if api_mode:
+            if api_error:
+                raise exceptions.Warning(
+                    f'Errore chiamata API:\n{api_mode}')
+            else:  # Complete async call for picking generated here
+                self.api_check_import_reply(picking)
+
+        else:  # Work only with files:
+            # Complete with async call for check file reply folder
+            self.check_import_reply()
 
         # ---------------------------------------------------------------------
         # Sale order: Update Logistic status:
