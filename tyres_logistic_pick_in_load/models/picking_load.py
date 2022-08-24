@@ -559,8 +559,9 @@ class StockPickingDelivery(models.Model):
     @api.multi
     def check_import_reply(self):
         """ Check import reply for get confirmation EXTRA BF
+            Folder checked: delivery, refund
         """
-        # TODO schedule action?
+        # todo schedule action?
         # Pool used:
         quant_pool = self.env['stock.picking.delivery.quant']
         company_pool = self.env['res.company']
@@ -591,7 +592,7 @@ class StockPickingDelivery(models.Model):
                         # else: # 'undo' # not checked!
 
                         # -----------------------------------------------------
-                        # Check if refund order:
+                        # Check if refund order (need extra check on move):
                         # -----------------------------------------------------
                         for move in self.browse(pick_id).move_line_ids:
                             order = move.logistic_load_id.order_id
@@ -647,7 +648,7 @@ class StockPickingDelivery(models.Model):
         # ---------------------------------------------------------------------
         # Stock:
         picking_pool = self.env['stock.picking']
-        move_pool = self.env['stock.move']
+        # move_pool = self.env['stock.move']
         quant_pool = self.env['stock.picking.delivery.quant']
 
         # Sale order detail:
@@ -676,7 +677,7 @@ class StockPickingDelivery(models.Model):
         # ---------------------------------------------------------------------
         partner = self.supplier_id
         scheduled_date = self.create_date
-        name = self.name # mandatory Doc ID
+        name = self.name  # mandatory Doc ID
         origin = _('%s [%s]') % (name, scheduled_date)
 
         picking = picking_pool.create({
@@ -772,13 +773,13 @@ class StockPickingDelivery(models.Model):
 
             if load_mode == 'delivery':
                 # -------------------------------------------------------------
-                # NORMAL DELIVERY:
+                # NORMAL DELIVERY (ONLY HEADER):
                 # -------------------------------------------------------------
                 header = 'SKU|QTA|PREZZO|CODICE FORNITORE|RIF. DOC.|DATA\r\n'
 
             else:
                 # -------------------------------------------------------------
-                # REFUND DOCUMENT:
+                # REFUND DOCUMENT (HEADER + COMMENT):
                 # -------------------------------------------------------------
                 # Extract data from invoice or fees:
                 try:
@@ -831,6 +832,9 @@ class StockPickingDelivery(models.Model):
                 header += comment_line
             order_file.write(header)
 
+            # -----------------------------------------------------------------
+            # COMMOM PART: Extract quants for lines:
+            # -----------------------------------------------------------------
             for quant in quants:
                 delivery_order = quant.order_id
                 if load_mode == 'delivery':
@@ -855,7 +859,6 @@ class StockPickingDelivery(models.Model):
                         company_pool.formatLang(
                             delivery_order.date, date=True),
                         ))
-
             order_file.close()
 
         # Check if procedure if fast to confirm reply (instead scheduled!):

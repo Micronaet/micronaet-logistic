@@ -727,7 +727,7 @@ class StockPicking(models.Model):
     def reply_csv_accounting_fees(self):
         """
         """
-        # TODO
+        # todo
         return True
 
     @api.model
@@ -1196,7 +1196,7 @@ class StockPicking(models.Model):
             if len(reply_split) != 4:
                 return False
 
-            # TODO Mark as sync: quants.write({'account_sync': True, })
+            # todo Mark as sync: quants.write({'account_sync': True, })
             pick_id = int(reply_split[0].split('_')[-1])  # pick_in_ID.csv
 
             invoice_year = reply_split[2][:4]
@@ -1217,7 +1217,7 @@ class StockPicking(models.Model):
             return (
                 pick_id, invoice_number, invoice_date, invoice_filename)
 
-        # TODO schedule action?
+        # todo schedule action?
         # Parameter:
         company = self.env.user.company_id
         if company.api_management and company.api_invoice_area:
@@ -1372,6 +1372,7 @@ class StockPicking(models.Model):
             """ Return this date in Zulu format
                 2021-04-28T09:15:50.692Z
             """
+            date = str(date)  # if datetime format
             zulu_date = '%sT%sZ' % (
                 date[:10], date[11:])
             return zulu_date
@@ -3274,15 +3275,35 @@ class SaleOrderLine(models.Model):
     def unlink_for_undo(self):
         """ Undo will unlink all document linked to this line
         """
-        # TODO: Order has no pending delivery when unlink call!
+        # todo: Order has no pending delivery when unlink call!
+        company = self.env.user.company_id
         company_pool = self.env['res.company']
-        header = 'SKU|QTA|PREZZO|CODICE FORNITORE|RIF. DOC.|DATA\r\n'
-        row_mask = '%s|%s|%s|%s|%s|%s\r\n'
-        now = fields.Datetime.now()
+        picking_pool = self.env['stock.picking']
+
+        # ---------------------------------------------------------------------
+        # API Mode:
+        # ---------------------------------------------------------------------
+        # load and undo mode ON:
+        api_pick_load_area = \
+            company.api_management and company.api_invoice_area
+
+        if api_pick_load_area:  # API Mode
+            # API Call setup:
+            _logger.info('UNDO operation in API mode')
+            url = company.api_root_url
+            endpoint = 'warehousemanagement/load'
+            location = '%s/%s' % (url, endpoint)
+            token = company.api_token or company.api_get_token()
+
+        else:  # File mode:
+            _logger.info('UNDO operation in File mode')
+            header = 'SKU|QTA|PREZZO|CODICE FORNITORE|RIF. DOC.|DATA\r\n'
+            row_mask = '%s|%s|%s|%s|%s|%s\r\n'
 
         # Parameter:
-        company = company_pool.search([])[0]
+        now = fields.Datetime.now()
         logistic_root_folder = os.path.expanduser(company.logistic_root_folder)
+        # Path is only for File mode?!?
         path = os.path.join(logistic_root_folder, 'delivery')
         purchase_path = os.path.join(logistic_root_folder, 'order', 'internal')
 
@@ -3355,30 +3376,83 @@ class SaleOrderLine(models.Model):
             # Write file with picking:
             # -----------------------------------------------------------------
             for picking_id in pickings:
-                order_file = os.path.join(
-                    path, 'pick_undo_%s.csv' % picking_id)  # XX Name with undo
+                comment += _('Reload account file: %s<br/>') % order_file
 
-                comment += _(
-                    'Reload account file: %s<br/>'
-                        ) % order_file
+                # -------------------------------------------------------------
+                #                         API Mode:
+                # -------------------------------------------------------------
+                # API Mode ON:
+                # -------------------------------------------------------------
+                if api_pick_load_area:  # API Mode
+                    zulu_date = picking_pool.get_zulu_date(now)
+                    api_order = {
+                        'documentNo': 'undo order',
+                        'documentDate': zulu_date,
+                        'supplierCode': '',  # todo what value?
+                        'details': [],
+                    }
+                    for line in pickings[picking_id]:
+                        if not line.dropship_manage:
+                            api_order['details'].append({
+                                'sku': line.product_id.default_code,
+                                'quantity': line.product_qty,
+                                'supplierCode': line.price_unit,  # todo Check!
+                                }
+                            )
+                    # todo Send api_order to account here:
+                    json_dumps = json.dumps(api_order)
+                    loop_times = 1
+                    while loop_times <= 2:  # Loop twice if token error
+                        loop_times += 1
+                        header = {
+                            'Authorization': 'bearer %s' % token,
+                            'accept': 'text/plain',
+                            'Content-Type': 'application/json',
+                        }
+                        # Send invoice:
+                        _logger.info('Calling: %s\nJSON: %s [Attempt: %s]' % (
+                            location, json_dumps, loop_times))
+                        reply = requests.post(
+                            location, data=json_dumps, headers=header)
+                        _logger.info('Calling: %s\nJSON: %s\nReply: %s' % (
+                            location, json_dumps, reply))
+                        if reply.ok:
+                            reply_json = reply.json()
+                            _logger.warning(
+                                'UNDO operation: reload BF used')
+                        elif reply.status_code == 401:  # Token error
+                            token = company.api_get_token()
+                        else:
+                            # todo manage error here:
+                            raise exceptions.Warning('UNDO API call error!')
 
-                if os.path.isfile(order_file):  # XXX File yet present
-                    order_file = open(order_file, 'a')
-                else:  # New file:
-                    order_file = open(order_file, 'w')
-                    order_file.write(header)
+                    # todo after operation (maybe File mode has one!)
+                    # check_import_reply procedure!
 
-                for line in pickings[picking_id]:
-                    if not line.dropship_manage:
-                        order_file.write(row_mask % (
-                            line.product_id.default_code,
-                            line.product_qty,
-                            line.price_unit,  # TODO Check!!!
-                            '',  # No product code=undo
-                            'undo order',  # Order ref.
-                            company_pool.formatLang(now, date=True),
-                            ))
-                order_file.close()
+                # -------------------------------------------------------------
+                # File mode:
+                # -------------------------------------------------------------
+                else:  # File mode:
+                    order_file = os.path.join(
+                        path,
+                        'pick_undo_%s.csv' % picking_id)  # XXX Name with undo
+                    if os.path.isfile(order_file):  # XXX File yet present
+                        order_file = open(order_file, 'a')
+                    else:  # New file:
+                        order_file = open(order_file, 'w')
+                        order_file.write(header)
+
+                    for line in pickings[picking_id]:
+                        if not line.dropship_manage:
+                            order_file.write(row_mask % (
+                                line.product_id.default_code,
+                                line.product_qty,
+                                line.price_unit,  # todo Check!!!
+                                '',  # No product code=undo
+                                'undo order',  # Order ref.
+                                company_pool.formatLang(now, date=True),
+                                ))
+                    order_file.close()
 
             # Check if procedure if fast to confirm reply (instead scheduled!):
             # self.check_import_reply() # Needed?
@@ -3389,7 +3463,6 @@ class SaleOrderLine(models.Model):
                 'state': 'draft',
                 })
             self.load_line_ids.unlink()
-
         else:
             comment += _('Not pick IN doc.<br/>')
 

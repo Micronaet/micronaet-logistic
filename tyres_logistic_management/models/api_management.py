@@ -61,10 +61,15 @@ class ResCompany(models.Model):
         'Corrispettivi', help='Scarico corrispettivi fine giornata')
     api_pick_internal_area = fields.Boolean(
         'Scarico interno',
-        help='Scarico merce assegnata agli ordini da magazzino interno')
+        help='Scarico merce assegnata agli ordini da magazzino interno'
+             'Ex. cartella order/internal dove vengono messi i picking di'
+             'assegnazione merce per gli ordini cliente (impegno di magazzino')
     # todo needed? not with api_pick_load_area
-    api_pick_refund = fields.Boolean(
-        'Resi', help='Attivazione gestione resi con le API')
+    # api_pick_refund = fields.Boolean(
+    #     'Resi', help='Attivazione gestione resi con le API')
     api_pick_load_area = fields.Boolean(
         'Carico a magazzino',
-        help='Carico merce extra presa per il magazzino')
+        help='Carico merce utilizzato in varie modalità:'
+             'merce extra ordine che va caricata a magazzino,'
+             'merce da caricare in sequito a operazioni di "undo",'
+             'merce da caricare a magazzino per qualsiasi motivo.')
