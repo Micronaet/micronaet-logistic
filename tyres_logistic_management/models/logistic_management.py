@@ -3447,6 +3447,7 @@ class SaleOrderLine(models.Model):
                         order_file = open(order_file, 'w')
                         order_file.write(header)
 
+                    pdb.set_trace()
                     for line in pickings[picking_id]:
                         if not line.dropship_manage:
                             order_file.write(row_mask % (
