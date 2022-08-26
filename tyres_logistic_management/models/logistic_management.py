@@ -3388,7 +3388,7 @@ class SaleOrderLine(models.Model):
                 # -------------------------------------------------------------
                 if api_mode:  # API Mode
                     comment += _('Reload stock via API<br/>')
-                    zulu_date = picking_pool.get_zulu_date(now)
+                    zulu_date = company_pool.get_zulu_date(now)
                     api_order = {
                         'documentNo': 'undo order',
                         'documentDate': zulu_date,
