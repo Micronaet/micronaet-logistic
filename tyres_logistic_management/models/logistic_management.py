@@ -285,7 +285,7 @@ class PurchaseOrder(models.Model):
                         ))
                     continue
 
-                # TODO Mark as sync: quants.write({'account_sync': True, })
+                # todo Mark as sync: quants.write({'account_sync': True, })
                 # Read picking and create Fake BF for load stock
                 purchase = self.browse(po_id)
 
@@ -336,7 +336,7 @@ class PurchaseOrder(models.Model):
                         sale_line_ready.append(logistic_sale_id)
                         if not logistic_sale_id:
                             _logger.error('Purchase unlinked to sale')
-                            # TODO manage this case
+                            # todo manage this case
                             continue
 
                         logistic_sale_id.logistic_state = 'ready'  # needed?
@@ -3264,7 +3264,7 @@ class SaleOrderLine(models.Model):
             'views': [(tree_view_id, 'tree'), (form_view_id, 'form')],
             'domain': [('id', 'in', line_ids)],
             'context': self.env.context,
-            'target': 'current', # 'new'
+            'target': 'current',  # 'new'
             'nodestroy': False,
             }
 

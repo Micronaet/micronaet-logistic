@@ -153,12 +153,13 @@ class SaleOrderInternal(models.Model):
     note = fields.Text('Note')
     confirmed = fields.Boolean('Confirmed')
     logistic_source = fields.Selection([
-        #('web', 'Web order'),
+        # ('web', 'Web order'),
         ('resell', 'Customer resell order'),
         ('workshop', 'Workshop order'),
         ('internal', 'Internal provisioning order'),
         ], 'Logistic source', default='internal', readonly=True
         )
+
 
 class SaleOrderLineInternal(models.Model):
     """ Model name: Internal sale order line
@@ -218,7 +219,7 @@ class SaleOrderLine(models.Model):
 
         lines = self.search([
             ('product_id', '=', self.product_id.id),
-            ('order_id.logistic_source', '=', 'internal'), # internal order
+            ('order_id.logistic_source', '=', 'internal'),  # internal order
             ('order_id.logistic_state', '=', 'pending'),
             ])
         if lines:
@@ -233,8 +234,7 @@ class SaleOrderLine(models.Model):
                     )
             self.internal_order_pending = res
         else:
-            self.internal_order_pending = ''#_('Nothing pending')
-
+            self.internal_order_pending = ''  # _('Nothing pending')
 
     internal_order_pending = fields.Text('Internal pending',
         compute='_get_internal_order_pending',

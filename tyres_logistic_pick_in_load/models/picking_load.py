@@ -713,7 +713,6 @@ class StockPickingDelivery(models.Model):
         # ---------------------------------------------------------------------
         # Stock:
         picking_pool = self.env['stock.picking']
-        # move_pool = self.env['stock.move']
         quant_pool = self.env['stock.picking.delivery.quant']
         sale_line_pool = self.env['sale.order.line']
         purchase_pool = self.env['purchase.order']
@@ -806,8 +805,7 @@ class StockPickingDelivery(models.Model):
 
         # Default data (to remove warning when not used):
         supplier_code = comment_line = ''
-        order_file = refund_source = False
-
+        order_file = refund_source = order_json = False
 
         # Create extra delivery order in exchange file:
         if quants:
@@ -849,7 +847,7 @@ class StockPickingDelivery(models.Model):
                 # NORMAL DELIVERY (ONLY HEADER):
                 # -------------------------------------------------------------
                 header = 'SKU|QTA|PREZZO|CODICE FORNITORE|RIF. DOC.|DATA\r\n'
-                api_endpoint = 'warehousemanagement/load'
+                api_endpoint = 'warehousemanagement/unload'
 
             else:  # Refund
                 api_endpoint = 'returnfromcustomer'
@@ -1036,7 +1034,7 @@ class StockPickingDelivery(models.Model):
         if api_mode:
             if api_error:
                 raise exceptions.Warning(
-                    f'Errore chiamata API:\n{api_mode}')
+                    'Errore chiamata API:\n{}'.format(api_mode))
             else:  # Complete async call for picking generated here
                 self.api_check_import_reply(picking)
 
