@@ -3276,6 +3276,7 @@ class SaleOrderLine(models.Model):
         """ Undo will unlink all document linked to this line
             Folder delivery, file _undo_
         """
+        pdb.set_trace()
         # todo: Order has no pending delivery when unlink call!
         company = self.env.user.company_id
         company_pool = self.env['res.company']
