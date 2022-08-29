@@ -3297,10 +3297,11 @@ class SaleOrderLine(models.Model):
             endpoint = 'warehousemanagement/load'
             location = '%s/%s' % (url, endpoint)
             token = company.api_token or company.api_get_token()
+            row_mask = ''  # not used (for no warning)
 
         else:  # File mode:
             _logger.info('UNDO operation in File mode')
-            header = 'SKU|QTA|PREZZO|CODICE FORNITORE|RIF. DOC.|DATA\r\n'
+            csv_header = 'SKU|QTA|PREZZO|CODICE FORNITORE|RIF. DOC.|DATA\r\n'
             row_mask = '%s|%s|%s|%s|%s|%s\r\n'
 
         # Parameter:
@@ -3406,9 +3407,10 @@ class SaleOrderLine(models.Model):
                     # todo Send api_order to account here:
                     json_dumps = json.dumps(api_order)
                     loop_times = 1
+                    reply_ok = False
                     while loop_times <= 2:  # Loop twice if token error
                         loop_times += 1
-                        header = {
+                        api_header = {
                             'Authorization': 'bearer %s' % token,
                             'accept': 'text/plain',
                             'Content-Type': 'application/json',
@@ -3417,18 +3419,24 @@ class SaleOrderLine(models.Model):
                         _logger.info('Calling: %s\nJSON: %s [Attempt: %s]' % (
                             location, json_dumps, loop_times))
                         reply = requests.post(
-                            location, data=json_dumps, headers=header)
+                            location, data=json_dumps, headers=api_header)
                         _logger.info('Calling: %s\nJSON: %s\nReply: %s' % (
                             location, json_dumps, reply))
                         if reply.ok:
                             reply_json = reply.json()
                             _logger.warning(
                                 'UNDO operation: reload BF used')
+                            reply_ok = True
                         elif reply.status_code == 401:  # Token error
                             token = company.api_get_token()
                         else:
                             # todo manage error here:
                             raise exceptions.Warning('UNDO API call error!')
+
+                    # Check if API works:
+                    if not reply_ok:
+                        raise exceptions.Warning(
+                            'Errore chiamato le API:\n{}'.format(reply))
 
                     # todo after operation (maybe File mode has one!)
                     # check_import_reply procedure!
@@ -3445,7 +3453,7 @@ class SaleOrderLine(models.Model):
                         order_file = open(order_file, 'a')
                     else:  # New file:
                         order_file = open(order_file, 'w')
-                        order_file.write(header)
+                        order_file.write(csv_header)
 
                     pdb.set_trace()
                     for line in pickings[picking_id]:
