@@ -3407,7 +3407,7 @@ class SaleOrderLine(models.Model):
                     # todo Send api_order to account here:
                     json_dumps = json.dumps(api_order)
                     loop_times = 1
-                    reply_ok = False
+                    reply_ok = reply = ''
                     while loop_times <= 2:  # Loop twice if token error
                         loop_times += 1
                         api_header = {
@@ -3423,7 +3423,7 @@ class SaleOrderLine(models.Model):
                         _logger.info('Calling: %s\nJSON: %s\nReply: %s' % (
                             location, json_dumps, reply))
                         if reply.ok:
-                            reply_json = reply.json()
+                            reply_json = reply.json()  # todo used?
                             _logger.warning(
                                 'UNDO operation: reload BF used')
                             reply_ok = True
