@@ -32,6 +32,7 @@ from odoo.tools.translate import _
 
 _logger = logging.getLogger(__name__)
 
+
 class PurchaseOrderLine(models.Model):
     """ Model name: Purchase order line
     """
@@ -128,7 +129,7 @@ class ResSupplierPurchaseFolder(models.Model):
     def _get_folder_path(self):
         """ Return folder full path and create if not exist
         """
-        self._get_folder_path_mode() # default
+        self._get_folder_path_mode()  # default
 
     @api.multi
     @api.depends('folder_history', )

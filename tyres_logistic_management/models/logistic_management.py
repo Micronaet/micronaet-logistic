@@ -227,13 +227,213 @@ class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     # -------------------------------------------------------------------------
-    #                           UTILITY:
+    #                             UTILITY:
+    # -------------------------------------------------------------------------
+    #                             API Mode:
+    # -------------------------------------------------------------------------
+    @api.model
+    def api_purchase_internal_confirmed(self):
+        """ Check if there's some PO internal to close
+            API Call mode
+        """
+        purchase = self
+
+        # Pool used:
+        company_pool = self.env['res.company']
+        move_pool = self.env['stock.move']
+        sale_line_pool = self.env['sale.order.line']
+        picking_pool = self.env['stock.picking']
+        company = self.env.user.company_id
+
+        # ---------------------------------------------------------------------
+        #                    Call API for unload stock:
+        # ---------------------------------------------------------------------
+        # API Mode:
+        # Load and Undo mode ON:
+        # api_mode = company.api_management and company.api_pick_internal_area
+
+        # API Call setup:
+        _logger.info('UNLOAD operation in API mode (Internal stock used)')
+        url = company.api_root_url
+        endpoint = 'warehousemanagement/unload'
+        location = '%s/%s' % (url, endpoint)
+        token = company.api_token or company.api_get_token()
+
+        # -------------------------------------------------------------
+        #                         API Mode:
+        # -------------------------------------------------------------
+        # now = fields.Datetime.now()
+        lines = purchase.order_line
+        if not lines:
+            _logger.error('Purchase order without lines: %s' % purchase.name)
+            return False
+
+        # Header data:
+        first_line = lines[0]
+        sale_order = first_line.logistic_sale_id.order_id
+        api_order = {
+            'documentNo': purchase.name,
+            'documentDate': company_pool.get_zulu_date(
+                first_line.date_planned),
+            'customerCode': first_line.clean_account_char(
+                sale_order.partner_id.name),
+            'costReference':
+                sale_order.team_id.team_code_ref,
+            'details': []
+            }
+
+        # Line data:
+        for line in lines:
+            api_order['details'].append({
+                'sku': line.product_id.product_tmpl_id.default_code,
+                'quantity': line.product_qty,
+                'unitValue': line.logistic_sale_id.price_reduce,
+            })
+
+        # Prepare API call parameters:
+        json_dumps = json.dumps(api_order)
+        loop_times = 1
+        reply_ok = False
+        reply = 'Errore generico'
+        while loop_times <= 2:  # Loop twice if token error
+            loop_times += 1
+            api_header = {
+                'Authorization': 'bearer %s' % token,
+                'accept': 'text/plain',
+                'Content-Type': 'application/json',
+            }
+            # Send invoice:
+            _logger.info('Calling: %s\n'
+                         'JSON: %s [Attempt: %s]...' % (
+                             location, json_dumps, loop_times - 1))
+            reply = requests.post(
+                location, data=json_dumps, headers=api_header)
+            if reply.ok:
+                reply_json = reply.json()  # todo used?
+                _logger.info(
+                    'SUCCESS: [Unload operation] Internal stock assign')
+                reply_ok = True
+                break  # No other loop
+            elif reply.status_code == 401:  # Token error
+                _logger.error(
+                    '[ERROR] API Unload operation: Reload token...')
+                token = company.api_get_token()
+            else:
+                # todo manage error here:
+                raise exceptions.Warning('Unload API call error!')
+
+        # Check if API works:
+        if not reply_ok:
+            raise exceptions.Warning(
+                'Errore chiamato le API:\n{}'.format(reply))
+
+        # ---------------------------------------------------------------------
+        # When API call is done last operation on ERP:
+        # ---------------------------------------------------------------------
+        # Parameter:
+        logistic_pick_in_type = company.logistic_pick_in_type_id
+        logistic_pick_in_type_id = logistic_pick_in_type.id
+        location_from = logistic_pick_in_type.default_location_src_id.id
+        location_to = logistic_pick_in_type.default_location_dest_id.id
+
+        if purchase.logistic_state == 'done':
+            _logger.error('Error purchase order is yet in done state')
+            return False
+
+        sale_line_ready = []  # ready line after assign load qty to purchase
+        move_file = []
+
+        # ---------------------------------------------------------------------
+        # Create picking:
+        # ---------------------------------------------------------------------
+        try:
+            order = purchase.order_line[0].logistic_sale_id.order_id
+        except:
+            # Empty order: (cancel before load in account)
+            purchase.logistic_state = 'done'
+            return True
+
+        partner = order.partner_id
+        date = purchase.date_order
+        name = purchase.name or ''
+        origin = _('%s [%s]') % (name, date)
+
+        picking = picking_pool.create({
+            'partner_id': partner.id,
+            'scheduled_date': date,
+            'origin': origin,
+            # 'move_type': 'direct',
+            'picking_type_id': logistic_pick_in_type_id,
+            'group_id': False,
+            'location_id': location_from,
+            'location_dest_id': location_to,
+            # 'priority': 1,
+            'state': 'done',  # immediately!
+            })
+
+        # ---------------------------------------------------------------------
+        # Append stock.move detail (or quants if in stock)
+        # ---------------------------------------------------------------------
+        for line in purchase.order_line:
+            product = line.product_id
+            product_qty = line.product_qty
+            logistic_sale_id = line.logistic_sale_id
+            # remain_qty = line.logistic_undelivered_qty # XXX ERROR!
+            remain_qty = logistic_sale_id.logistic_remain_qty
+            if product_qty >= remain_qty:
+                sale_line_ready.append(logistic_sale_id)
+                if not logistic_sale_id:
+                    _logger.error('Purchase unlinked to sale')
+                    # todo manage this case
+                    continue
+
+                logistic_sale_id.logistic_state = 'ready'  # needed?
+
+            # -----------------------------------------------------------------
+            # Create movement (not load stock):
+            # -----------------------------------------------------------------
+            move_pool.create({
+                'company_id': company.id,
+                'partner_id': partner.id,
+                'picking_id': picking.id,
+                'product_id': product.id,
+                'name': product.name or ' ',
+                'date': date,
+                'date_expected': date,
+                'location_id': location_from,
+                'location_dest_id': location_to,
+                'product_uom_qty': product_qty,
+                'product_uom': product.uom_id.id,
+                'state': 'done',
+                'origin': origin,
+                'price_unit': line.price_unit,  # Save purchase price
+
+                # Sale order line link:
+                'logistic_load_id': logistic_sale_id.id,
+                # Purchase order line line:
+                'logistic_purchase_id': line.id,
+                })
+
+        # Mask as done fake purchase order:
+        purchase.logistic_state = 'done'
+        _logger.info('Purchase order: %s is done!' % purchase.name)
+
+        # ---------------------------------------------------------------------
+        # Check Sale Order header with all line ready:
+        # ---------------------------------------------------------------------
+        _logger.info('Update sale order header as ready:')
+        sale_line_pool.logistic_check_ready_order(sale_line_ready)
+        return True
+
     # -------------------------------------------------------------------------
     # Auto close internal order
+    # -------------------------------------------------------------------------
     # CSV
+    # -------------------------------------------------------------------------
     @api.model
     def purchase_internal_confirmed(self, purchases=None):
         """ Check if there's some PO internal to close
+            CSV Mode check reply
         """
         # Pool used:
         company_pool = self.env['res.company']
