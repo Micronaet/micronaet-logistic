@@ -3296,7 +3296,7 @@ class SaleOrderLine(models.Model):
             endpoint = 'warehousemanagement/load'
             location = '%s/%s' % (url, endpoint)
             token = company.api_token or company.api_get_token()
-            row_mask = ''  # not used (for no warning)
+            row_mask = csv_header = ''  # not used (for no warning)
 
         else:  # File mode:
             _logger.info('UNDO operation in File mode')
@@ -3406,7 +3406,7 @@ class SaleOrderLine(models.Model):
                     # todo Send api_order to account here:
                     json_dumps = json.dumps(api_order)
                     loop_times = 1
-                    reply_ok = reply = ''
+                    reply_ok = reply = reply_json = ''
                     while loop_times <= 2:  # Loop twice if token error
                         loop_times += 1
                         api_header = {
@@ -3425,6 +3425,7 @@ class SaleOrderLine(models.Model):
                             _logger.info(
                                 'SUCCESS: [UNDO operation] reload BF used')
                             reply_ok = True
+                            break  # No other loop
                         elif reply.status_code == 401:  # Token error
                             _logger.error(
                                 '[ERROR] API UNDO operation: Reload token...')
@@ -3449,7 +3450,7 @@ class SaleOrderLine(models.Model):
                         path,
                         'pick_undo_%s.csv' % picking_id)  # XXX Name with undo
                     comment += _('Ricarico magazzino via file: %s<br/>') % \
-                               order_file
+                        order_file
                     if os.path.isfile(order_file):  # XXX File yet present
                         order_file = open(order_file, 'a')
                     else:  # New file:
