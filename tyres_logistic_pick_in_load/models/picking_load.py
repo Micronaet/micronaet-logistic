@@ -712,6 +712,7 @@ class StockPickingDelivery(models.Model):
         # Pool used:
         # ---------------------------------------------------------------------
         # Stock:
+        pdb.set_trace()
         picking_pool = self.env['stock.picking']
         quant_pool = self.env['stock.picking.delivery.quant']
         sale_line_pool = self.env['sale.order.line']
