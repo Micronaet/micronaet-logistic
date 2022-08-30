@@ -655,13 +655,14 @@ class StockPickingDelivery(models.Model):
         return True
 
     @api.model
-    def api_check_import_reply(self, picking):
+    def api_check_import_reply(self, pick_id):
         """ Check import reply for get confirmation EXTRA BF
             Folder checked: delivery, refund
         """
         # Pool used:
+        picking_pool = self.env['stock.picking']
         quant_pool = self.env['stock.picking.delivery.quant']
-        pick_id = picking.id
+        picking = picking_pool.browse(pick_id)  # Reload picking
 
         # Parameter:
         refund_order_check = []  # no need here?
@@ -1039,7 +1040,7 @@ class StockPickingDelivery(models.Model):
                 raise exceptions.Warning(
                     'Errore chiamata API:\n{}'.format(api_error))
             else:  # Complete async call for picking generated here
-                self.api_check_import_reply(picking)
+                self.api_check_import_reply(picking.id)
 
         else:  # Work only with files:
             # Complete with async call for check file reply folder
