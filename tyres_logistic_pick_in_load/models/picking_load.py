@@ -712,7 +712,6 @@ class StockPickingDelivery(models.Model):
         # Pool used:
         # ---------------------------------------------------------------------
         # Stock:
-        pdb.set_trace()
         picking_pool = self.env['stock.picking']
         quant_pool = self.env['stock.picking.delivery.quant']
         sale_line_pool = self.env['sale.order.line']
@@ -996,6 +995,7 @@ class StockPickingDelivery(models.Model):
                 # -------------------------------------------------------------
                 # API Call:
                 # -------------------------------------------------------------
+                pdb.set_trace()
                 url = company.api_root_url
                 location = '%s/%s' % (url, api_endpoint)
                 token = company.api_token or company.api_get_token()
@@ -1021,6 +1021,7 @@ class StockPickingDelivery(models.Model):
                                          location, json_dumps, reply))
                         reply_json = reply.json()
                         _logger.warning('Load generated: %s' % reply_json)
+                        break  # No new attempt
                     elif reply.status_code == 401:  # Token error
                         _logger.warning('[WARNING]: Refresh token')
                         token = company.api_get_token()
