@@ -49,7 +49,7 @@ class ResCompany(models.Model):
         """
         date = str(date)  # if datetime format
         zulu_date = '%sT%sZ' % (
-            date[:10], date[11:])
+            date[:10], (date[11:] or '00:00:00'))
         return zulu_date
 
 
@@ -1011,17 +1011,18 @@ class StockPickingDelivery(models.Model):
                     }
 
                     # Send invoice:
-                    _logger.info('Calling: %s\nJSON: %s [Attempt: %s]' % (
-                        location, json_dumps, loop_times))
+                    _logger.warning('Calling: %s\nJSON: %s [Attempt: %s]' % (
+                        location, json_dumps, loop_times - 1))
                     reply = requests.post(
                         location, data=json_dumps, headers=header)
-                    _logger.info('Calling: %s\nJSON: %s\nReply: %s' % (
-                        location, json_dumps, reply))
                     if reply.ok:
+                        _logger.info('[SUCCESS] Called: %s\nJSON: %s\n'
+                                     'Reply: %s' % (
+                                         location, json_dumps, reply))
                         reply_json = reply.json()
-                        _logger.warning(
-                            'Load generated: %s' % reply_json)
+                        _logger.warning('Load generated: %s' % reply_json)
                     elif reply.status_code == 401:  # Token error
+                        _logger.warning('[WARNING]: Refresh token')
                         token = company.api_get_token()
                     else:
                         api_error = reply.text
@@ -1035,7 +1036,7 @@ class StockPickingDelivery(models.Model):
         if api_mode:
             if api_error:
                 raise exceptions.Warning(
-                    'Errore chiamata API:\n{}'.format(api_mode))
+                    'Errore chiamata API:\n{}'.format(api_error))
             else:  # Complete async call for picking generated here
                 self.api_check_import_reply(picking)
 
