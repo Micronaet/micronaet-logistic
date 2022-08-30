@@ -351,7 +351,8 @@ class PurchaseOrder(models.Model):
                 f_out.close()
 
             elif export.mode == 'api':  # API Management
-                pass  # API Management
+                # todo is ensure one?
+                self.api_purchase_internal_confirmed()  # API Management
 
             else:  # 'xlsx'
                 # -------------------------------------------------------------
