@@ -248,6 +248,7 @@ class PurchaseOrder(models.Model):
         location_to = logistic_pick_in_type.default_location_dest_id.id
         logistic_root_folder = os.path.expanduser(company.logistic_root_folder)
 
+        # Path used for check reply from Account:
         path_folder = {
             'reply': os.path.join(
                 logistic_root_folder, 'order', 'internal', 'reply'),
@@ -3717,8 +3718,8 @@ class SaleOrderLine(models.Model):
                     purchase_db[key] = []
                 purchase_db[key].append(splitted)
 
-        dropship_line = [] # Create stock movement directly
-        selected_purchase = [] # ID: to return view list
+        dropship_line = []  # Create stock movement directly
+        selected_purchase = []  # ID: to return view list
         for key in purchase_db:
             supplier, order = key
 
@@ -3742,7 +3743,7 @@ class SaleOrderLine(models.Model):
                 # -------------------------------------------------------------
                 # todo if order was deleted restore logistic_state to uncovered
                 if not purchase_id:
-                    partner = supplier or company.partner_id # Use company
+                    partner = supplier or company.partner_id  # Use company
                     new_purchase = purchase_pool.create({
                         'partner_id': partner.id,
                         'date_order': now,
@@ -3767,7 +3768,7 @@ class SaleOrderLine(models.Model):
                         splitted.supplier_delivery_date,
 
                     # Link to sale:
-                    'logistic_sale_id': line.id, # multi line!
+                    'logistic_sale_id': line.id,  # multi line!
                     })
 
                 # Update line state for pending receiving:

@@ -119,6 +119,7 @@ class ResPartner(models.Model):
     purchase_folder_id = fields.Many2one(
         'res.partner.purchase.folder', string='Output folder')
 
+
 class PurchaseOrder(models.Model):
     """ Model name: Purchase order
     """

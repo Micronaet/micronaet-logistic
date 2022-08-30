@@ -38,6 +38,7 @@ from dateutil.relativedelta import relativedelta
 
 _logger = logging.getLogger(__name__)
 
+
 class SaleOrderStats(models.Model):
     """ Model name: Sale Order
     """
@@ -49,8 +50,8 @@ class SaleOrderStats(models.Model):
     # -------------------------------------------------------------------------
     @api.multi
     def refresh_all_statistic_orders(self):
-        ''' Refresh all
-        '''
+        """ Refresh all
+        """
         for order in self:
             _logger.info('Update statistic data %s: [Current: %s]' % (
                 order.name,
@@ -67,19 +68,19 @@ class SaleOrderStats(models.Model):
     # order > pending:
     @api.multi
     def workflow_manual_order_pending(self):
-        ''' If order have all line checked make one step in pending state
-        '''
+        """ If order have all line checked make one step in pending state
+        """
         res = super(SaleOrderStats, self).workflow_manual_order_pending()
         self.refresh_all_statistic_orders()
         return res
 
-    # TODO pending > ready
+    # todo pending > ready
 
     # ready > (delivering) > done
     @api.model
     def workflow_ready_to_done_draft_picking(self):
-        ''' Override order WF action
-        '''
+        """ Override order WF action
+        """
         res = super(
             SaleOrderStats, self).workflow_ready_to_done_draft_picking()
         self.refresh_all_statistic_orders()
@@ -90,8 +91,8 @@ class SaleOrderStats(models.Model):
     # -------------------------------------------------------------------------
     @api.multi
     def go_real_sale_order(self):
-        ''' Call real order
-        '''
+        """ Call real order
+        """
         form_id = self.env.ref('sale.view_order_form').id
         return {
             'type': 'ir.actions.act_window',
@@ -104,16 +105,16 @@ class SaleOrderStats(models.Model):
             'views': [(form_id, 'form'), (False, 'tree')],
             'domain': [],
             'context': self.env.context,
-            'target': 'current', # 'new'
+            'target': 'current',  # 'new'
             'nodestroy': False,
             }
     @api.multi
     def sale_order_refresh_margin_stats(self):
-        ''' Update margin data:
-        '''
+        """ Update margin data:
+        """
         def get_net(line):
-            ''' Extract net price
-            '''
+            """ Extract net price
+            """
             price_unit = line.price_unit
             try:
                 tax = line.tax_id[0]

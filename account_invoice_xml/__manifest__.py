@@ -2,7 +2,7 @@
 #!/usr/bin/python
 ###############################################################################
 #
-# ODOO (ex OpenERP) 
+# ODOO (ex OpenERP)
 # Open Source Management Solution
 # Copyright (C) 2001-2018 Micronaet S.r.l. (<https://micronaet.com>)
 # Developer: Nicola Riolini @thebrush (<https://it.linkedin.com/in/thebrush>)
@@ -13,7 +13,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
@@ -37,14 +37,14 @@
         'stock',
         ],
     'data': [
-        #'security/crm_security.xml',
-        #'security/ir.model.access.csv',
+        # 'security/crm_security.xml',
+        # 'security/ir.model.access.csv',
 
         # Views:
         'views/extract_xml_view.xml',
-        
+
         # Data:
-        #'data/sequence_data.xml', # XXX moved in logistic_ddt
+        # 'data/sequence_data.xml', # XXX moved in logistic_ddt
         ],
     'demo': [],
     'css': [],

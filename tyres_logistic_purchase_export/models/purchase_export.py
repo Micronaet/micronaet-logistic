@@ -43,8 +43,8 @@ class PurchaseOrderLine(models.Model):
     # -------------------------------------------------------------------------
     @api.model
     def clean_account_char(self, value):
-        ''' Clean forbitten char for accounting program
-        '''
+        """ Clean forbitten char for accounting program
+        """
         value = value.replace('"', '')
         return value
 
@@ -65,13 +65,18 @@ class ResSupplierPurchaseExport(models.Model):
     mode = fields.Selection([
         ('csv', 'CSV'),
         ('xlsx', 'XLSX'),
+        ('api', 'API'),
         ], string='Mode')
-    header = fields.Text('Header', size=280,
+    header = fields.Text(
+        'Header', size=280,
         help='Column name split with |, ex.: Name|Q|Deadline')
-    field_name = fields.Text('Fields', size=280,
+    field_name = fields.Text(
+        'Fields', size=280,
         help='Line field split with |, ex.: product_id.name, product_uom_qty')
-    separator = fields.Char('Separator', size=5,
+    separator = fields.Char(
+        'Separator', size=5,
         help='Separator for fields (only CSV)')
+
 
 class ResSupplierPurchaseFolder(models.Model):
     """ Model name: ResSupplierPurchaseFolder
@@ -87,8 +92,8 @@ class ResSupplierPurchaseFolder(models.Model):
     # -------------------------------------------------------------------------
     @api.model
     def _get_folder_path_mode(self, mode=''):
-        ''' Return folder full path and create if not exist
-        '''
+        """ Return folder full path and create if not exist
+        """
         if mode:
             mode = '_%s' % mode
 
@@ -120,52 +125,59 @@ class ResSupplierPurchaseFolder(models.Model):
     @api.multi
     @api.depends('folder', )
     def _get_folder_path(self):
-        ''' Return folder full path and create if not exist
-        '''
+        """ Return folder full path and create if not exist
+        """
         self._get_folder_path_mode() # default
 
     @api.multi
     @api.depends('folder_history', )
     def _get_folder_path_history(self):
-        ''' Return folder full path and create if not exist
-        '''
+        """ Return folder full path and create if not exist
+        """
         self._get_folder_path_mode('history')
 
     @api.multi
     @api.depends('folder_esit', )
     def _get_folder_path_esit(self):
-        ''' Return folder full path and create if not exist
-        '''
+        """ Return folder full path and create if not exist
+        """
         self._get_folder_path_mode('esit')
 
     # -------------------------------------------------------------------------
     # Columns:
     # -------------------------------------------------------------------------
-    name = fields.Char('Name', size=40, required=True,
+    name = fields.Char(
+        'Name', size=40, required=True,
         help='Name of this folder position')
 
     # Export path:
-    folder = fields.Char('Folder', size=280, required=True,
+    folder = fields.Char(
+        'Folder', size=280, required=True,
         help='Folder path, ex: /home/odoo/purchase or ~/supplier')
-    fullpath = fields.Char('Folder path', size=280,
+    fullpath = fields.Char(
+        'Folder path', size=280,
         help='Expand folder name in correct path and create if not exist',
         compute='_get_folder_path')
 
     # History path:
-    folder_history = fields.Char('Folder history', size=280, required=True,
+    folder_history = fields.Char(
+        'Folder history', size=280, required=True,
         help='Folder path, ex: /home/odoo/purchase/history or ~/supplier')
-    fullpath_history = fields.Char('Folder history path', size=280,
+    fullpath_history = fields.Char(
+        'Folder history path', size=280,
         help='Expand folder name in correct path and create if not exist',
         compute='_get_folder_path_history')
 
     # Esit path:
-    folder_esit = fields.Char('Folder esit', size=280, required=True,
+    folder_esit = fields.Char(
+        'Folder esit', size=280, required=True,
         help='Folder path, ex: /home/odoo/purchase/esit or ~/supplier')
-    fullpath_esit = fields.Char('Folder esit path', size=280,
+    fullpath_esit = fields.Char(
+        'Folder esit path', size=280,
         help='Expand folder name in correct path and create if not exist',
         compute='_get_folder_path_esit')
 
-    #test_mount = fields.Char('Test mount', size=280,
+    # test_mount = fields.Char('Test mount', size=280,
     #    help='Check mount file, ex: /home/odoo/purchase/whoami.server')
 
 
@@ -182,6 +194,7 @@ class ResPartner(models.Model):
         'res.partner.purchase.export', string='File syntax')
     purchase_folder_id = fields.Many2one(
         'res.partner.purchase.folder', string='Output folder')
+
 
 class PurchaseOrder(models.Model):
     """ Model name: Purchase order
@@ -200,16 +213,16 @@ class PurchaseOrder(models.Model):
     # Confirmed action create always export document:
     @api.multi
     def set_logistic_state_confirmed(self):
-        ''' Set order as confirmed
-        '''
+        """ Set order as confirmed
+        """
         # Export:
         self.export_purchase_order()
         return super(PurchaseOrder, self).set_logistic_state_confirmed()
 
     @api.model
     def workflow_order_pending(self):
-        '''
-        '''
+        """
+        """
         # Create order as original action
         res = super(PurchaseOrder, self).workflow_order_pending()
 
@@ -219,16 +232,15 @@ class PurchaseOrder(models.Model):
 
     @api.multi
     def export_purchase_order(self):
-        ''' Export purchase order
-        '''
-
+        """ Export purchase order
+        """
         # ---------------------------------------------------------------------
         # Utility:
         # ---------------------------------------------------------------------
         # Excel:
         def xls_write_row(WS, row, row_data):
-            ''' Print line in XLS file
-            '''
+            """ Print line in XLS file
+            """
             col = 0
             for item in row_data:
                 WS.write(row, col, item)
@@ -236,8 +248,8 @@ class PurchaseOrder(models.Model):
             return True
 
         def clean(name):
-            ''' Clean name for write in file system
-            '''
+            """ Clean name for write in file system
+            """
             replace_list = [
                 ('-', '_'),
                 (' ', '_'),
@@ -250,11 +262,11 @@ class PurchaseOrder(models.Model):
             return name
 
         def get_field_list(line, field_name, all_string=False):
-            ''' Extract and load data, return a list of values
-            '''
+            """ Extract and load data, return a list of values
+            """
             def formatLang(field, date=True, date_time=False):
-                ''' Fake function for format Format date passed
-                '''
+                """ Fake function for format Format date passed
+                """
                 # Change italian mode:
                 if not field:
                     return field
@@ -280,7 +292,7 @@ class PurchaseOrder(models.Model):
             return res
 
         return_mode = '\n'
-        now = fields.Datetime.now()
+        # now = fields.Datetime.now()
         for purchase in self:
             partner = purchase.partner_id
             if not partner.purchase_export_id or \
@@ -335,6 +347,10 @@ class PurchaseOrder(models.Model):
                         return_mode,
                         ))
                 f_out.close()
+
+            elif export.mode == 'api':  # API Management
+                pass  # API Management
+
             else:  # 'xlsx'
                 # -------------------------------------------------------------
                 #                              Excel:
