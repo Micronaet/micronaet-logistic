@@ -3388,7 +3388,7 @@ class SaleOrderLine(models.Model):
                 # API Mode ON:
                 # -------------------------------------------------------------
                 if api_mode:  # API Mode
-                    comment += _('Reload stock via API<br/>')
+                    comment += _('Ricarico magazzino via chiamata API<br/>')
                     zulu_date = company_pool.get_zulu_date(now)
                     api_order = {
                         'documentNo': 'undo order',
@@ -3448,14 +3448,14 @@ class SaleOrderLine(models.Model):
                     order_file = os.path.join(
                         path,
                         'pick_undo_%s.csv' % picking_id)  # XXX Name with undo
-                    comment += _('Reload stock via file: %s<br/>') % order_file
+                    comment += _('Ricarico magazzino via file: %s<br/>') % \
+                               order_file
                     if os.path.isfile(order_file):  # XXX File yet present
                         order_file = open(order_file, 'a')
                     else:  # New file:
                         order_file = open(order_file, 'w')
                         order_file.write(csv_header)
 
-                    pdb.set_trace()
                     for line in pickings[picking_id]:
                         if not line.dropship_manage:
                             order_file.write(row_mask % (
