@@ -3387,7 +3387,7 @@ class SaleOrderLine(models.Model):
                 # API Mode ON:
                 # -------------------------------------------------------------
                 if api_mode:  # API Mode
-                    comment += _('Ricarico magazzino via chiamata API<br/>')
+                    # comment += _('Ricarico magazzino via chiamata API<br/>')
                     zulu_date = company_pool.get_zulu_date(now)
                     api_order = {
                         'documentNo': 'undo order',
@@ -3424,6 +3424,10 @@ class SaleOrderLine(models.Model):
                             reply_json = reply.json()  # todo used?
                             _logger.info(
                                 'SUCCESS: [UNDO operation] reload BF used')
+                            comment += _(
+                                'Ricarico magazzino via chiamata API: {}'
+                                '<br/>'.format(reply_json, ))
+
                             reply_ok = True
                             break  # No other loop
                         elif reply.status_code == 401:  # Token error
