@@ -3415,18 +3415,19 @@ class SaleOrderLine(models.Model):
                             'Content-Type': 'application/json',
                             }
                         # Send invoice:
-                        _logger.info('Calling: %s\nJSON: %s [Attempt: %s]' % (
-                            location, json_dumps, loop_times))
+                        _logger.info('Calling: %s\n'
+                                     'JSON: %s [Attempt: %s]...' % (
+                                         location, json_dumps, loop_times - 1))
                         reply = requests.post(
                             location, data=json_dumps, headers=api_header)
-                        _logger.info('Calling: %s\nJSON: %s\nReply: %s' % (
-                            location, json_dumps, reply))
                         if reply.ok:
                             reply_json = reply.json()  # todo used?
-                            _logger.warning(
-                                'UNDO operation: reload BF used')
+                            _logger.info(
+                                'SUCCESS: [UNDO operation] reload BF used')
                             reply_ok = True
                         elif reply.status_code == 401:  # Token error
+                            _logger.error(
+                                '[ERROR] API UNDO operation: Reload token...')
                             token = company.api_get_token()
                         else:
                             # todo manage error here:
