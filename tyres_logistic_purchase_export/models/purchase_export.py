@@ -48,6 +48,7 @@ class PurchaseOrderLine(models.Model):
         value = value.replace('"', '')
         return value
 
+
 class ResSupplierPurchaseExport(models.Model):
     """ Model name: ResSupplierPurchaseExport
     """
@@ -66,7 +67,7 @@ class ResSupplierPurchaseExport(models.Model):
         ('csv', 'CSV'),
         ('xlsx', 'XLSX'),
         ('api', 'API'),
-        ], string='Mode')
+        ], string='Mode', default='csv')
     header = fields.Text(
         'Header', size=280,
         help='Column name split with |, ex.: Name|Q|Deadline')

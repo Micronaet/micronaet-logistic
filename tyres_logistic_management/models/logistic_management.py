@@ -230,6 +230,7 @@ class PurchaseOrder(models.Model):
     #                           UTILITY:
     # -------------------------------------------------------------------------
     # Auto close internal order
+    # CSV
     @api.model
     def purchase_internal_confirmed(self, purchases=None):
         """ Check if there's some PO internal to close
