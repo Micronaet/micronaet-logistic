@@ -55,12 +55,10 @@
                             <field name="name" colspan="4"/>
                             <field name="mode" />
                             <field name="separator" attrs="{'required': [('mode','=','csv')], 'invisible': [('mode','!=','csv')]}" />
-                        </group>
-                        <group col="4" colspan="4" attrs="{'invisible': [('mode','=','api')]}">
-                            <separator string="Header" colspan="4"/>
-                            <field name="header" colspan="4" nolabel="1"/>
-                            <separator string="Fields" colspan="4"/>
-                            <field name="field_name" colspan="4" nolabel="1" />
+                            <separator string="Header" colspan="4" attrs="{'invisible': [('mode','=','api')]}"/>
+                            <field name="header" colspan="4" nolabel="1" attrs="{'invisible': [('mode','=','api')]}"/>
+                            <separator string="Fields" colspan="4" attrs="{'invisible': [('mode','=','api')]}"/>
+                            <field name="field_name" colspan="4" nolabel="1" attrs="{'invisible': [('mode','=','api')]}"/>
                         </group>
                     </sheet>
                 </form>
