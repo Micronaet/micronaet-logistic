@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <openerp>
-    <data>         
+    <data>
         <!--purchase.order-->
         <record model="ir.ui.view" id="view_purchase_order_form">
             <field name="name">purchase.order.form</field>
@@ -16,7 +16,7 @@
                 </field>
             </field>
         </record>
-        
+
         <!--res.partner-->
         <record model="ir.ui.view" id="view_res_supplier_purchase_export_form">
             <field name="name">res.partner.product.purchase.export.form</field>
@@ -50,21 +50,21 @@
             <field name="model">res.partner.purchase.export</field>
             <field name="arch" type="xml">
                 <form string="Purchase export">
-                    <sheet>                    
+                    <sheet>
                         <group col="4" colspan="4">
                             <field name="name" colspan="4"/>
                             <field name="mode" />
                             <field name="separator" attrs="{'required': [('mode','=','csv')], 'invisible': [('mode','!=','csv')]}" />
-                            
-                            <separator string="Header" colspan="4"/>
-                            <field name="header" colspan="4" nolabel="1"/>
-                            <separator string="Fields" colspan="4"/>
-                            <field name="field_name" colspan="4" nolabel="1" />
-                        </group>    
+
+                            <separator string="Header" colspan="4" attrs="{'invisible': [('mode','=','api')]}"/>
+                            <field name="header" colspan="4" nolabel="1" attrs="{'invisible': [('mode','=','api')]}"/>
+                            <separator string="Fields" colspan="4" attrs="{'invisible': [('mode','=','api')]}"/>
+                            <field name="field_name" colspan="4" nolabel="1" attrs="{'invisible': [('mode','=','api')]}"/>
+                        </group>
                     </sheet>
                 </form>
             </field>
-        </record>        
+        </record>
         <record model="ir.actions.act_window" id="action_res_partner_purchase_export">
             <field name="name">Export purchase order</field>
             <field name="res_model">res.partner.purchase.export</field>
@@ -92,11 +92,11 @@
             <field name="model">res.partner.purchase.folder</field>
             <field name="arch" type="xml">
                 <form string="Purchase folder">
-                    <sheet>                    
+                    <sheet>
                         <group col="4" colspan="4">
                             <field name="name" />
                             <newline/>
-                            
+
                             <separator string="Output folder" colspan="4"/>
                             <field name="folder" />
                             <field name="fullpath" readonly="1"/>
@@ -108,7 +108,7 @@
                             <separator string="Esit folder" colspan="4"/>
                             <field name="folder_esit" />
                             <field name="fullpath_esit" readonly="1"/>
-                        </group>    
+                        </group>
                     </sheet>
                 </form>
             </field>
@@ -123,25 +123,25 @@
             <field name="domain">[]</field>
         </record>
 
-        <menuitem 
+        <menuitem
              id="menu_res_partner_purchase_export_root"
              parent="tyres_logistic_management.menu_logistic_left_configuration_root"
              name="Purchase export"
              sequence="50"
              />
-        <menuitem 
+        <menuitem
              id="menu_res_partner_purchase_export_list"
              parent="menu_res_partner_purchase_export_root"
              action="action_res_partner_purchase_export"
              sequence="50"
              />
-        <menuitem 
+        <menuitem
              id="menu_res_partner_purchase_folder_list"
              parent="menu_res_partner_purchase_export_root"
              action="action_res_partner_purchase_folder"
              sequence="51"
              />
-        
+
     </data>
 </openerp>
 
