@@ -848,7 +848,7 @@ class StockPickingDelivery(models.Model):
                 # NORMAL DELIVERY (ONLY HEADER):
                 # -------------------------------------------------------------
                 header = 'SKU|QTA|PREZZO|CODICE FORNITORE|RIF. DOC.|DATA\r\n'
-                api_endpoint = 'warehousemanagement/unload'
+                api_endpoint = 'warehousemanagement/load'
 
             else:  # Refund
                 api_endpoint = 'returnfromcustomer'
