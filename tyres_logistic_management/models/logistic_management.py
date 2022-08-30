@@ -237,6 +237,9 @@ class PurchaseOrder(models.Model):
             API Call mode
         """
         purchase = self
+        if purchase.logistic_state == 'done':
+            _logger.error('Error purchase order is yet in done state')
+            return False
 
         # Pool used:
         company_pool = self.env['res.company']
@@ -249,7 +252,6 @@ class PurchaseOrder(models.Model):
         #                    Call API for unload stock:
         # ---------------------------------------------------------------------
         # API Mode:
-        # Load and Undo mode ON:
         # api_mode = company.api_management and company.api_pick_internal_area
 
         # API Call setup:
@@ -259,30 +261,39 @@ class PurchaseOrder(models.Model):
         location = '%s/%s' % (url, endpoint)
         token = company.api_token or company.api_get_token()
 
-        # -------------------------------------------------------------
-        #                         API Mode:
-        # -------------------------------------------------------------
-        # now = fields.Datetime.now()
+        # ---------------------------------------------------------------------
+        #                              API Mode:
+        # ---------------------------------------------------------------------
         lines = purchase.order_line
         if not lines:
             _logger.error('Purchase order without lines: %s' % purchase.name)
             return False
 
+        # ---------------------------------------------------------------------
         # Header data:
+        # ---------------------------------------------------------------------
         first_line = lines[0]
-        sale_order = first_line.logistic_sale_id.order_id
+        try:
+            sale_order = first_line.logistic_sale_id.order_id
+        except:
+            # Empty order: (cancel before load in account)
+            purchase.logistic_state = 'done'
+            return True
+
         api_order = {
             'documentNo': purchase.name,
-            'documentDate': company_pool.get_zulu_date(
-                first_line.date_planned),
-            'customerCode': first_line.clean_account_char(
-                sale_order.partner_id.name),
+            'documentDate':
+                company_pool.get_zulu_date(first_line.date_planned),
+            'customerCode':
+                first_line.clean_account_char(sale_order.partner_id.name),
             'costReference':
                 sale_order.team_id.team_code_ref,
             'details': []
             }
 
+        # ---------------------------------------------------------------------
         # Line data:
+        # ---------------------------------------------------------------------
         for line in lines:
             api_order['details'].append({
                 'sku': line.product_id.product_tmpl_id.default_code,
@@ -336,24 +347,11 @@ class PurchaseOrder(models.Model):
         location_from = logistic_pick_in_type.default_location_src_id.id
         location_to = logistic_pick_in_type.default_location_dest_id.id
 
-        if purchase.logistic_state == 'done':
-            _logger.error('Error purchase order is yet in done state')
-            return False
-
-        sale_line_ready = []  # ready line after assign load qty to purchase
-        move_file = []
-
         # ---------------------------------------------------------------------
         # Create picking:
         # ---------------------------------------------------------------------
-        try:
-            order = purchase.order_line[0].logistic_sale_id.order_id
-        except:
-            # Empty order: (cancel before load in account)
-            purchase.logistic_state = 'done'
-            return True
-
-        partner = order.partner_id
+        sale_line_ready = []  # ready line after assign load qty to purchase
+        partner = sale_order.partner_id
         date = purchase.date_order
         name = purchase.name or ''
         origin = _('%s [%s]') % (name, date)
