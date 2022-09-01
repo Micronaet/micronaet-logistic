@@ -996,7 +996,6 @@ class StockPickingDelivery(models.Model):
                 # -------------------------------------------------------------
                 # API Call:
                 # -------------------------------------------------------------
-                pdb.set_trace()
                 url = company.api_root_url
                 location = '%s/%s' % (url, api_endpoint)
                 token = company.api_token or company.api_get_token()
