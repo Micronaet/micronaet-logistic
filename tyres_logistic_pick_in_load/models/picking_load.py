@@ -809,6 +809,7 @@ class StockPickingDelivery(models.Model):
         order_file = refund_source = order_json = False
 
         # Create extra delivery order in exchange file:
+        api_error = ''
         if quants:
             folder_path = {}
             # Create folder if not present:
@@ -991,7 +992,6 @@ class StockPickingDelivery(models.Model):
                                 delivery_order.date, date=True),
                             ))
 
-            api_error = ''
             if api_mode:
                 # -------------------------------------------------------------
                 # API Call:
