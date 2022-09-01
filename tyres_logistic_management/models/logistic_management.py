@@ -284,9 +284,9 @@ class PurchaseOrder(models.Model):
             'documentNo': purchase.name,
             'documentDate':
                 company_pool.get_zulu_date(first_line.date_planned),
-            'customerCode':
+            'notes':  # ex customerCode
                 first_line.clean_account_char(sale_order.partner_id.name),
-            'costReference':
+            'customerCode':  # ex costReference
                 sale_order.team_id.team_code_ref,
             'details': []
             }
