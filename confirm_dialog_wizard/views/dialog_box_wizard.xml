@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+       <!-- module.wizard -->
+       <record id="dialog_box_wizard_view" model="ir.ui.view">
+            <field name="name">Dialog box wizard</field>
+            <field name="model">dialog.box.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Dialog box">
+                    <sheet>
+                        <group colspan="4" col="4">
+                           <field name="message" nolabel="1" colspan="4" readonly="1" widget="html"/>
+                           <field name="action" nolabel="1" colspan="4" invisible="1"/>
+                           <field name="mode" invisible="1"/>
+                       </group>
+                    </sheet>
+                    <footer>
+                       <group colspan="4" col="4" attrs="{'invisible': [('mode', '!=', 'ok')]}">
+                           <button name="action_go" string="OK" type="object" icon="fa-check-square-o fa-x2" class="oe_highlight" />
+                       </group>
+                       <group colspan="4" col="4" attrs="{'invisible': [('mode', '!=', 'yes_no')]}">
+                           <button string="No" special="cancel" icon="fa-thumbs-down fa-x2"/>
+                           <button name="action_go" string="Yes" type="object" icon="fa-thumbs-up fa-x2" class="oe_highlight" />
+                       </group>
+                       <group colspan="4" col="4" attrs="{'invisible': [('mode', '!=', 'cancel_confirm')]}">
+                           <button string="Cancel" special="cancel" icon="fa-ban fa-x2"/>
+                           <button name="action_go" string="Confirm" type="object" icon="fa-check-square-o fa-x2" class="oe_highlight" />
+                       </group>
+                    </footer>
+                </form>
+            </field>
+      </record>
+    </data>
+</openerp>

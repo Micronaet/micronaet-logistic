@@ -932,25 +932,34 @@ class StockPicking(models.Model):
 
     @api.model
     def csv_report_extract_accounting_fees(
-            self, evaluation_date, mode='extract'):
+            self, evaluation_date, team_id=False, mode='extract'):
         """ Extract file account fees in CSV for accounting
             mode = extract for save CSV, data for return list of data
         """
 
         # Pool used:
         company_pool = self.env['res.company']
+        dialog_pool = self.env['dialog.box.wizard']  # with API
         company = company_pool.search([])[0]
-        path = os.path.expanduser(company.logistic_root_folder)
-        path = os.path.join(path, 'corrispettivi')
 
-        product_account_ref = company.product_account_ref
+        api_mode = company.api_management and company.api_fees_area
+        if api_mode:  # API Mode
+            # API Call setup:
+            _logger.info('Fees operation in API mode')
+            url = company.api_root_url
+            endpoint = 'NotCollectedReceipt'
+            location = '%s/%s' % (url, endpoint)
+            token = company.api_token or company.api_get_token()
+        else:  # CSV Mode:
+            path = os.path.expanduser(company.logistic_root_folder)
+            path = os.path.join(path, 'corrispettivi')
 
-        try:
-            os.system('mkdir -p %s' % path)
-            os.system('mkdir -p %s' % os.path.join(path, 'reply'))
-            os.system('mkdir -p %s' % os.path.join(path, 'history'))
-        except:
-            _logger.error('Cannot create %s' % path)
+            try:
+                os.system('mkdir -p %s' % path)
+                os.system('mkdir -p %s' % os.path.join(path, 'reply'))
+                os.system('mkdir -p %s' % os.path.join(path, 'history'))
+            except:
+                _logger.error('Cannot create %s' % path)
 
         # Period current date:
         _logger.warning('Account Fees evaluation: %s' % evaluation_date)
@@ -962,17 +971,18 @@ class StockPicking(models.Model):
             ('scheduled_date', '<=', '%s 23:59:59' % evaluation_date),
             # XXX: This? ('ddt_date', '=', now_dt),
             ]
-
         if mode == 'extract':
             domain.append(
                 ('is_fees', '=', True),
                 )
+        # Invoice need to be in report!
         # else: in Excel mode see all
         pickings = self.search(domain)
 
         channel_row = {}
         excel_row = []
         pfu_db = []  # to be added in product (for extract)
+        product_account_ref = company.product_account_ref
         for picking in pickings:
             # Readability:
             order = picking.sale_order_id
@@ -991,16 +1001,13 @@ class StockPicking(models.Model):
                             picking.name,
                             order.name,
                             ))
-                    # raise exceptions.Warning(_(
-                    #    'Found empty picking %s in order %s') % (
-                    #        picking.name,
-                    #        order.name,
-                    #        ))
 
                 # Get channel
                 try:
                     order_line = move.logistic_unload_id
                     order = order_line.order_id
+                    if team_id and order.team_id != team_id:
+                        continue  # Not for selected team!
                     channel = order.team_id.channel_ref
                 except:
                     channel = ''
@@ -1020,7 +1027,7 @@ class StockPicking(models.Model):
                 product = move.product_id
 
                 if mode == 'extract' and product.not_in_invoice:
-                    # TODO check the 3 fields?
+                    # todo check the 3 fields?
                     pfu_db.append((
                         total, channel, order_line.mmac_pfu_line_id.id,
                         ))
@@ -1030,21 +1037,51 @@ class StockPicking(models.Model):
                 if channel not in channel_row:
                     channel_row[channel] = {}
 
+                # -------------------------------------------------------------
+                #                    Collect data in 2 ways:
+                # -------------------------------------------------------------
                 if mode == 'extract':
-                    channel_row[channel][order_line.id] = [
-                        code_ref, # Agent code
-                        # XXX Use scheduled date or ddt_date?
-                        product.default_code or '',
-                        company_pool.formatLang(
-                            picking.scheduled_date, date=True),
-                        order.payment_term_id.account_ref or '',
-                        product.account_ref or product_account_ref or '',
-                        qty,
-                        total,
-                        'S' if product.is_expence else 'M',
-                        channel,
-                        ]
-                else:
+                    if api_mode:
+                        # -----------------------------------------------------
+                        # API Mode:
+                        # -----------------------------------------------------
+                        if 'details' not in channel_row[channel]:
+                            # Update JSON dict:
+                            channel_row[channel].update({
+                                'companycode': channel,
+                                'documentdate': picking.scheduled_date,
+                                'payment':
+                                    order.payment_term_id.account_ref or '',
+                                'saleperson': code_ref,   # Agent code
+                                'details': [],
+                            })
+                        channel_row[channel]['details'].append({
+                            'sku': product.default_code or '',
+                            'product': product.account_ref or
+                                       product_account_ref or '',
+                            'quantity': qty,
+                            'total': total,
+                            'type': 'S' if product.is_expence else 'M',
+                        })
+
+                    else:
+                        # -----------------------------------------------------
+                        # CSV Mode:
+                        # -----------------------------------------------------
+                        channel_row[channel][order_line.id] = [
+                            code_ref,  # Agent code
+                            # XXX Use scheduled date or ddt_date?
+                            product.default_code or '',
+                            company_pool.formatLang(
+                                picking.scheduled_date, date=True),
+                            order.payment_term_id.account_ref or '',
+                            product.account_ref or product_account_ref or '',
+                            qty,
+                            total,
+                            'S' if product.is_expence else 'M',
+                            channel,
+                            ]
+                else:  # Report mode:
                     # VAT rate:
                     vat_excluded_rate = 0.0
                     try:
@@ -1085,30 +1122,100 @@ class StockPicking(models.Model):
                         triangle_invoice,
                         ))
 
+        # ---------------------------------------------------------------------
+        # Final operations:
+        # ---------------------------------------------------------------------
         if mode == 'extract':
-            date = evaluation_date.replace('-', '_')
 
-            # Add PFU to product:
-            for total, channel, mmac_pfu_line_id in pfu_db:
-                try:
-                    channel_row[channel][mmac_pfu_line_id][6] += total
-                except:
-                    _logger.error('PFU error with line')
+            # -----------------------------------------------------------------
+            # API Mode:
+            # -----------------------------------------------------------------
+            if api_mode:
+                # Create JSON data for every channel code:
+                message = ''
+                for channel in channel_row:
+                    api_fees = channel_row[channel]
+                    json_dumps = json.dumps(api_fees)
+                    loop_times = 1
+                    reply_ok = reply = reply_json = ''
 
-            for channel in channel_row:
-                fees_filename = os.path.join(
-                    path, '%s_%s.csv' % (channel, date))
-                fees_f = open(fees_filename, 'w')
+                    while loop_times <= 2:  # Loop twice if token error
+                        loop_times += 1
+                        api_header = {
+                            'Authorization': 'bearer %s' % token,
+                            'accept': 'text/plain',
+                            'Content-Type': 'application/json',
+                        }
+                        # Send invoice:
+                        _logger.info(
+                            'Calling: %s\n'
+                            'JSON: %s [Attempt: %s]...' % (
+                                 location, json_dumps, loop_times - 1))
+                        reply = requests.post(
+                            location, data=json_dumps, headers=api_header)
+                        if reply.ok:
+                            reply_json = reply.json()  # todo used?
+                            _logger.info(
+                                'SUCCESS: [UNDO operation] reload BF used')
+                            reply_ok = True
+                            message += \
+                                'Corrispettivi del canale %s data %s, ' \
+                                'Esito OK' % (
+                                    api_fees['companycode'],
+                                    api_fees['documentdate'],
+                                )
+                            break  # No other loop
+                        elif reply.status_code == 401:  # Token error
+                            _logger.error(
+                                '[ERROR] API UNDO operation: '
+                                'Reload token...')
+                            token = company.api_get_token()
+                        else:
+                            # todo manage error here:
+                            raise exceptions.Warning('Fees API call error')
 
-                fees_f.write(
-                    'CANALE|SKU|DATA|PAGAMENTO|PRODOTTO|Q|TOTALE|TIPO|'
-                    'AGENTE\r\n')
-                for row in channel_row[channel].values():
-                    fees_f.write('%s|%s|%s|%s|%s|%s|%s|%s|%s\r\n' % tuple(
-                        row))
-                fees_f.close()
+                    # Check if API works:
+                    if not reply_ok:
+                        message += \
+                            'Corrispettivi del canale %s data %s, ' \
+                            'Esito ERRORE:\n  %s' % (
+                                api_fees['companycode'],
+                                api_fees['documentdate'],
+                                reply
+                            )
+                # Prepare dialog response:
+                return dialog_pool.open_dialog(
+                    message=message,
+                    title='Importazione Corrispettivi',
+                    mode='ok')
+
+            # -----------------------------------------------------------------
+            # CSV Mode:
+            # -----------------------------------------------------------------
+            else:
+                date = evaluation_date.replace('-', '_')
+
+                # Add PFU to product:
+                for total, channel, mmac_pfu_line_id in pfu_db:
+                    try:
+                        channel_row[channel][mmac_pfu_line_id][6] += total
+                    except:
+                        _logger.error('PFU error with line')
+
+                for channel in channel_row:
+                    fees_filename = os.path.join(
+                        path, '%s_%s.csv' % (channel, date))
+                    fees_f = open(fees_filename, 'w')
+
+                    fees_f.write(
+                        'CANALE|SKU|DATA|PAGAMENTO|PRODOTTO|Q|TOTALE|TIPO|'
+                        'AGENTE\r\n')
+                    for row in channel_row[channel].values():
+                        fees_f.write('%s|%s|%s|%s|%s|%s|%s|%s|%s\r\n' % tuple(
+                            row))
+                    fees_f.close()
             return True
-        else:
+        else:  # Report mode
             return excel_row
 
     # -------------------------------------------------------------------------
@@ -3603,7 +3710,8 @@ class SaleOrderLine(models.Model):
                                 'unitValue': line.price_unit,  # todo Check!
                                 }
                             )
-                    # todo Send api_order to account here:
+
+                    # Send api_order to account here:
                     json_dumps = json.dumps(api_order)
                     loop_times = 1
                     reply_ok = reply = reply_json = ''

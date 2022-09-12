@@ -15,7 +15,9 @@
                   </header>
                   <sheet>
                       <group colspan="4" col="4">
-                          <separator string="Report: Accounting Fees" colspan="2"/><field name="evaluation_date" />
+                          <separator string="Report: Accounting Fees" colspan="4"/>
+                          <field name="evaluation_date" />
+                          <field name="team_id" />
                       </group>
                   </sheet>
               </form>

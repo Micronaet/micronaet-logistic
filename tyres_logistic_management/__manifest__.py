@@ -37,6 +37,7 @@
         'account',
         'stock',
         'purchase',
+        'confirm_dialog_wizard',  # Dialog message management
 
         # Report:
         'web',

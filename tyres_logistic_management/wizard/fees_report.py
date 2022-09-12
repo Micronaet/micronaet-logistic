@@ -47,7 +47,9 @@ class LogisticFeesExtractWizard(models.TransientModel):
 
         evaluation_date = self.evaluation_date
         excel_row = stock_pool.csv_report_extract_accounting_fees(
-            evaluation_date, mode='data')
+            evaluation_date=self.evaluation_date,
+            team_id=self.team_id.id,
+            mode='data')
 
         date = evaluation_date.replace('-', '_')
         filename = 'consegnato_il_giorno_%s' % evaluation_date
@@ -317,7 +319,9 @@ class LogisticFeesExtractWizard(models.TransientModel):
         """ Account fees report
         """
         stock_pool = self.env['stock.picking']
-        stock_pool.csv_report_extract_accounting_fees(self.evaluation_date)
+        stock_pool.csv_report_extract_accounting_fees(
+            evaluation_date=self.evaluation_date,
+            team_id=self.team_id.id)
 
     # -------------------------------------------------------------------------
     #                               COLUMNS:
@@ -325,3 +329,9 @@ class LogisticFeesExtractWizard(models.TransientModel):
     evaluation_date = fields.Date(
         'Date', required=True,
         default=fields.Datetime.now())
+    team_id = fields.Many2one(
+        'crm.team', 'Team',
+        help='Selezionando anche il team è possibile rigenerare un solo '
+             'canale di vendita (usato nel caso di errori evitando così '
+             'la generazione complessiva di tutti i corrispettivi '
+             'giornalieri.')
