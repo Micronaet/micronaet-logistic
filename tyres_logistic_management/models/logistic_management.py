@@ -1050,8 +1050,6 @@ class StockPicking(models.Model):
                             channel_row[channel].update({
                                 'companyCode': channel,
                                 'documentDate': picking.scheduled_date,
-                                'payment':
-                                    order.payment_term_id.account_ref or '',
                                 'salePerson': code_ref,   # Agent code
                                 'details': [],
                             })
@@ -1061,6 +1059,8 @@ class StockPicking(models.Model):
                                        product_account_ref or '',
                             'quantity': qty,
                             'total': total,
+                            'payment':
+                                order.payment_term_id.account_ref or '',
                             'type': 'S' if product.is_expence else 'M',
                         })
 
