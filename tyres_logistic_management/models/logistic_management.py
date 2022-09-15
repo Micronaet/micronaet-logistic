@@ -936,7 +936,6 @@ class StockPicking(models.Model):
         """ Extract file account fees in CSV for accounting
             mode = extract for save CSV, data for return list of data
         """
-
         # Pool used:
         company_pool = self.env['res.company']
         dialog_pool = self.env['dialog.box.wizard']  # with API
@@ -944,6 +943,7 @@ class StockPicking(models.Model):
 
         api_mode = company.api_management and company.api_fees_area
         if api_mode:  # API Mode
+            pdb.set_trace()
             # API Call setup:
             _logger.info('Fees operation in API mode')
             url = company.api_root_url
