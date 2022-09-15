@@ -943,7 +943,6 @@ class StockPicking(models.Model):
 
         api_mode = company.api_management and company.api_fees_area
         if api_mode:  # API Mode
-            pdb.set_trace()
             # API Call setup:
             _logger.info('Fees operation in API mode')
             url = company.api_root_url
@@ -1131,6 +1130,7 @@ class StockPicking(models.Model):
             # API Mode:
             # -----------------------------------------------------------------
             if api_mode:
+                pdb.set_trace()
                 # Create JSON data for every channel code:
                 message = ''
                 for channel in channel_row:
@@ -1187,6 +1187,7 @@ class StockPicking(models.Model):
                 if not message:
                     message = 'Nessun corrispettivo rilevato il {}'.format(
                         evaluation_date)
+                pdb.set_trace()
                 return dialog_pool.open_dialog(
                     message=message,
                     title='Importazione Corrispettivi',
