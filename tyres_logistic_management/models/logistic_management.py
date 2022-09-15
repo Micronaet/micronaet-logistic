@@ -1184,9 +1184,13 @@ class StockPicking(models.Model):
                                 reply
                             )
                 # Prepare dialog response:
+                if not message:
+                    message = 'Nessun corrispettivo rilevato il {}'.format(
+                        evaluation_date)
                 return dialog_pool.open_dialog(
                     message=message,
                     title='Importazione Corrispettivi',
+                    action='',
                     mode='ok')
 
             # -----------------------------------------------------------------
