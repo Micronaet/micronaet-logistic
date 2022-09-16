@@ -1202,7 +1202,7 @@ class StockPicking(models.Model):
                             reply_text = 'Non rilevato errore da chiamata API!'
                         message += \
                             'Corrispettivi del canale %s data %s, ' \
-                            'Esito ERRORE:\n  %s' % (
+                            'Esito ERRORE: %s\n' % (
                                 api_fees['companyCode'],
                                 api_fees['documentDate'],
                                 reply_text
