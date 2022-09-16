@@ -1047,9 +1047,9 @@ class StockPicking(models.Model):
                         if 'details' not in channel_row[channel]:
                             # Update JSON dict:
                             channel_row[channel].update({
-                                'companyCode': channel,
+                                'companyCode': code_ref,   # Agent code
                                 'documentDate': picking.scheduled_date,
-                                'salePerson': code_ref,   # Agent code
+                                'salePerson': channel,
                                 'details': [],
                             })
                         channel_row[channel]['details'].append({
