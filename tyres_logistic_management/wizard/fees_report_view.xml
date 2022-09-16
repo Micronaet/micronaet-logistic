@@ -31,7 +31,7 @@
             <field name="view_type">form</field>
             <field name="view_mode">form</field>
             <field name="view_id" ref="view_logistic_fees_extract_wizard"/>
-            <field name="target">parent</field>
+            <field name="target">new</field>
         </record>
 
          <menuitem
