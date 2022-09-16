@@ -1150,7 +1150,6 @@ class StockPicking(models.Model):
                             'Calling: %s\n'
                             'JSON: %s [Attempt: %s]...' % (
                                  location, json_dumps, loop_times - 1))
-                        pdb.set_trace()
                         reply = requests.post(
                             location, data=json_dumps, headers=api_header)
                         if reply.ok:
