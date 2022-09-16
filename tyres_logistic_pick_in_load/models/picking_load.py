@@ -1021,6 +1021,7 @@ class StockPickingDelivery(models.Model):
                                          location, json_dumps, reply))
                         reply_json = reply.json()
                         _logger.warning('Load generated: %s' % reply_json)
+                        api_error = ''  # Reset error
                         break  # No new attempt
                     elif reply.status_code == 401:  # Token error
                         _logger.warning('[WARNING]: Refresh token')
