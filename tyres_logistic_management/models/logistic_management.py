@@ -336,7 +336,9 @@ class PurchaseOrder(models.Model):
                         'API Scarico: Errore chiamata\n{}' % reply.text)
                 except:
                     raise exceptions.Warning(
-                        'API Scarico: Errore generico non comunicato')
+                        'API Scarico: '
+                        'Errore generico non comunicato '
+                        '(prodotto aperto da qualcuno?)')
 
         # Check if API works:
         if not reply_ok:
