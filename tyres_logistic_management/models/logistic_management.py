@@ -1161,8 +1161,8 @@ class StockPicking(models.Model):
                             message += \
                                 'Corrispettivi del canale %s data %s, ' \
                                 'Esito OK' % (
-                                    api_fees['companycode'],
-                                    api_fees['documentdate'],
+                                    api_fees['companyCode'],
+                                    api_fees['documentDate'],
                                 )
                             break  # No other loop
                         elif reply.status_code == 401:  # Token error
@@ -1174,13 +1174,13 @@ class StockPicking(models.Model):
                             try:
                                 message += \
                                     'Corrispettivi del {} Canale {}, ' \
-                                    'errore: {}'.format(
+                                    'errore: {}\n'.format(
                                         evaluation_date, channel, reply.text)
                             except:
                                 message += \
                                     'Corrispettivo del {} Canale {}, ' \
                                     'errore: ' \
-                                    'Generico nella chiamata API'.format(
+                                    'Generico nella chiamata API\n'.format(
                                         evaluation_date, channel)
 
                     # Check if API works:
@@ -1188,8 +1188,8 @@ class StockPicking(models.Model):
                         message += \
                             'Corrispettivi del canale %s data %s, ' \
                             'Esito ERRORE:\n  %s' % (
-                                api_fees['companycode'],
-                                api_fees['documentdate'],
+                                api_fees['companyCode'],
+                                api_fees['documentDate'],
                                 reply
                             )
                 # Prepare dialog response:
