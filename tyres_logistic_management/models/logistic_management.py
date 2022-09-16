@@ -1056,7 +1056,7 @@ class StockPicking(models.Model):
                             # Update JSON dict:
                             channel_row[channel].update({
                                 'companyCode': code_ref,   # Agent code
-                                'documentDate': picking.scheduled_date,
+                                'documentDate': picking.scheduled_date[:10],
                                 'salePerson': channel,
                                 'details': [],
                             })
