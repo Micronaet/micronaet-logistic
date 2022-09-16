@@ -968,6 +968,7 @@ class StockPicking(models.Model):
                 _logger.error('Cannot create %s' % path)
 
         # Period current date:
+        evaluation_date = evaluation_date[:10]  # Only date
         _logger.warning('Account Fees evaluation: %s' % evaluation_date)
 
         # Picking not invoiced (DDT and Refund):
