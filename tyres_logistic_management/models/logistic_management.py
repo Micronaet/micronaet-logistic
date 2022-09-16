@@ -331,7 +331,12 @@ class PurchaseOrder(models.Model):
                 token = company.api_get_token()
             else:
                 # todo manage error here:
-                raise exceptions.Warning('Unload API call error!')
+                try:
+                    raise exceptions.Warning(
+                        'API Scarico: Errore chiamata\n{}' % reply.text)
+                except:
+                    raise exceptions.Warning(
+                        'API Scarico: Errore generico non comunicato')
 
         # Check if API works:
         if not reply_ok:
@@ -4281,4 +4286,3 @@ class SaleOrderLine(models.Model):
         ], 'Logistic state', default='draft',
         #compute='_get_logistic_status_field', multi=True,
         )
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
