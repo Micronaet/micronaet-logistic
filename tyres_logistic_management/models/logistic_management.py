@@ -1169,14 +1169,17 @@ class StockPicking(models.Model):
                                 'Esito OK\n' % (
                                     api_fees['companyCode'],
                                     api_fees['documentDate'],
-                                )
+                                    )
                             break  # No other loop
                         elif reply.status_code == 401:  # Token error
                             _logger.error(
-                                '[ERROR] API UNDO operation: '
+                                '[ERROR] API Fees operation: '
                                 'Reload token...')
                             token = company.api_get_token()
                         else:  # Error not managed
+                            message += \
+                                'Chiamata {} errore\n'.format(loop_times)
+                            '''
                             try:
                                 message += \
                                     'Corrispettivi del {} Canale {}, ' \
@@ -1188,15 +1191,20 @@ class StockPicking(models.Model):
                                     'errore: ' \
                                     'Generico nella chiamata API\n'.format(
                                         evaluation_date, channel)
+                            '''
 
                     # Check if API works:
                     if not reply_ok:
+                        try:
+                            reply_text = reply.text
+                        except:
+                            reply_text = 'Non rilevato errore da chiamata API!'
                         message += \
                             'Corrispettivi del canale %s data %s, ' \
                             'Esito ERRORE:\n  %s' % (
                                 api_fees['companyCode'],
                                 api_fees['documentDate'],
-                                reply
+                                reply_text
                             )
                 # Prepare dialog response:
                 if not message:
