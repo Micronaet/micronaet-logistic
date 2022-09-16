@@ -1196,14 +1196,15 @@ class StockPicking(models.Model):
                 if not message:
                     message = 'Nessun corrispettivo rilevato il {}'.format(
                         evaluation_date)
-                pdb.set_trace()
+
                 _logger.warning('Message:\n{}'.format(message))
-                return_view = dialog_pool.open_dialog(
-                    message=message,
-                    title='Importazione Corrispettivi',
-                    action='',
-                    mode='ok')
-                return return_view
+                raise exceptions.Warning(message)
+                # return_view = dialog_pool.open_dialog(
+                #    message=message,
+                #    title='Importazione Corrispettivi',
+                #    action='',
+                #    mode='ok')
+                # return return_view
 
             # -----------------------------------------------------------------
             # CSV Mode:
