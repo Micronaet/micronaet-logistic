@@ -1154,9 +1154,9 @@ class StockPicking(models.Model):
                         reply = requests.post(
                             location, data=json_dumps, headers=api_header)
                         if reply.ok:
-                            reply_json = reply.json()  # todo used?
+                            # reply_json = reply.json()  # todo used?
                             _logger.info(
-                                'SUCCESS: [UNDO operation] reload BF used')
+                                'SUCCESS: [Fees operation] Loaded correctly')
                             reply_ok = True
                             message += \
                                 'Corrispettivi del canale %s data %s, ' \
