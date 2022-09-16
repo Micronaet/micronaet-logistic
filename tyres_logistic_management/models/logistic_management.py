@@ -945,7 +945,7 @@ class StockPicking(models.Model):
         """
         # Pool used:
         company_pool = self.env['res.company']
-        dialog_pool = self.env['dialog.box.wizard']  # with API
+        # dialog_pool = self.env['dialog.box.wizard']  # with API
         company = company_pool.search([])[0]
 
         api_mode = company.api_management and company.api_fees_area

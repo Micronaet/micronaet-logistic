@@ -511,10 +511,10 @@
 
                                          <separator string="Aree:" colspan="4"/>
                                          <field name="api_invoice_area"/>
-                                         <field name="api_fees_area"/>
+                                         <field name="api_fees_area" />
                                          <!--<field name="api_pick_internal_area"/> note: In Purchase Export file -->
-                                         <field name="api_pick_load_area"/>
-                                         <field name="api_pick_undo"/>
+                                         <field name="api_pick_load_area" string="Ordini interno, Resi (carico)"/>
+                                         <field name="api_pick_undo" string="Procedura UNDO (carico)"/>
                                          <!--<field name="api_pick_refund"/>-->
                                      </group>
                                  </page>

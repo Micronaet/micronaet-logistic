@@ -707,7 +707,7 @@ class StockPickingDelivery(models.Model):
     # -------------------------------------------------------------------------
     @api.multi
     def confirm_stock_load(self):
-        """ Create new picking unloading the selected material
+        """ Create new picking loading the selected material
         """
         # ---------------------------------------------------------------------
         # Pool used:
