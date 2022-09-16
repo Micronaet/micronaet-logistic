@@ -1177,9 +1177,10 @@ class StockPicking(models.Model):
                                 'Reload token...')
                             token = company.api_get_token()
                         else:  # Error not managed
+                            pass  # Not managed as error
+                            '''
                             message += \
                                 'Chiamata {} errore\n'.format(loop_times)
-                            '''
                             try:
                                 message += \
                                     'Corrispettivi del {} Canale {}, ' \
