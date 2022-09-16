@@ -1170,9 +1170,18 @@ class StockPicking(models.Model):
                                 '[ERROR] API UNDO operation: '
                                 'Reload token...')
                             token = company.api_get_token()
-                        else:
-                            # todo manage error here:
-                            raise exceptions.Warning('Fees API call error')
+                        else:  # Error not managed
+                            try:
+                                message += \
+                                    'Corrispettivi del {} Canale {}, ' \
+                                    'errore: {}'.format(
+                                        evaluation_date, channel, reply.text)
+                            except:
+                                message += \
+                                    'Corrispettivo del {} Canale {}, ' \
+                                    'errore: ' \
+                                    'Generico nella chiamata API'.format(
+                                        evaluation_date, channel)
 
                     # Check if API works:
                     if not reply_ok:
