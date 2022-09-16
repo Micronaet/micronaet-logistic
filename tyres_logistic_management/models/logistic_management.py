@@ -1160,7 +1160,7 @@ class StockPicking(models.Model):
                             reply_ok = True
                             message += \
                                 'Corrispettivi del canale %s data %s, ' \
-                                'Esito OK' % (
+                                'Esito OK\n' % (
                                     api_fees['companyCode'],
                                     api_fees['documentDate'],
                                 )
