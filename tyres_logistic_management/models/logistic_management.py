@@ -3793,6 +3793,8 @@ class SaleOrderLine(models.Model):
 
                         # todo after operation (maybe File mode has one!)
                         # check_import_reply procedure!
+                    else:
+                        _logger.warning('No need  undo operations!')
 
                 # -------------------------------------------------------------
                 #                         File mode:
