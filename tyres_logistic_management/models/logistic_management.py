@@ -3667,6 +3667,7 @@ class SaleOrderLine(models.Model):
         purchase_order = []
         for line in self.purchase_line_ids:
             purchase = line.order_id
+            # dropship_manage
             if not purchase.partner_id.internal_stock:
                 continue
 
@@ -3743,48 +3744,55 @@ class SaleOrderLine(models.Model):
                                 }
                             )
 
+                    # ---------------------------------------------------------
                     # Send api_order to account here:
-                    json_dumps = json.dumps(api_order)
-                    loop_times = 1
-                    reply_ok = reply = reply_json = ''
-                    while loop_times <= 2:  # Loop twice if token error
-                        loop_times += 1
-                        api_header = {
-                            'Authorization': 'bearer %s' % token,
-                            'accept': 'text/plain',
-                            'Content-Type': 'application/json',
-                            }
-                        # Send invoice:
-                        _logger.info('Calling: %s\n'
-                                     'JSON: %s [Attempt: %s]...' % (
-                                         location, json_dumps, loop_times - 1))
-                        reply = requests.post(
-                            location, data=json_dumps, headers=api_header)
-                        if reply.ok:
-                            reply_json = reply.json()  # todo used?
-                            _logger.info(
-                                'SUCCESS: [UNDO operation] reload BF used')
-                            comment += _(
-                                'Ricarico magazzino via chiamata API: {}'
-                                '<br/>'.format(reply_json, ))
+                    # ---------------------------------------------------------
+                    # Only if there's undo lines call items
+                    if api_order['details']:
+                        json_dumps = json.dumps(api_order)
+                        loop_times = 1
+                        reply_ok = reply = reply_json = ''
+                        while loop_times <= 2:  # Loop twice if token error
+                            loop_times += 1
+                            api_header = {
+                                'Authorization': 'bearer %s' % token,
+                                'accept': 'text/plain',
+                                'Content-Type': 'application/json',
+                                }
+                            # Send invoice:
+                            _logger.info('Calling: %s\n'
+                                         'JSON: %s [Attempt: %s]...' % (
+                                             location, json_dumps,
+                                             loop_times - 1))
+                            reply = requests.post(
+                                location, data=json_dumps, headers=api_header)
+                            if reply.ok:
+                                reply_json = reply.json()  # todo used?
+                                _logger.info(
+                                    'SUCCESS: [UNDO operation] reload BF used')
+                                comment += _(
+                                    'Ricarico magazzino via chiamata API: {}'
+                                    '<br/>'.format(reply_json, ))
 
-                            reply_ok = True
-                            break  # No other loop
-                        elif reply.status_code == 401:  # Token error
-                            _logger.error(
-                                '[ERROR] API UNDO operation: Reload token...')
-                            token = company.api_get_token()
-                        else:
-                            # todo manage error here:
-                            raise exceptions.Warning('UNDO API call error!')
+                                reply_ok = True
+                                break  # No other loop
+                            elif reply.status_code == 401:  # Token error
+                                _logger.error(
+                                    '[ERROR] API UNDO operation: '
+                                    'Reload token...')
+                                token = company.api_get_token()
+                            else:
+                                # todo manage error here:
+                                raise exceptions.Warning(
+                                    'UNDO API call error!')
 
-                    # Check if API works:
-                    if not reply_ok:
-                        raise exceptions.Warning(
-                            'Errore chiamato le API:\n{}'.format(reply))
+                        # Check if API works:
+                        if not reply_ok:
+                            raise exceptions.Warning(
+                                'Errore chiamato le API:\n{}'.format(reply))
 
-                    # todo after operation (maybe File mode has one!)
-                    # check_import_reply procedure!
+                        # todo after operation (maybe File mode has one!)
+                        # check_import_reply procedure!
 
                 # -------------------------------------------------------------
                 #                         File mode:
