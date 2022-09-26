@@ -565,7 +565,7 @@ class StockPickingDelivery(models.Model):
 
     _name = 'stock.picking.delivery'
     _description = 'Generator of delivery'
-    _rec_name = 'create_date'
+    _rec_name = 'create_date desc'
 
     @api.multi
     def assign_refund_counter_sequence(self):
