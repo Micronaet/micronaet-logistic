@@ -659,6 +659,7 @@ class StockPickingDelivery(models.Model):
         """ Check import reply for get confirmation EXTRA BF
             Folder checked: delivery, refund
         """
+        # todo debug next refund!
         # Pool used:
         picking_pool = self.env['stock.picking']
         quant_pool = self.env['stock.picking.delivery.quant']
