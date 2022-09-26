@@ -568,7 +568,6 @@ class StockPickingDelivery(models.Model):
     _rec_name = 'create_date'
     _order = 'create_date desc'
 
-
     @api.multi
     def assign_refund_counter_sequence(self):
         """ Assign counter number
@@ -661,7 +660,7 @@ class StockPickingDelivery(models.Model):
         """ Check import reply for get confirmation EXTRA BF
             Folder checked: delivery, refund
         """
-        # todo debug next refund!
+        pdb.set_trace()
         # Pool used:
         picking_pool = self.env['stock.picking']
         quant_pool = self.env['stock.picking.delivery.quant']
