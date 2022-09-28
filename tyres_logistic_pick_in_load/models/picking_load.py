@@ -580,7 +580,6 @@ class StockPickingDelivery(models.Model):
         """ Check import reply for get confirmation EXTRA BF
             Folder checked: delivery, refund
         """
-        pdb.set_trace()
         # todo schedule action?
         # Pool used:
         quant_pool = self.env['stock.picking.delivery.quant']
