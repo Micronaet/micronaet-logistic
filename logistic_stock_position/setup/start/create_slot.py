@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
 #
-# ODOO (ex OpenERP) 
+# ODOO (ex OpenERP)
 # Open Source Management Solution
 # Copyright (C) 2001-2015 Micronaet S.r.l. (<http://www.micronaet.it>)
 # Developer: Nicola Riolini @thebrush (<https://it.linkedin.com/in/thebrush>)
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
@@ -43,12 +43,12 @@ user = config.get('dbaccess', 'user')
 pwd = config.get('dbaccess', 'pwd')
 server = config.get('dbaccess', 'server')
 port = config.get('dbaccess', 'port')   # verify if it's necessary: getint
-        
+
 # -----------------------------------------------------------------------------
 # Connect to ODOO:
 # -----------------------------------------------------------------------------
 odoo = erppeek.Client(
-    'http://%s:%s' % (server, port), 
+    'http://%s:%s' % (server, port),
     db=dbname,
     user=user,
     password=pwd,
@@ -82,7 +82,7 @@ for record in database:
     prefix = record[1]
     table = record[2]
     slot_list = record[2:]
-    
+
     # -------------------------------------------------------------------------
     # Create partner:
     # -------------------------------------------------------------------------
@@ -96,7 +96,7 @@ for record in database:
             'is_company': True,
             #'product_suffix': prefix.strip('-'),
             }).id
-    
+
     # -------------------------------------------------------------------------
     # Create table:
     # -------------------------------------------------------------------------
@@ -127,7 +127,7 @@ for record in database:
             ])
         if slot_ids:
             slot_id = slot_ids[0]
-        else:   
+        else:
             slot_id = slot_pool.create({
                 'mode': mode,
                 'name': slot,
@@ -141,11 +141,11 @@ for record in database:
                 'default_slot_id': slot_id,
                 })
         else:
-            rel_ids = rel_pool.search([                
+            rel_ids = rel_pool.search([
                 ('table_id', '=', table_id),
                 ('slot_id', '=', slot_id),
                 ])
-            
+
             if rel_ids:
                 rel_pool.write(rel_ids, {
                     'sequence': sequence,
@@ -157,8 +157,8 @@ for record in database:
                         'table_id': table_id,
                         'slot_id': slot_id,
                         })
-                except:        
+                except:
                     pass#print 'Error table_id %s slot_id %s' % (table_id, slot_id)
 
-        mode = 'pending' # other is pending    
+        mode = 'pending'  # other is pending
         sequence += 1

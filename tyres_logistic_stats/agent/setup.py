@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
 #
-# ODOO (ex OpenERP) 
+# ODOO (ex OpenERP)
 # Open Source Management Solution
 # Copyright (C) 2001-2015 Micronaet S.r.l. (<http://www.micronaet.it>)
 # Developer: Nicola Riolini @thebrush (<https://it.linkedin.com/in/thebrush>)
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
@@ -40,9 +40,9 @@ except:
 
 log_path = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
-    'log', 
+    'log',
     )
-os.system('mkdir -p %s' % log_path)    
+os.system('mkdir -p %s' % log_path)
 log_file = os.path.join(log_path, 'activity.log')
 print 'Log file: %s' % log_file
 
@@ -53,7 +53,7 @@ def log_event(log_f, mode, event='Start event'):
     '''
     log_f.write('%s. Mode %s: %s\n' % (
         datetime.now(),
-        mode, 
+        mode,
         event,
         ))
 
@@ -87,7 +87,7 @@ now_10 = now_10.strftime('%Y-%m-%d 00:00:00')
 # -----------------------------------------------------------------------------
 odoo = erppeek.Client(
     'http://%s:%s' % (
-        server, port), 
+        server, port),
     db=dbname,
     user=user,
     password=pwd,
@@ -104,14 +104,14 @@ if mode == 'all':
 elif mode == 'ready':
     domain = [
         ('logistic_state', '=', ('pending', 'ready')),
-        ]    
+        ]
 elif mode == 'done':
     domain = [
         ('create_date', '>=', now_4),
         ('logistic_state', '=', 'done'),
-        ]    
+        ]
 else:
-    print 'Mode error not found: %s' % mode    
+    print('Mode error not found: %s' % mode)
     sys.exit()
 
 order_ids = order_pool.search(domain)
@@ -122,9 +122,9 @@ print 'Connect to ODOO: Mode %s [Tot. %s]' % (
 
 i = 0
 for order in order_pool.browse(order_ids):
-    i += 1 
+    i += 1
     if i % 20 == 0:
         print 'Updated %s on %s' % (i, total)
     order.sale_order_refresh_margin_stats()
 
-log_event(log_f, mode, 'Stop udate status: # %s record' % total)    
+log_event(log_f, mode, 'Stop udate status: # %s record' % total)
