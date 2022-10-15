@@ -661,7 +661,6 @@ class StockPickingDelivery(models.Model):
             Folder checked: delivery, refund
         """
         # Pool used:
-        # picking_pool = self.env['stock.picking']
         quant_pool = self.env['stock.picking.delivery.quant']
         picking = self.browse(pick_id)  # Reload picking delivery!
 
