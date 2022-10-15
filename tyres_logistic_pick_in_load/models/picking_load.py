@@ -662,9 +662,9 @@ class StockPickingDelivery(models.Model):
         """
         pdb.set_trace()
         # Pool used:
-        picking_pool = self.env['stock.picking']
+        # picking_pool = self.env['stock.picking']
         quant_pool = self.env['stock.picking.delivery.quant']
-        picking = picking_pool.browse(pick_id)  # Reload picking
+        picking = self.browse(pick_id)  # Reload picking delivery!
 
         # Parameter:
         refund_order_check = []  # no need here?
@@ -734,7 +734,7 @@ class StockPickingDelivery(models.Model):
         location_from = logistic_pick_in_type.default_location_src_id.id
         location_to = logistic_pick_in_type.default_location_dest_id.id
 
-        # 2 Manage mode:
+        # 2 way manage mode:
         api_mode = company.api_pick_load_area  # Load checkbox parameter
         logistic_root_folder = os.path.expanduser(company.logistic_root_folder)
 
@@ -854,8 +854,8 @@ class StockPickingDelivery(models.Model):
                 # -------------------------------------------------------------
                 # NORMAL DELIVERY (ONLY HEADER):
                 # -------------------------------------------------------------
-                header = 'SKU|QTA|PREZZO|CODICE FORNITORE|RIF. DOC.|DATA\r\n'
                 api_endpoint = 'warehousemanagement/load'
+                header = 'SKU|QTA|PREZZO|CODICE FORNITORE|RIF. DOC.|DATA\r\n'
 
             else:  # Refund
                 api_endpoint = 'returnfromcustomer'
