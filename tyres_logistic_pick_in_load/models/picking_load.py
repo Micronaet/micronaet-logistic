@@ -709,9 +709,6 @@ class StockPickingDelivery(models.Model):
     def confirm_stock_load(self):
         """ Create new picking loading the selected material
         """
-        # Parameters:
-        demo = True
-
         # ---------------------------------------------------------------------
         # Pool used:
         # ---------------------------------------------------------------------
@@ -1005,37 +1002,36 @@ class StockPickingDelivery(models.Model):
                 token = company.api_token or company.api_get_token()
                 json_dumps = json.dumps(order_json)
 
-                if not demo:  # Normal call not in demo:
-                    loop_times = 1
-                    while loop_times <= 2:  # Loop twice if token error
-                        loop_times += 1
-                        header = {
-                            'Authorization': 'bearer %s' % token,
-                            'accept': 'text/plain',
-                            'Content-Type': 'application/json',
-                        }
+                loop_times = 1
+                while loop_times <= 2:  # Loop twice if token error
+                    loop_times += 1
+                    header = {
+                        'Authorization': 'bearer %s' % token,
+                        'accept': 'text/plain',
+                        'Content-Type': 'application/json',
+                    }
 
-                        # Send invoice:
-                        _logger.warning('Calling: %s\n'
-                                        'JSON: %s [Attempt: %s]' % (
-                            location, json_dumps, loop_times - 1))
-                        reply = requests.post(
-                            location, data=json_dumps, headers=header)
-                        if reply.ok:
-                            _logger.info('[SUCCESS] Called: %s\nJSON: %s\n'
-                                         'Reply: %s' % (
-                                             location, json_dumps, reply))
-                            reply_json = reply.json()
-                            _logger.warning('Load generated: %s' % reply_json)
-                            api_error = ''  # Reset error
-                            break  # No new attempt
-                        elif reply.status_code == 401:  # Token error
-                            _logger.warning('[WARNING]: Refresh token')
-                            token = company.api_get_token()
-                        else:
-                            api_error = reply.text
-                            _logger.error(
-                                'Load not received: \n%s!' % reply.text)
+                    # Send invoice:
+                    _logger.warning('Calling: %s\n'
+                                    'JSON: %s [Attempt: %s]' % (
+                        location, json_dumps, loop_times - 1))
+                    reply = requests.post(
+                        location, data=json_dumps, headers=header)
+                    if reply.ok:
+                        _logger.info('[SUCCESS] Called: %s\nJSON: %s\n'
+                                     'Reply: %s' % (
+                                         location, json_dumps, reply))
+                        reply_json = reply.json()
+                        _logger.warning('Load generated: %s' % reply_json)
+                        api_error = ''  # Reset error
+                        break  # No new attempt
+                    elif reply.status_code == 401:  # Token error
+                        _logger.warning('[WARNING]: Refresh token')
+                        token = company.api_get_token()
+                    else:
+                        api_error = reply.text
+                        _logger.error(
+                            'Load not received: \n%s!' % reply.text)
             else:
                 order_file.close()
 
