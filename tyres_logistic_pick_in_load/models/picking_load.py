@@ -662,7 +662,9 @@ class StockPickingDelivery(models.Model):
         """
         # Pool used:
         quant_pool = self.env['stock.picking.delivery.quant']
-        picking = self.browse(pick_id)  # Reload picking delivery!
+        picking_pool = self.env['stock.picking']
+        # picking = self.browse(pick_id)  # Reload picking delivery!
+        picking = picking_pool.browse(pick_id)
 
         # Parameter:
         refund_order_check = []  # no need here?
