@@ -771,6 +771,7 @@ class StockPickingDelivery(models.Model):
         # ready line after assign load qty to purchase:
         sale_line_check_ready = []
         purchase_ids = []  # purchase order to check state
+        load_mode = 'delivery'  # keep as default
         for line in self.move_line_ids:  # Stock move to assign to picking
             # Extract purchase order (for final check closing state)
             purchase_id = line.logistic_purchase_id.order_id.id
