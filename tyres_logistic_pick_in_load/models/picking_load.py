@@ -668,6 +668,7 @@ class StockPickingDelivery(models.Model):
         picking_pool = self.env['stock.picking']
 
         if is_refund:
+            pdb.set_trace()
             _logger.info('Refund mode')
             picking = self.browse(pick_id)  # Reload picking delivery!
         else:
@@ -1053,9 +1054,10 @@ class StockPickingDelivery(models.Model):
                     'Errore chiamata API:\n{}'.format(api_error))
             else:  # Complete async call for picking generated here
                 if load_mode == 'refund':  # Parameter call for refund:
+                    pdb.set_trace()
                     self.with_context(is_refund=True).api_check_import_reply(
                         picking.id)
-                else:
+                else:  # Normal order
                     self.api_check_import_reply(picking.id)
 
         else:  # Work only with files:
