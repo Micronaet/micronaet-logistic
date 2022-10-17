@@ -660,11 +660,19 @@ class StockPickingDelivery(models.Model):
         """ Check import reply for get confirmation EXTRA BF
             Folder checked: delivery, refund
         """
+        # Context parameters:
+        is_refund = self.env.context.get('is_refund')
+
         # Pool used:
         quant_pool = self.env['stock.picking.delivery.quant']
         picking_pool = self.env['stock.picking']
-        # picking = self.browse(pick_id)  # Reload picking delivery!
-        picking = picking_pool.browse(pick_id)  # todo keep different for refund!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        if is_refund:
+            _logger.info('Refund mode')
+            picking = self.browse(pick_id)  # Reload picking delivery!
+        else:
+            _logger.info('Order mode')
+            picking = picking_pool.browse(pick_id)
 
         # Parameter:
         refund_order_check = []  # no need here?
@@ -1044,7 +1052,11 @@ class StockPickingDelivery(models.Model):
                 raise exceptions.Warning(
                     'Errore chiamata API:\n{}'.format(api_error))
             else:  # Complete async call for picking generated here
-                self.api_check_import_reply(picking.id)
+                if load_mode == 'refund':  # Parameter call for refund:
+                    self.with_context(is_refund=True).api_check_import_reply(
+                        picking.id)
+                else:
+                    self.api_check_import_reply(picking.id)
 
         else:  # Work only with files:
             # Complete with async call for check file reply folder
