@@ -664,7 +664,7 @@ class StockPickingDelivery(models.Model):
         quant_pool = self.env['stock.picking.delivery.quant']
         picking_pool = self.env['stock.picking']
         # picking = self.browse(pick_id)  # Reload picking delivery!
-        picking = picking_pool.browse(pick_id)
+        picking = picking_pool.browse(pick_id)  # todo keep different for refund!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         # Parameter:
         refund_order_check = []  # no need here?
