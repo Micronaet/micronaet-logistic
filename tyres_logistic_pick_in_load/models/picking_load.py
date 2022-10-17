@@ -736,7 +736,7 @@ class StockPickingDelivery(models.Model):
         # ---------------------------------------------------------------------
         # Create picking:
         # ---------------------------------------------------------------------
-        pdb.set_trace()
+        # pdb.set_trace()
         partner = self.supplier_id
         scheduled_date = self.create_date
         name = self.name  # mandatory Doc ID
