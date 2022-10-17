@@ -771,7 +771,6 @@ class StockPickingDelivery(models.Model):
         # ready line after assign load qty to purchase:
         sale_line_check_ready = []
         purchase_ids = []  # purchase order to check state
-        load_mode = 'delivery'  # keep as default
         for line in self.move_line_ids:  # Stock move to assign to picking
             # Extract purchase order (for final check closing state)
             purchase_id = line.logistic_purchase_id.order_id.id
@@ -821,6 +820,7 @@ class StockPickingDelivery(models.Model):
 
         # Create extra delivery order in exchange file:
         api_error = ''
+        load_mode = 'delivery'  # keep as default if no quants
         if quants:
             folder_path = {}
             # Create folder if not present:
@@ -1052,6 +1052,7 @@ class StockPickingDelivery(models.Model):
                 raise exceptions.Warning(
                     'Errore chiamata API:\n{}'.format(api_error))
             else:  # Complete async call for picking generated here
+                # todo tristate with delivery?
                 if load_mode == 'refund':  # Parameter call for refund:
                     self.with_context(is_refund=True).api_check_import_reply(
                         self.id)
