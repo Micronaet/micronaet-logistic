@@ -1650,6 +1650,7 @@ class PurchaseOrderLine(models.Model):
     logistic_source = fields.Selection(
         'Logistic source', readonly=True,
         related='logistic_sale_id.order_id.logistic_source',
+        store=True,
         )
 
 

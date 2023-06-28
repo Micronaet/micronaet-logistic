@@ -1668,7 +1668,7 @@ class StockPicking(models.Model):
                 'county': partner.state_id.code or '',  # Province
                 'country': partner.country_id.name or '',
                 'isoCountryCode': partner.country_id.code or '',
-                'taxIdNumber': vat or '',  # TODO corretto?
+                'taxIdNumber': vat or '',  # todo corretto?
                 'fiscalCode':
                     partner.fatturapa_fiscalcode or
                     partner.mmac_fiscalid or '',
