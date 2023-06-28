@@ -1667,9 +1667,11 @@ class StockPickingDelivery(models.Model):
         'stock.move', 'delivery_id', 'Load move')
     quant_ids = fields.One2many(
         'stock.picking.delivery.quant', 'order_id', 'Stock quant:')
-    product_id = fields.Many2one('product.product',
+    product_id = fields.Many2one(
+        'product.product',
         related='move_line_ids.product_id',
         string='Product')
-    quant_id = fields.Many2one('product.product',
+    quant_id = fields.Many2one(
+        'product.product',
         related='quant_ids.product_id',
         string='Product in stock')
