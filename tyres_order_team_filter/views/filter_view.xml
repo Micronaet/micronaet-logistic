@@ -188,6 +188,7 @@
              id="menu_logistic_my_order_root_server_action"
              parent="tyres_logistic_management.menu_logistic_header_root"
              name="Mia barra ordini"
+             groups="group_see_my_order"
              sequence="0"
              />
              <menuitem
