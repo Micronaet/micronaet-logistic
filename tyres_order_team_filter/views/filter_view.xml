@@ -238,7 +238,5 @@
             action="action_res_user_my_menu"
             sequence="50"
             />
-
-
     </data>
 </openerp>
