@@ -25,6 +25,7 @@ import os
 import sys
 import logging
 import odoo
+from datetime import datetime, timedelta
 from odoo import api, fields, models, tools, exceptions, SUPERUSER_ID
 from odoo.addons import decimal_precision as dp
 from odoo.tools.translate import _
@@ -58,12 +59,24 @@ class SaleOrder(models.Model):
                 ('logistic_state', 'in', (
                     'order', 'pending', 'ready', 'delivering')),
             ])
-        elif mode != 'all':
+        elif mode not in ('all', 'problem'):
             # Add the logistic state filter except for all:
             domain.append(('logistic_state', '=', mode))
 
         if mode == 'ready':  # Extra integration
             domain.append(('locked_delivery', '=', False))
+
+        if mode == 'problem':
+            from_date = (
+                datetime.datetime.now() -
+                datetime.timedelta(days=3)).strftime('%Y-%m-%d 00:00:00')
+
+            domain.extend([
+                ('logistic_state', 'in', (
+                    'order', 'pending', 'ready', 'delivering')),
+                ('date_order', '<', from_date),
+            ])
+            # {'problem_mode': True}
 
         tree_id = self.env.ref('sale.view_order_tree').id
         return {

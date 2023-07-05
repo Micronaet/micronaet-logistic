@@ -82,6 +82,16 @@
                 action = env['sale.order'].my_menu_server_action('done')
             </field>
         </record>
+        <record id="ir_my_menu_problem_order_server_action" model="ir.actions.server">
+            <field name="name">Problematici</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="sale.model_sale_order" />
+            <field name="binding_model_id" ref="sale.model_sale_order" />
+            <field name="state">code</field>
+            <field name="code">
+                action = env['sale.order'].my_menu_server_action('problem')
+            </field>
+        </record>
         <record id="ir_my_menu_cancel_order_server_action" model="ir.actions.server">
             <field name="name">Annullati</field>
             <field name="type">ir.actions.server</field>
@@ -219,9 +229,15 @@
                  action="ir_my_menu_done_order_server_action"
                  />
              <menuitem
-                 id="menu_logistic_my_order_root_server_action_cancel"
+                 id="menu_logistic_my_order_root_server_action_problem"
                  parent="menu_logistic_my_order_root_server_action"
                  sequence="90"
+                 action="ir_my_menu_problem_order_server_action"
+                 />
+             <menuitem
+                 id="menu_logistic_my_order_root_server_action_cancel"
+                 parent="menu_logistic_my_order_root_server_action"
+                 sequence="100"
                  action="ir_my_menu_cancel_order_server_action"
                  />
 
