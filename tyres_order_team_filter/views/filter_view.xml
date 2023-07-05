@@ -9,7 +9,7 @@
             <field name="binding_model_id" ref="sale.model_sale_order" />
             <field name="state">code</field>
             <field name="code">
-                action = records.my_menu_server_action('all')
+                action = self.env('sale.order').my_menu_server_action('all')
             </field>
         </record>
         <record id="ir_my_menu_error_order_server_action" model="ir.actions.server">
@@ -19,7 +19,7 @@
             <field name="binding_model_id" ref="sale.model_sale_order" />
             <field name="state">code</field>
             <field name="code">
-                action = records.my_menu_server_action('error')
+                action = self.env('sale.order').my_menu_server_action('error')
             </field>
         </record>
         <record id="ir_my_menu_draft_order_server_action" model="ir.actions.server">
@@ -29,7 +29,7 @@
             <field name="binding_model_id" ref="sale.model_sale_order" />
             <field name="state">code</field>
             <field name="code">
-                action = records.my_menu_server_action('draft')
+                action = self.env('sale.order').my_menu_server_action('draft')
             </field>
         </record>
         <record id="ir_my_menu_order_order_server_action" model="ir.actions.server">
@@ -39,7 +39,7 @@
             <field name="binding_model_id" ref="sale.model_sale_order" />
             <field name="state">code</field>
             <field name="code">
-                action = records.my_menu_server_action('order')
+                action = self.env('sale.order').my_menu_server_action('order')
             </field>
         </record>
         <record id="ir_my_menu_carrier_order_server_action" model="ir.actions.server">
@@ -49,7 +49,7 @@
             <field name="binding_model_id" ref="sale.model_sale_order" />
             <field name="state">code</field>
             <field name="code">
-                action = records.my_menu_server_action('carrier')
+                action = self.env('sale.order').my_menu_server_action('carrier')
             </field>
         </record>
         <record id="ir_my_menu_pending_order_server_action" model="ir.actions.server">
@@ -59,7 +59,7 @@
             <field name="binding_model_id" ref="sale.model_sale_order" />
             <field name="state">code</field>
             <field name="code">
-                action = records.my_menu_server_action('pending')
+                action = self.env('sale.order').my_menu_server_action('pending')
             </field>
         </record>
         <record id="ir_my_menu_ready_order_server_action" model="ir.actions.server">
@@ -69,7 +69,7 @@
             <field name="binding_model_id" ref="sale.model_sale_order" />
             <field name="state">code</field>
             <field name="code">
-                action = records.my_menu_server_action('ready')
+                action = self.env('sale.order').my_menu_server_action('ready')
             </field>
         </record>
         <record id="ir_my_menu_done_order_server_action" model="ir.actions.server">
@@ -79,7 +79,7 @@
             <field name="binding_model_id" ref="sale.model_sale_order" />
             <field name="state">code</field>
             <field name="code">
-                action = records.my_menu_server_action('done')
+                action = self.env('sale.order').my_menu_server_action('done')
             </field>
         </record>
         <record id="ir_my_menu_cancel_order_server_action" model="ir.actions.server">
@@ -89,7 +89,7 @@
             <field name="binding_model_id" ref="sale.model_sale_order" />
             <field name="state">code</field>
             <field name="code">
-                action = records.my_menu_server_action('cancel')
+                action = self.env('sale.order').my_menu_server_action('cancel')
             </field>
         </record>
 
