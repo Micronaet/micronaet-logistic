@@ -59,6 +59,7 @@ class CrmTeam(models.Model):
                     'order', 'pending', 'ready', 'delivering')),
             ])
         elif mode != 'all':
+            # Add the logistic state filter except for all:
             domain.append(('logistic_state', '=', mode))
 
         if mode == 'ready':  # Extra integration
