@@ -240,7 +240,6 @@
                  sequence="100"
                  action="ir_my_menu_cancel_order_server_action"
                  />
-
          <menuitem
              id="menu_logistic_my_order_root"
              parent="tyres_logistic_management.menu_logistic_header_root"
