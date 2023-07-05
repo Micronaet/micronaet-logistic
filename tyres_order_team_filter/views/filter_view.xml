@@ -1,6 +1,98 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
+        <!-- My menu: -->
+        <record id="ir_my_menu_all_order_server_action" model="ir.actions.server">
+            <field name="name">Tutti</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="sale.model_sale_order" />
+            <field name="binding_model_id" ref="sale.model_sale_order" />
+            <field name="state">code</field>
+            <field name="code">
+                action = records.my_menu_server_action('all')
+            </field>
+        </record>
+        <record id="ir_my_menu_error_order_server_action" model="ir.actions.server">
+            <field name="name">Errati</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="sale.model_sale_order" />
+            <field name="binding_model_id" ref="sale.model_sale_order" />
+            <field name="state">code</field>
+            <field name="code">
+                action = records.my_menu_server_action('error')
+            </field>
+        </record>
+        <record id="ir_my_menu_draft_order_server_action" model="ir.actions.server">
+            <field name="name">Bozza</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="sale.model_sale_order" />
+            <field name="binding_model_id" ref="sale.model_sale_order" />
+            <field name="state">code</field>
+            <field name="code">
+                action = records.my_menu_server_action('draft')
+            </field>
+        </record>
+        <record id="ir_my_menu_order_order_server_action" model="ir.actions.server">
+            <field name="name">Ordine</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="sale.model_sale_order" />
+            <field name="binding_model_id" ref="sale.model_sale_order" />
+            <field name="state">code</field>
+            <field name="code">
+                action = records.my_menu_server_action('order')
+            </field>
+        </record>
+        <record id="ir_my_menu_carrier_order_server_action" model="ir.actions.server">
+            <field name="name">Controllo corriere</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="sale.model_sale_order" />
+            <field name="binding_model_id" ref="sale.model_sale_order" />
+            <field name="state">code</field>
+            <field name="code">
+                action = records.my_menu_server_action('carrier')
+            </field>
+        </record>
+        <record id="ir_my_menu_pending_order_server_action" model="ir.actions.server">
+            <field name="name">Pendenti</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="sale.model_sale_order" />
+            <field name="binding_model_id" ref="sale.model_sale_order" />
+            <field name="state">code</field>
+            <field name="code">
+                action = records.my_menu_server_action('pending')
+            </field>
+        </record>
+        <record id="ir_my_menu_ready_order_server_action" model="ir.actions.server">
+            <field name="name">Pronti</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="sale.model_sale_order" />
+            <field name="binding_model_id" ref="sale.model_sale_order" />
+            <field name="state">code</field>
+            <field name="code">
+                action = records.my_menu_server_action('ready')
+            </field>
+        </record>
+        <record id="ir_my_menu_done_order_server_action" model="ir.actions.server">
+            <field name="name">Completi</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="sale.model_sale_order" />
+            <field name="binding_model_id" ref="sale.model_sale_order" />
+            <field name="state">code</field>
+            <field name="code">
+                action = records.my_menu_server_action('done')
+            </field>
+        </record>
+        <record id="ir_my_menu_cancel_order_server_action" model="ir.actions.server">
+            <field name="name">Annullati</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="sale.model_sale_order" />
+            <field name="binding_model_id" ref="sale.model_sale_order" />
+            <field name="state">code</field>
+            <field name="code">
+                action = records.my_menu_server_action('cancel')
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="view_res_users_tree">
             <field name="name">res.users.tree</field>
             <field name="model">res.users</field>
@@ -71,6 +163,67 @@
             <field name="context">{'form_view_ref': 'tyres_order_team_filter.view_res_users_form'}</field>
             <field name="domain">[]</field>
         </record>
+
+         <menuitem
+             id="menu_logistic_my_order_root_server_action"
+             parent="tyres_logistic_management.menu_logistic_header_root"
+             name="Mia barra ordini"
+             sequence="0"
+             />
+             <menuitem
+                 id="menu_logistic_my_order_root_server_action_all"
+                 parent="menu_logistic_my_order_root_server_action"
+                 sequence="10"
+                 action="ir_my_menu_all_order_server_action"
+                 />
+             <menuitem
+                 id="menu_logistic_my_order_root_server_action_error"
+                 parent="menu_logistic_my_order_root_server_action"
+                 sequence="20"
+                 action="ir_my_menu_error_order_server_action"
+                 />
+             <menuitem
+                 id="menu_logistic_my_order_root_server_action_draft"
+                 parent="menu_logistic_my_order_root_server_action"
+                 sequence="30"
+                 action="ir_my_menu_draft_order_server_action"
+                 />
+             <menuitem
+                 id="menu_logistic_my_order_root_server_action_order"
+                 parent="menu_logistic_my_order_root_server_action"
+                 sequence="40"
+                 action="ir_my_menu_order_order_server_action"
+                 />
+             <menuitem
+                 id="menu_logistic_my_order_root_server_action_carrier"
+                 parent="menu_logistic_my_order_root_server_action"
+                 sequence="50"
+                 action="ir_my_menu_carrier_order_server_action"
+                 />
+             <menuitem
+                 id="menu_logistic_my_order_root_server_action_pending"
+                 parent="menu_logistic_my_order_root_server_action"
+                 sequence="60"
+                 action="ir_my_menu_pending_order_server_action"
+                 />
+             <menuitem
+                 id="menu_logistic_my_order_root_server_action_ready"
+                 parent="menu_logistic_my_order_root_server_action"
+                 sequence="70"
+                 action="ir_my_menu_ready_order_server_action"
+                 />
+             <menuitem
+                 id="menu_logistic_my_order_root_server_action_completed"
+                 parent="menu_logistic_my_order_root_server_action"
+                 sequence="80"
+                 action="ir_my_menu_done_order_server_action"
+                 />
+             <menuitem
+                 id="menu_logistic_my_order_root_server_action_cancel"
+                 parent="menu_logistic_my_order_root_server_action"
+                 sequence="90"
+                 action="ir_my_menu_cancel_order_server_action"
+                 />
 
          <menuitem
              id="menu_logistic_my_order_root"

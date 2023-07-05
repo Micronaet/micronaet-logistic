@@ -37,6 +37,60 @@ class CrmTeam(models.Model):
     """
     _inherit = 'crm.team'
 
+    @api.model
+    def my_menu_server_action(self, mode):
+        """ Call sale order with different open modes
+        """
+        user_id = self.env.uid
+        user = self.env['res.users'].browse(user_id)
+
+        # tree,form,graph,pivot
+        team_ids = [t.id for t in user.team_ids]
+        domain = [
+            ('logistic_source', 'not in', ('refund', )),
+            ('team_id', 'in', team_ids),
+        ]
+
+        if mode == 'carrier':
+            domain.extend([
+                ('partner_id.internal_stock', '=', False),
+                ('carrier_ok', '=', False),
+                ('logistic_state', 'in', (
+                    'order', 'pending', 'ready', 'delivering')),
+            ])
+        elif mode != 'all':
+            domain.append(('logistic_state', '=', mode))
+
+        if mode == 'ready':  # Extra integration
+            domain.append(('locked_delivery', '=', False))
+
+        tree_id = self.env.ref('sale.view_order_tree').id
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Ordini modalità %s' % mode,
+            'view_type': 'form',
+            'view_mode': 'tree,form,graph,pivot',
+            # 'res_id': self.id,
+            'res_model': 'sale.order',
+            'view_id': tree_id,
+            'views': [
+                (tree_id, 'tree'),
+                (False, 'form'),
+                (False, 'pivot'),
+                (False, 'graph'),
+                ],
+            'domain': domain,
+            'context': self.env.context,
+            'target': 'current',  # 'new'
+            'nodestroy': False,
+            }
+
+
+class CrmTeam(models.Model):
+    """ Team setup (force default function)
+    """
+    _inherit = 'crm.team'
+
     # -------------------------------------------------------------------------
     # Override original function:
     # -------------------------------------------------------------------------
