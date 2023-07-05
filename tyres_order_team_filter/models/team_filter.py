@@ -52,6 +52,7 @@ class SaleOrder(models.Model):
             ('team_id', 'in', team_ids),
         ]
 
+        # Integrate carrier mode or normal logistic_state mode:
         if mode == 'carrier':
             domain.extend([
                 ('partner_id.internal_stock', '=', False),
@@ -63,10 +64,10 @@ class SaleOrder(models.Model):
             # Add the logistic state filter except for all:
             domain.append(('logistic_state', '=', mode))
 
+        # Integrate particular state mode:
         if mode == 'ready':  # Extra integration
             domain.append(('locked_delivery', '=', False))
-
-        if mode == 'problem':
+        elif mode == 'problem':
             from_date = (
                 datetime.datetime.now() -
                 datetime.timedelta(days=3)).strftime('%Y-%m-%d 00:00:00')
@@ -76,7 +77,7 @@ class SaleOrder(models.Model):
                     'order', 'pending', 'ready', 'delivering')),
                 ('date_order', '<', from_date),
             ])
-            # {'problem_mode': True}
+            # todo manage context? {'problem_mode': True}
 
         tree_id = self.env.ref('sale.view_order_tree').id
         return {
