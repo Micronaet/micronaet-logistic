@@ -32,10 +32,10 @@ from odoo.tools.translate import _
 _logger = logging.getLogger(__name__)
 
 
-class CrmTeam(models.Model):
-    """ Team setup (force default function)
+class SaleOrder(models.Model):
+    """ Add server action
     """
-    _inherit = 'crm.team'
+    _inherit = 'sale.order'
 
     @api.model
     def my_menu_server_action(self, mode):
