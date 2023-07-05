@@ -80,6 +80,7 @@ class SaleOrder(models.Model):
             # todo manage context? {'problem_mode': True}
 
         tree_id = self.env.ref('sale.view_order_tree').id
+        _logger.warning('Load My menu, domain: %s' % (domain, ))
         return {
             'type': 'ir.actions.act_window',
             'name': 'Ordini modalità %s' % mode,
