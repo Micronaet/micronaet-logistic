@@ -72,6 +72,16 @@
                 action = env['sale.order'].my_menu_server_action('ready')
             </field>
         </record>
+        <record id="ir_my_menu_delivering_order_server_action" model="ir.actions.server">
+            <field name="name">In consegna</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="sale.model_sale_order" />
+            <field name="binding_model_id" ref="sale.model_sale_order" />
+            <field name="state">code</field>
+            <field name="code">
+                action = env['sale.order'].my_menu_server_action('delivering')
+            </field>
+        </record>
         <record id="ir_my_menu_done_order_server_action" model="ir.actions.server">
             <field name="name">Completi</field>
             <field name="type">ir.actions.server</field>
@@ -227,6 +237,12 @@
                  parent="menu_logistic_my_order_root_server_action"
                  sequence="80"
                  action="ir_my_menu_done_order_server_action"
+                 />
+             <menuitem
+                 id="menu_logistic_my_order_root_server_action_delivering"
+                 parent="menu_logistic_my_order_root_server_action"
+                 sequence="80"
+                 action="ir_my_menu_delivering_order_server_action"
                  />
              <menuitem
                  id="menu_logistic_my_order_root_server_action_problem"
