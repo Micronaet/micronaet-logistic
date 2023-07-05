@@ -6,7 +6,7 @@
             <field name="model">res.users</field>
             <field name="arch" type="xml">
                 <tree string="User for team">
-                    <field name="name" />                    
+                    <field name="name" />
                     <field name="team_ids" widget="many2many_tags" options="{'no_create_edit': True}"/>
                     <field name="my_default_team_id" />
                 </tree>
@@ -28,7 +28,7 @@
                             <field name="my_default_team_id" />
                             <newline/>
                             <field name="team_ids" widget="many2many_tags" options="{'no_create_edit': True}" colspan="4"/>
-                           
+
                             <notebook colspan="4">
                                 <page string="My Menu">
                                     <group colspan="4" col="4">
@@ -38,10 +38,10 @@
                                             <tree string="Extra menu" editable="bottom">
                                                 <field name="my_sequence" />
                                                 <field name="my_action_id" />
-                                                <field name="my_menu_id" />                                                
-                                            </tree>    
+                                                <field name="my_menu_id" />
+                                            </tree>
                                         </field>
-                                        <field name="my_group_id" readonly="1" colspan="4"/>                                        
+                                        <field name="my_group_id" readonly="1" colspan="4"/>
                                     </group>
                                 </page>
                                 <page string="Template" attrs="{'invisible': [('my_user_template','=',False)]}">
@@ -52,13 +52,11 @@
                                                 <field name="sequence" />
                                                 <field name="template_menu_id" />
                                                 <field name="force_name" />
-                                            </tree>    
+                                            </tree>
                                         </field>
                                     </group>
                                 </page>
-                                
-                            </notebook> 
-                            
+                            </notebook>
                         </group>
                     </sheet>
                 </form>
@@ -73,21 +71,21 @@
             <field name="context">{'form_view_ref': 'tyres_order_team_filter.view_res_users_form'}</field>
             <field name="domain">[]</field>
         </record>
-        
+
          <menuitem
-             id="menu_logistic_my_order_root" 
+             id="menu_logistic_my_order_root"
              parent="tyres_logistic_management.menu_logistic_header_root"
              name="My Sale order"
-             sequence="1"        
+             sequence="1"
              />
 
-        <menuitem 
-            id="menu_user_menu_management" 
+        <menuitem
+            id="menu_user_menu_management"
             parent="tyres_logistic_management.menu_logistic_left_configuration_root"
             action="action_res_user_my_menu"
             sequence="50"
             />
-            
-        
+
+
     </data>
 </openerp>
