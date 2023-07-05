@@ -69,8 +69,8 @@ class SaleOrder(models.Model):
             domain.append(('locked_delivery', '=', False))
         elif mode == 'problem':
             from_date = (
-                datetime.datetime.now() -
-                datetime.timedelta(days=3)).strftime('%Y-%m-%d 00:00:00')
+                datetime.now() -
+                timedelta(days=3)).strftime('%Y-%m-%d 00:00:00')
 
             domain.extend([
                 ('logistic_state', 'in', (
