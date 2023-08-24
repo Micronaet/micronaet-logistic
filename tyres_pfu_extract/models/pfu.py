@@ -51,7 +51,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
     # -------------------------------------------------------------------------
     #                            COLUMNS:
     # -------------------------------------------------------------------------
-    partner_id = fields.Many2one('res.partner', 'Supplier', # required=True,
+    partner_id = fields.Many2one('res.partner', 'Supplier',  # required=True,
         domain="[('supplier', '=', True)]")
     from_date = fields.Date('From date >=', required=True)
     to_date = fields.Date('To date <', required=True)
@@ -115,7 +115,6 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 supplier_category_move[supplier][category] = 0
 
             supplier_category_move[supplier][category] += move.product_uom_qty
-
 
         # Export only total grouped by RAEE mode:
         # ---------------------------------------------------------------------

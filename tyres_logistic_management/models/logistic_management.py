@@ -191,9 +191,11 @@ class ProductTemplate(models.Model):
     # -------------------------------------------------------------------------
     # Columns:
     # -------------------------------------------------------------------------
-    is_expence = fields.Boolean('Expense product',
+    is_expence = fields.Boolean(
+        'Expense product',
         help='Expense product is not order and produced')
-    account_ref = fields.Char('Account ref.', size=20,
+    account_ref = fields.Char(
+        'Account ref.', size=20,
         help='Account code, if not present use default setup in configuration')
 
     @api.one
@@ -247,6 +249,7 @@ class PurchaseOrder(models.Model):
         sale_line_pool = self.env['sale.order.line']
         picking_pool = self.env['stock.picking']
         company = self.env.user.company_id
+        api_store_code = company.api_store_code or ''
 
         # ---------------------------------------------------------------------
         #                    Call API for unload stock:
@@ -288,6 +291,7 @@ class PurchaseOrder(models.Model):
                 first_line.clean_account_char(sale_order.partner_id.name),
             'customerCode':  # ex costReference
                 sale_order.team_id.team_code_ref,
+            'storage': api_store_code,
             'details': []
             }
 
@@ -2301,6 +2305,12 @@ class ResCompany(models.Model):
             _logger.error('Cannot get PDF file for invoice %s' % invoice_ref)
             return False'''
 
+    api_store_code = fields.Char(
+        'Codice magazzino API', size=20,
+        help='Codice API utilizzato per il passaggio dati con il '
+             'gestionale, indica il codice del magazzino da usare per la '
+             'gestione multisede')
+
 
 class ResPartner(models.Model):
     """ Model name: Res Partner
@@ -3620,6 +3630,8 @@ class SaleOrderLine(models.Model):
         company_pool = self.env['res.company']
         picking_pool = self.env['stock.picking']
 
+        api_store_code = company.api_store_code or ''
+
         # Setup always made for remove warning if field not present:
         location = token = ''
 
@@ -3733,6 +3745,7 @@ class SaleOrderLine(models.Model):
                         'documentNo': 'undo order',
                         'documentDate': zulu_date,
                         'supplierCode': '',  # todo what value?
+                        'storage': api_store_code,
                         'details': [],
                     }
                     for line in pickings[picking_id]:

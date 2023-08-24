@@ -508,6 +508,7 @@
                                          <field name="api_root_url" colspan="4" />
                                          <field name="api_username"/>
                                          <field name="api_password" password="True"/>
+                                         <field name="api_store_code" />
 
                                          <separator string="Aree:" colspan="4"/>
                                          <field name="api_invoice_area"/>
