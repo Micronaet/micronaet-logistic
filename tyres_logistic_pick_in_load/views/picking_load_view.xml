@@ -180,7 +180,7 @@
                      <!--<field name="customer_order_date" readonly="1" invisible="not context.get('internal_view')"/>-->
                      <field name="purchase_order_date" readonly="1" invisible="not context.get('internal_view')"/>
                      <field name="supplier_delivery_date" invisible="context.get('open_mode') != 'office'" />
-                     <field name="internal_note" string="Note" invisible="not context.get('internal_view')"/>
+                     <field name="internal_note" string="Note" invisible="not context.get('internal_view') and not context.get('internal_view_note')"/>
 
                      <button name="open_detail_delivery_in" string="Open detail for line" type="object" icon="fa-list-alt fa-2x"/>
                      <button name="fast_filter_product_id" string="Filter this product" type="object" icon="fa-search fa-2x"  attrs="{'invisible': [('product_id','=',False)]}" />
@@ -427,7 +427,7 @@
             <field name="view_mode">tree</field>
             <field name="view_id" ref="view_delivery_selection_tree"/>
             <field name="search_view_id" ref="view_delivery_selection_search"/>
-            <field name="context">{'open_mode': 'refund', 'internal_view': True}</field>
+            <field name="context">{'open_mode': 'refund', 'internal_view_note': True}</field>
             <!--<field name="context">{'form_view_ref': 'logistic_pick_in_load.view_delivery_selection_form'}</field>-->
             <field name="domain">[('dropship_manage', '=', False), ('check_status', '!=', 'done'),('logistic_source', '=', 'refund'),
                 ('order_id.logistic_state', '=', 'confirmed'),('internal_stock', '=', False),('user_select_id', 'in', (False, uid)),
