@@ -427,7 +427,7 @@
             <field name="view_mode">tree</field>
             <field name="view_id" ref="view_delivery_selection_tree"/>
             <field name="search_view_id" ref="view_delivery_selection_search"/>
-            <field name="context">{'open_mode': 'refund'}</field>
+            <field name="context">{'open_mode': 'refund', 'internal_view': True}</field>
             <!--<field name="context">{'form_view_ref': 'logistic_pick_in_load.view_delivery_selection_form'}</field>-->
             <field name="domain">[('dropship_manage', '=', False), ('check_status', '!=', 'done'),('logistic_source', '=', 'refund'),
                 ('order_id.logistic_state', '=', 'confirmed'),('internal_stock', '=', False),('user_select_id', 'in', (False, uid)),
