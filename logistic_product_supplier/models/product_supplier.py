@@ -322,6 +322,7 @@ class SaleOrderLine(models.Model):
         """ Return stat of line
         """
         gap = 0.00001
+        _logger.info('Start check covered state')
         for line in self:
             product_uom_qty = line.product_uom_qty
             covered_qty = 0.0
@@ -337,7 +338,9 @@ class SaleOrderLine(models.Model):
                 else:
                     line.state_description = 'NON ASSEGNATO'
             line.state_qty = covered_qty
-        return
+        _logger.info('End check covered state')
+        return True
+
     # -------------------------------------------------------------------------
     #                                   COLUMNS:
     # -------------------------------------------------------------------------
