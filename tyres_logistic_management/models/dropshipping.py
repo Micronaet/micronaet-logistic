@@ -63,6 +63,7 @@ class ResPartner(models.Model):
     # -------------------------------------------------------------------------
     dropship_manage = fields.Boolean('Dropship manage')
 
+
 class ProductTemplateSupplierStock(models.Model):
     """ Model name: ProductTemplateSupplierStock
     """
@@ -74,11 +75,23 @@ class ProductTemplateSupplierStock(models.Model):
         """ Do nothing
         """
         return True
+
     # -------------------------------------------------------------------------
     # Columns:
     # -------------------------------------------------------------------------
+    @api.depends('supplier_id', 'supplier_id.dropship_manage')
+    @api.multi
+    def get_supplier_id_dropship_manage(self):
+        """ Manage all data for logistic situation in sale order:
+        """
+        _logger.warning('Updating dropship purchase line')
+        for line in self:
+            line.partner_dropship_manage = line.supplier_id.dropship_manage
+
     partner_dropship_manage = fields.Boolean(
-        'Partner dropship', related='supplier_id.dropship_manage')
+        'Partner dropship',
+        compute='get_supplier_id_dropship_manage',
+        store=True)
 
 
 class SaleOrderLinePurchase(models.Model):
@@ -105,6 +118,17 @@ class SaleOrderLinePurchase(models.Model):
     # -------------------------------------------------------------------------
     # Columns:
     # -------------------------------------------------------------------------
-    dropship_manage = fields.Boolean('Dropship manage')
+    @api.depends('supplier_id', 'supplier_id.dropship_manage')
+    @api.multi
+    def get_supplier_id_dropship_manage(self):
+        """ Manage all data for logistic situation in sale order:
+        """
+        _logger.warning('Updating dropship purchase line')
+        for line in self:
+            line.partner_dropship_manage = line.supplier_id.dropship_manage
+
     partner_dropship_manage = fields.Boolean(
-        'Partner dropship', related='supplier_id.dropship_manage')
+        'Partner dropship',
+        compute='get_supplier_id_dropship_manage',
+        store=True)
+    dropship_manage = fields.Boolean('Dropship manage')
