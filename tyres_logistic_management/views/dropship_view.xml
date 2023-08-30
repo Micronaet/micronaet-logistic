@@ -14,8 +14,8 @@
                  <xpath expr="//field[@name='purchase_split_ids']/tree/field[@name='purchase_price']" position="after">
                      <field name="dropship_manage" invisible="1"/>
                      <field name="partner_dropship_manage" invisible="1"/>
-                     <button name="set_dropship_on" string="Dropship ON" type="object" attrs="{'invisible': ['|',('partner_dropship_manage','=',False),('dropship_manage','=',True)]}" icon="fa-plane fa-2x"/>
-                     <button name="set_dropship_off" string="Dropship OFF" type="object" attrs="{'invisible': ['|',('partner_dropship_manage','=',False),('dropship_manage','=',False)]}" icon="fa-mail-reply fa-2x" />
+                     <button name="set_dropship_on" string="Dropship ON" type="object" attrs="{'invisible': ['|',('partner_dropship_manage','=',False),('dropship_manage','=',True)]}" icon="fa-plane fa-x2"/>
+                     <button name="set_dropship_off" string="Dropship OFF" type="object" attrs="{'invisible': ['|',('partner_dropship_manage','=',False),('dropship_manage','=',False)]}" icon="fa-mail-reply fa-x2" />
                  </xpath>
                  <tree name="Purchase reference" position="attributes">
                       <attribute name="decoration-info">dropship_manage==True</attribute>

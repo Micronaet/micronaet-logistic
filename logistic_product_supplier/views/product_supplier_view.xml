@@ -164,11 +164,11 @@
                                     <button name="dummy" string="Promo" type="object" icon="fa-thumbs-up" attrs="{'invisible': [('promo','=',False)]}"/>
 
                                     <field name="stock_qty" />
-                                    <button name="assign_to_purchase_this" string="this" type="object" context="{'sale_order_id': parent.id}" icon="fa-backward fa-2x" /><!--class="oe_highlight"-->
-                                    <button name="assign_to_purchase_minus" string="-" type="object" context="{'sale_order_id': parent.id}" icon="fa-minus-circle fa-2x"/>
-                                    <button name="assign_to_purchase_plus" string="+" type="object" context="{'sale_order_id': parent.id}" icon="fa-plus-circle fa-2x"/>
-                                    <button name="assign_to_purchase_none" string="0" type="object" context="{'sale_order_id': parent.id}" icon="fa-bitbucket fa-2x"/> <!--fa-dot-circle-o-->
-                                    <button name="assign_to_purchase_all" string="all" type="object" context="{'sale_order_id': parent.id}" icon="fa-fast-forward fa-2x"/>
+                                    <button name="assign_to_purchase_this" string="this" type="object" context="{'sale_order_id': parent.id}" icon="fa-backward fa-x2" /><!--class="oe_highlight"-->
+                                    <button name="assign_to_purchase_minus" string="-" type="object" context="{'sale_order_id': parent.id}" icon="fa-minus-circle fa-x2"/>
+                                    <button name="assign_to_purchase_plus" string="+" type="object" context="{'sale_order_id': parent.id}" icon="fa-plus-circle fa-x2"/>
+                                    <button name="assign_to_purchase_none" string="0" type="object" context="{'sale_order_id': parent.id}" icon="fa-bitbucket fa-x2"/> <!--fa-dot-circle-o-->
+                                    <button name="assign_to_purchase_all" string="all" type="object" context="{'sale_order_id': parent.id}" icon="fa-fast-forward fa-x2"/>
                                 </tree>
                                 <form/>
                              </field>
