@@ -68,14 +68,8 @@ class ProductTemplateSupplierStock(models.Model):
     def assign_to_purchase_minus(self):
         """ Assign -1 to this supplier
         """
-        sale_pool = self.env['sale.order.line']
-        purchase_pool = self.env['sale.order.line.purchase']
-
         # Current sale line:
         line = self.get_context_sale_order_object()
-
-        product_uom_qty = line.product_uom_qty
-        stock_qty = self.stock_qty
 
         current_qty = 0.0
         current_line = False
@@ -100,11 +94,10 @@ class ProductTemplateSupplierStock(models.Model):
     def assign_to_purchase_plus(self):
         """ Assign +1 to this supplier
         """
-        sale_pool = self.env['sale.order.line']
         purchase_pool = self.env['sale.order.line.purchase']
 
         # Current sale line:
-        line = self.get_context_sale_order_object()
+        line = self.get_context_sale_order_object()  # Load sale line from ctx
         product_uom_qty = line.product_uom_qty
         stock_qty = self.stock_qty
 
@@ -128,7 +121,7 @@ class ProductTemplateSupplierStock(models.Model):
                 'Stock not available to cover! [%s < %s]' % (
                     stock_qty, product_uom_qty))
 
-        if current_line: # Update:
+        if current_line:  # Update:
             current_line.write({
                 'purchase_price': self.quotation,
                 'product_uom_qty': used_qty,
@@ -168,12 +161,10 @@ class ProductTemplateSupplierStock(models.Model):
             'product_uom_qty': used_qty,
             })
 
-
     @api.multi
     def assign_to_purchase_this(self):
         """ Assign max stock from this supplier (or remain)
         """
-        sale_pool = self.env['sale.order.line']
         purchase_pool = self.env['sale.order.line.purchase']
 
         # Current sale line:
