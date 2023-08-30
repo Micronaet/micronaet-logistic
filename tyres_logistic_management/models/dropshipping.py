@@ -84,7 +84,7 @@ class ProductTemplateSupplierStock(models.Model):
     def get_supplier_id_dropship_manage(self):
         """ Manage all data for logistic situation in sale order:
         """
-        _logger.warning('Updating dropship purchase line')
+        _logger.warning('Updating dropship sale line')
         for line in self:
             line.partner_dropship_manage = line.supplier_id.dropship_manage
 
