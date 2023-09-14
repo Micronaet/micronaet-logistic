@@ -251,9 +251,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # ---------------------------------------------------------------------
         # Write detail:
         # ---------------------------------------------------------------------
-        ipcode_cache = {}
         setup_complete = False  # For initial setup:
         for supplier in sorted(supplier_category_move, key=lambda x: x.name):
+            ipcode_cache = {}
             ws_name = supplier.name.strip()
 
             # -----------------------------------------------------------------
