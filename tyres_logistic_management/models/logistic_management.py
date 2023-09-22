@@ -234,20 +234,22 @@ class PurchaseOrder(models.Model):
     # -------------------------------------------------------------------------
     @job
     @api.model
-    def send_mail_to_external_storage(self, body_message, stock_recipients):
+    def send_mail_to_external_storage(
+            self, body_message, api_store_recipients):
         """ Mail message to advice external storage
         """
         # Send mail:
         company = self.env.user.company_id
 
-        # "info@felappigomme.it,logistica@felappigomme.it,alessandro@felappigomme.it"
-
+        # Clean extra spaces:
+        api_store_recipients = api_store_recipients.replace(' ', '')
+        # todo validate email?
         company.notify(
             'Scarico magazzino interno da integrare in giornata',
             error_type='INFO',
             body=body_message,
             channel='sendinblue',
-            recipients_kind=stock_recipients,
+            recipients_kind=api_store_recipients,
             verbose=False)
 
         # todo Create log record:
@@ -379,12 +381,11 @@ class PurchaseOrder(models.Model):
         # ---------------------------------------------------------------------
         # Send mail to external stock management
         # ---------------------------------------------------------------------
-        # Debug:
-        # stock_recipients = company.stock_recipients
-        stock_recipients = 'nicola.riolini@micronaet.com,alessandro@felappigomme.it'
-        if stock_recipients:
+        api_store_recipients = company.api_store_recipients
+        # Need extra store management and recipient list:
+        if company.api_store_code and api_store_recipients:
             self.with_delay().send_mail_to_external_storage(
-                mail_message, stock_recipients)
+                mail_message, api_store_recipients)
 
         # ---------------------------------------------------------------------
         # When API call is done last operation on ERP:
@@ -2347,6 +2348,12 @@ class ResCompany(models.Model):
         help='Codice API utilizzato per il passaggio dati con il '
              'gestionale, indica il codice del magazzino da usare per la '
              'gestione multisede')
+    api_store_recipients = fields.Char(
+        'Destinatari mail', size=120,
+        help='Elenco mail separate da virgola per l''invio automatico '
+             'del messaggio quando avviene uno scarico da magazzino '
+             'interno da integrare. Se lasciato vuoto non effettua '
+             'l''invio.')
 
 
 class ResPartner(models.Model):

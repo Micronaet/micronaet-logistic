@@ -506,9 +506,12 @@
                                      </group>
                                      <group col="4" colspan="4" attrs="{'required': [('api_management', '=', True)], 'invisible': [('api_management', '=', False)]}">
                                          <field name="api_root_url" colspan="4" />
+
                                          <field name="api_username"/>
                                          <field name="api_password" password="True"/>
+
                                          <field name="api_store_code" />
+                                         <field name="api_store_recipients" attrs="{'invisible': [('api_store_code', '=', False)]}"/>
 
                                          <separator string="Aree:" colspan="4"/>
                                          <field name="api_invoice_area"/>
