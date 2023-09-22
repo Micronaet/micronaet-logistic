@@ -37,6 +37,7 @@
         'account',
         'stock',
         'purchase',
+        'queue_job',
         # 'confirm_dialog_wizard',  # Dialog message management
 
         # Report:
