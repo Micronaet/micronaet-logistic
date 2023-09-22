@@ -359,14 +359,14 @@ class PurchaseOrder(models.Model):
                 first_line.clean_account_char(sale_order.partner_id.name),
             'customerCode':  # ex costReference
                 sale_order.team_id.team_code_ref,
-            'storage': api_store_code,
+            'storage': api_store_code,  # todo use also remote stock 2 code?
             'details': []
             }
 
         # ---------------------------------------------------------------------
         # Line data:
         # ---------------------------------------------------------------------
-        transfer_data = []  # Product to be tranfer from secondary stock
+        transfer_data = []  # Product to be transfer from secondary stock
         for line in lines:
             product = line.product_id
             sku = product.product_tmpl_id.default_code
@@ -378,8 +378,11 @@ class PurchaseOrder(models.Model):
                 'unitValue': line.logistic_sale_id.price_reduce,
             })
 
-            # Is a secondary stock to tranfer:
-            if line.internal_stock_mail:
+            # Is a secondary stock to transfer:
+            internal_stock_mail = line.order_id.partner_id.internal_stock_mail
+            # todo remove puchase line internal_stock_mail related field!
+            # if line.internal_stock_mail:
+            if internal_stock_mail:
                 transfer_data.append(
                     (quantity, product))
 
@@ -431,8 +434,6 @@ class PurchaseOrder(models.Model):
         # Send mail to external stock management
         # ---------------------------------------------------------------------
         api_store_recipients = company.api_store_recipients
-
-        # Need extra store management and recipient list:
         if transfer_data and company.api_store_code and api_store_recipients:
             user_email = user.email
             if user_email:
@@ -703,7 +704,7 @@ class PurchaseOrder(models.Model):
     def return_purchase_order_list_view(self, purchase_ids):
         """ Return purchase order tree from ids
         """
-        model_pool = self.env['ir.model.data']
+        # model_pool = self.env['ir.model.data']
         tree_view_id = form_view_id = False
 
         if len(purchase_ids) == 1:

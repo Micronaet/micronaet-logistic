@@ -120,6 +120,7 @@ class PurchaseOrderLine(models.Model):
         related='order_id.partner_id.internal_stock',
         help='Usato per velocizzare il test nella videata di arrivo merce',
         store=True)
+    # todo remove?
     internal_stock_mail = fields.Boolean(
         'Mail per trasferimento interno',
         related='order_id.partner_id.internal_stock_mail',
