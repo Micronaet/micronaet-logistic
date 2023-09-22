@@ -33,6 +33,7 @@ import requests
 import urllib
 import base64
 import json
+from odoo.addons.queue_job.job import job
 from requests.utils import requote_uri  # todo remove?
 from odoo import api, fields, models, tools, exceptions, SUPERUSER_ID
 from odoo.addons import decimal_precision as dp
@@ -231,6 +232,27 @@ class PurchaseOrder(models.Model):
     # -------------------------------------------------------------------------
     #                             UTILITY:
     # -------------------------------------------------------------------------
+    @job
+    @api.model
+    def send_mail_to_external_storage(self, body_message, stock_recipients):
+        """ Mail message to advice external storage
+        """
+        # Send mail:
+        company = self.env.user.company_id
+
+        # "info@felappigomme.it,logistica@felappigomme.it,alessandro@felappigomme.it"
+
+        company.notify(
+            'Scarico magazzino interno da integrare in giornata',
+            error_type='INFO',
+            body=body_message,
+            channel='sendinblue',
+            recipients_kind=stock_recipients,
+            verbose=False)
+
+        # todo Create log record:
+        return True
+
     #                             API Mode:
     # -------------------------------------------------------------------------
     @api.model
@@ -298,12 +320,17 @@ class PurchaseOrder(models.Model):
         # ---------------------------------------------------------------------
         # Line data:
         # ---------------------------------------------------------------------
+        mail_message = 'Scarico magazzino interno:\n'
+
         for line in lines:
+            sku = line.product_id.product_tmpl_id.default_code
+            quantity = line.product_qty
             api_order['details'].append({
-                'sku': line.product_id.product_tmpl_id.default_code,
-                'quantity': line.product_qty,
+                'sku': sku,
+                'quantity': quantity,
                 'unitValue': line.logistic_sale_id.price_reduce,
             })
+            mail_message += '%s x Cod. %s' % (quantity, sku)
 
         # Prepare API call parameters:
         json_dumps = json.dumps(api_order)
@@ -347,7 +374,17 @@ class PurchaseOrder(models.Model):
         # Check if API works:
         if not reply_ok:
             raise exceptions.Warning(
-                'Errore chiamato le API:\n{}'.format(reply))
+                'Errore chiamando le API:\n{}'.format(reply))
+
+        # ---------------------------------------------------------------------
+        # Send mail to external stock management
+        # ---------------------------------------------------------------------
+        # Debug:
+        # stock_recipients = company.stock_recipients
+        stock_recipients = 'nicola.riolini@micronaet.com,alessandro@felappigomme.it'
+        if stock_recipients:
+            self.with_delay().send_mail_to_external_storage(
+                mail_message, stock_recipients)
 
         # ---------------------------------------------------------------------
         # When API call is done last operation on ERP:
