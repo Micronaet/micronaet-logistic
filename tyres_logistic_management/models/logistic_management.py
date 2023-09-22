@@ -46,6 +46,23 @@ from dateutil.relativedelta import relativedelta
 _logger = logging.getLogger(__name__)
 
 
+class StockMoveTransfer(models.Model):
+    """ Manage office
+    """
+    _name = 'stock.move.transfer'
+    _description = 'Transfer stock movement'
+    _order = 'timestamp desc'
+    _rec_name = 'product_id'
+
+    product_id = fields.Many2one('product.product', 'Prodotto')
+    quantity = fields.Integer('Pezzi')
+    timestamp = fields.Datetime(
+        'Timestamp',
+        help='Timestamp della mail che è stata inviata')
+    done = fields.Boolean('Fatto')
+    note = fields.Char('Note', size=180)
+
+
 class SaleOrderManageOffice(models.Model):
     """ Manage office
     """
@@ -235,19 +252,43 @@ class PurchaseOrder(models.Model):
     @job
     @api.model
     def send_mail_to_external_storage(
-            self, body_message, api_store_recipients):
+            self, transfer_data, api_store_recipients):
         """ Mail message to advice external storage
         """
+        stock_move_transfer = self.env['stock.move.transfer']
+
         # Send mail:
         company = self.env.user.company_id
+        now = str(datetime.now().strftime())[:19]
+
+        body_message = 'Mandare a Rodengo:\n'
+        for key in transfer_data:
+            quantity, product = key
+            template = product.product_tmpl_id
+            default_code = template.default_code
+
+            body_message += '%s x [%s] %s\n' % (
+                quantity, default_code, product.name)
+
+            # Add stock move transfer:
+            stock_move_transfer.create({
+                'timestamp': now,
+                'product_id': product.id,
+                'quantity': quantity,
+                'done': False,
+            })
+
+        body_message = body_message.replace('\n', '<br/>')
 
         # Clean extra spaces:
         api_store_recipients = api_store_recipients.replace(' ', '')
+
         # todo validate email?
         _logger.warning('Sending internal stock mail')
+        subject = 'MOVIMENTAZIONE MAGAZZINO VERSO RODENGO: %s' % now
 
         company.notify(
-            'Scarico magazzino interno da integrare in giornata',
+            subject,
             error_type='INFO',
             body=body_message,
             channel='sendinblue',
@@ -324,17 +365,22 @@ class PurchaseOrder(models.Model):
         # ---------------------------------------------------------------------
         # Line data:
         # ---------------------------------------------------------------------
-        mail_message = 'Scarico magazzino interno:\n'
-
+        transfer_data = []  # Product to be tranfer from secondary stock
         for line in lines:
-            sku = line.product_id.product_tmpl_id.default_code
+            product = line.product_id
+            sku = product.product_tmpl_id.default_code
             quantity = line.product_qty
+
             api_order['details'].append({
                 'sku': sku,
                 'quantity': quantity,
                 'unitValue': line.logistic_sale_id.price_reduce,
             })
-            mail_message += '%s x Cod. %s' % (quantity, sku)
+
+            # Is a secondary stock to tranfer:
+            if line.internal_stock_mail:
+                transfer_data.append(
+                    (quantity, product))
 
         # Prepare API call parameters:
         json_dumps = json.dumps(api_order)
@@ -384,10 +430,11 @@ class PurchaseOrder(models.Model):
         # Send mail to external stock management
         # ---------------------------------------------------------------------
         api_store_recipients = company.api_store_recipients
+
         # Need extra store management and recipient list:
-        if company.api_store_code and api_store_recipients:
+        if transfer_data and company.api_store_code and api_store_recipients:
             self.with_delay().send_mail_to_external_storage(
-                mail_message, api_store_recipients)
+                transfer_data, api_store_recipients)
 
         # ---------------------------------------------------------------------
         # When API call is done last operation on ERP:
@@ -2370,6 +2417,10 @@ class ResPartner(models.Model):
     internal_stock = fields.Boolean(
         'Internal Stock',
         help='All order to this supplier is considered as internal')
+    internal_stock_mail = fields.Boolean(
+        'Internal Stock Mail',
+        help='Invia la mail con la notifica della merce scaricata'
+             ' per essere poi spostata da un magazzino all''altro')
     need_invoice = fields.Boolean('Always invoice')
     sql_customer_code = fields.Char('SQL customer code', size=20)
     sql_supplier_code = fields.Char('SQL supplier code', size=20)

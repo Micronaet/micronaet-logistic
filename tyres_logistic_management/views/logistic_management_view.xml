@@ -1,6 +1,50 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
+         <record model="ir.ui.view" id="view_stock_move_transfer_search">
+             <field name="name">stock.move.transfer.search</field>
+             <field name="model">stock.move.transfer</field>
+             <field name="arch" type="xml">
+                 <search string="Movimentazioni tra magazzini">
+                     <field name="timestamp" />
+                     <field name="product_id" />
+
+                     <filter string="Fatti" domain="[('done', '=', True)]"/>
+                     <filter string="Da fare" domain="[('done', '=', False)]"/>
+
+                     <filter name="filter_today" string="Today" domain="[('timestamp', '&gt;=', datetime.datetime.now().strftime('%Y-%m-%d 00:00:00')),('timestamp', '&lt;=', datetime.datetime.now().strftime('%Y-%m-%d 23:23:59'))]"/>
+
+                     <group expand="0" string="Group By...">
+                         <filter name="group_timestamp" string="Tmestamp" context="{'group_by': 'timestamp'}"/>
+                         <filter name="group_product" string="Prodotto" context="{'group_by': 'product_id'}"/>
+                         <filter name="group_done" string="Fatti" context="{'group_by': 'done'}"/>
+                     </group>
+                 </search>
+             </field>
+         </record>
+         <record model="ir.ui.view" id="view_stock_move_transfer_tree">
+             <field name="name">stock.move.transfer.tree</field>
+             <field name="model">stock.move.transfer</field>
+             <field name="arch" type="xml">
+                 <tree string="Movimentazioni tra magazzini" editable="bottom">
+                     <field name="timestamp" />
+                     <field name="product_id" />
+                     <field name="quantity" />
+                     <field name="done" widget="boolean_toggle" />
+                     <field name="note" />
+                 </tree>
+             </field>
+         </record>
+        <record model="ir.actions.act_window" id="action_view_stock_move_transfer">
+            <field name="name">Trasfer. tra magazzini</field>
+            <field name="res_model">stock.move.transfer</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{'search_default_filter_today': True}</field>
+            <field name="domain">[]</field>
+        </record>
+
+
         <!--sale.order.manage.office-->
         <record model="ir.ui.view" id="view_action_sale_order_manage_office_tree">
             <field name="name">sale.order.manage.office.tree</field>
@@ -196,6 +240,7 @@
              <field name="arch" type="xml">
                  <field name="ref" position="after">
                      <field name="internal_stock" />
+                     <field name="internal_stock_mail" attrs="{'invisible': [('internal_stock', '=', False)]}"/>
                      <separator string="Account document" />
                      <field name="need_invoice" />
                      <field name="sql_customer_code" />
@@ -1365,6 +1410,12 @@
                      name="Stock move all"
                      action="action_stock_move_logistic_form"
                      sequence="10"
+                     />
+                 <menuitem
+                     id="menu_stock_move_transfer"
+                     parent="menu_logistic_left_stock_move_root"
+                     action="action_view_stock_move_transfer"
+                     sequence="90"
                      />
 
              <menuitem
