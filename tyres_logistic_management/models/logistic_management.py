@@ -244,6 +244,8 @@ class PurchaseOrder(models.Model):
         # Clean extra spaces:
         api_store_recipients = api_store_recipients.replace(' ', '')
         # todo validate email?
+        _logger.warning('Sending internal stock mail')
+
         company.notify(
             'Scarico magazzino interno da integrare in giornata',
             error_type='INFO',
