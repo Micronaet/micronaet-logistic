@@ -2349,7 +2349,7 @@ class ResCompany(models.Model):
              'gestionale, indica il codice del magazzino da usare per la '
              'gestione multisede')
     api_store_recipients = fields.Char(
-        'Destinatari mail', size=120,
+        'Destinatari mail', size=120, required=False,
         help='Elenco mail separate da virgola per l''invio automatico '
              'del messaggio quando avviene uno scarico da magazzino '
              'interno da integrare. Se lasciato vuoto non effettua '
