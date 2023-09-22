@@ -315,7 +315,8 @@ class PurchaseOrder(models.Model):
         move_pool = self.env['stock.move']
         sale_line_pool = self.env['sale.order.line']
         picking_pool = self.env['stock.picking']
-        company = self.env.user.company_id
+        user = self.env.user
+        company = user.company_id
         api_store_code = company.api_store_code or ''
 
         # ---------------------------------------------------------------------
@@ -433,6 +434,9 @@ class PurchaseOrder(models.Model):
 
         # Need extra store management and recipient list:
         if transfer_data and company.api_store_code and api_store_recipients:
+            user_email = user.email
+            if user_email:
+                api_store_recipients += ',%s' % user_email
             self.with_delay().send_mail_to_external_storage(
                 transfer_data, api_store_recipients)
 
