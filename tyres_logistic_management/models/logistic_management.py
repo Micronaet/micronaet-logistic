@@ -259,7 +259,7 @@ class PurchaseOrder(models.Model):
 
         # Send mail:
         company = self.env.user.company_id
-        now = str(datetime.now().strftime())[:19]
+        now = str(datetime.now())[:19]
 
         body_message = 'Mandare a Rodengo:\n'
         for key in transfer_data:
