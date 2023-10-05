@@ -108,6 +108,7 @@ class SaleOrderStats(models.Model):
             'target': 'current',  # 'new'
             'nodestroy': False,
             }
+
     @api.multi
     def sale_order_refresh_margin_stats(self):
         """ Update margin data:
@@ -162,7 +163,7 @@ class SaleOrderStats(models.Model):
                 continue
 
             # -----------------------------------------------------------------
-            # Expence article
+            # Expense article
             # -----------------------------------------------------------------
             if product.is_expence:
                 continue # not used!

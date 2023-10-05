@@ -1391,7 +1391,7 @@ class PurchaseOrderLine(models.Model):
             'view_mode': 'tree,form',
             'res_model': 'purchase.order.line',
             'view_id': tree_id,
-            'search_view_id': search_id,  # TODO dont' work!!!
+            'search_view_id': search_id,  # todo dont' work!!!
             'views': [
                 (tree_id, 'tree'),
                 (False, 'form'),
@@ -1560,7 +1560,7 @@ class PurchaseOrderLine(models.Model):
         """
         logistic_delivered_manual = self.logistic_delivered_manual
 
-        # TODO check also logistic_undeliveret_qty for remain?
+        # todo check also logistic_undelivered_qty for remain?
         if logistic_delivered_manual < 1.0:
             raise exceptions.Warning('Nothing to remove!')
 

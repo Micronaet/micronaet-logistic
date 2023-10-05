@@ -296,6 +296,12 @@ class PurchaseOrder(models.Model):
         # now = fields.Datetime.now()
         for purchase in self:
             partner = purchase.partner_id
+
+            # todo check if internal stock and API export mode before?
+            # if export.mode == 'api':  # API Management
+            #    # API Management
+            #    return self.api_purchase_internal_confirmed()
+
             if not partner.purchase_export_id or \
                     not partner.purchase_folder_id:
                 _logger.warning(

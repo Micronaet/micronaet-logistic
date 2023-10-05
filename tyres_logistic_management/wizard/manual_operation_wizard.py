@@ -48,23 +48,23 @@ class StockChangeStandardPrice(models.TransientModel):
     # Order phase:
     @api.multi
     def confirm_payment(self):
-        ''' A. Confirm draft order if payment is secure
-        '''
+        """ A. Confirm draft order if payment is secure
+        """
         order_pool = self.env['sale.order']
         return order_pool.workflow_draft_to_order()
 
     # Purchase phase:
     @api.multi
     def generate_purchase(self):
-        ''' D. Generate purchase order for not cover qty
-        '''
+        """ D. Generate purchase order for not cover qty
+        """
         line_pool = self.env['sale.order.line']
         return line_pool.workflow_order_pending()
 
     @api.multi
     def confirm_generated_purchase(self):
-        ''' D2. Confirm purchase order created
-        '''
+        """ D2. Confirm purchase order created
+        """
         purchase_pool = self.env['purchase.order']
         purchases = purchase_pool.search([
             ('logistic_state', '=', 'draft'),
@@ -75,16 +75,16 @@ class StockChangeStandardPrice(models.TransientModel):
 
     @api.multi
     def check_internal_order(self):
-        ''' Check internal order if done
-        '''
+        """ Check internal order if done
+        """
         purchase_pool = self.env['purchase.order']
         purchase_pool.purchase_internal_confirmed()
 
     # BF Load phase:
     @api.multi
     def update_ready(self):
-        ''' E. Update order ready with stock or load
-        '''
+        """ E. Update order ready with stock or load
+        """
         picking_pool = self.env['stock.picking']
         return picking_pool.workflow_ordered_ready()
 
@@ -100,8 +100,8 @@ class StockChangeStandardPrice(models.TransientModel):
     # DDT Unload phase:
     @api.multi
     def generate_delivery(self):
-        ''' F. Generate delivery order in draft mode
-        '''
+        """ F. Generate delivery order in draft mode
+        """
 
         # Create draft document:
         order_pool = self.env['sale.order']
@@ -111,20 +111,20 @@ class StockChangeStandardPrice(models.TransientModel):
 
     @api.multi
     def closed_delivered(self):
-        ''' G. Close delivery order
-        '''
+        """ G. Close delivery order
+        """
         return True
 
     @api.multi
     def extra_bf_confirm(self):
-        ''' Check imported extra BF:
-        '''
+        """ Check imported extra BF:
+        """
         return self.env['stock.picking.delivery'].check_import_reply()
 
     @api.multi
     def import_invoice_confirm(self):
-        ''' Check imported invoice:
-        '''
+        """ Check imported invoice:
+        """
         return self.env['stock.picking'].check_import_reply()
 
     # -------------------------------------------------------------------------

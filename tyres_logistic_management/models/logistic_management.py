@@ -298,6 +298,7 @@ class PurchaseOrder(models.Model):
         # todo Create log record:
         return True
 
+    # -------------------------------------------------------------------------
     #                             API Mode:
     # -------------------------------------------------------------------------
     @api.model
@@ -359,6 +360,7 @@ class PurchaseOrder(models.Model):
                 first_line.clean_account_char(sale_order.partner_id.name),
             'customerCode':  # ex costReference
                 sale_order.team_id.team_code_ref,
+            # Company store code:
             'storage': api_store_code,  # todo use also remote stock 2 code?
             'details': []
             }
@@ -378,9 +380,12 @@ class PurchaseOrder(models.Model):
                 'unitValue': line.logistic_sale_id.price_reduce,
             })
 
+            # -----------------------------------------------------------------
             # Is a secondary stock to transfer:
+            # -----------------------------------------------------------------
+            # Data for sending mail after:
             internal_stock_mail = line.order_id.partner_id.internal_stock_mail
-            # todo remove puchase line internal_stock_mail related field!
+            # todo remove purchase line internal_stock_mail related field!
             # if line.internal_stock_mail:
             if internal_stock_mail:
                 transfer_data.append(
@@ -534,7 +539,7 @@ class PurchaseOrder(models.Model):
     @api.model
     def purchase_internal_confirmed(self, purchases=None):
         """ Check if there's some PO internal to close
-            CSV Mode check reply
+            This is the CSV Mode to check reply
         """
         # Pool used:
         company_pool = self.env['res.company']
