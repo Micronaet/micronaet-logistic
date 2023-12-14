@@ -68,6 +68,8 @@ partner_ids = partner_pool.search([
     
 if not partner_ids:
     print('Not necessary')
+    sys.exit()
+    
 now = str(datetime.now()).replace('/', '_').replace('-', '').replace(':', '_')
 log_f = codecs.open('./log/partner_%s.log' % now, 'w', 'utf-8')
 pdb.set_trace()
