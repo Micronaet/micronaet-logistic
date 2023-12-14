@@ -66,8 +66,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             ('logistic_load_id', '!=', False), # Linked to order
             ('logistic_load_id.order_id.logistic_source', 'not in', (
                 'refund', )),  # Not refund
-            # TODO Order web only?
+            # TODO Order web only?            
             ]
+            
     @api.multi
     def extract_fiscal_excel_pfu_report(self, ):
         """ Extract fiscal report

@@ -77,5 +77,10 @@ for partner in partner_pool.browse(partner_ids):
     partner_pool.write([partner.id], {
         'name': new_name,
         })
-    print('Update "%s" in "%s"' % (name, new_name))   
+    message = 'Update "%s" in "%s"' % (name, new_name)
+    print(message)
+    log_f.write(message)
+    log_f.write('\n')     
+    log_f.flush()
+
 
