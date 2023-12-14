@@ -24,6 +24,7 @@ import pdb
 import sys
 
 import erppeek
+import codecs
 
 from datetime import datetime
 
@@ -68,7 +69,7 @@ partner_ids = partner_pool.search([
 if not partner_ids:
     print('Not necessary')
 now = str(datetime.now()).replace('/', '_').replace('-', '').replace(':', '_')
-log_f = open('./log/%s.log' % now, 'w')    
+log_f = codecs.open('./log/partner_%s.log' % now, 'w', 'utf-8')
 pdb.set_trace()
 for partner in partner_pool.browse(partner_ids):
     name = partner.name or ''
