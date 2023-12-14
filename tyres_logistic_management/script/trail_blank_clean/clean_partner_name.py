@@ -74,8 +74,6 @@ pdb.set_trace()
 for partner in partner_pool.browse(partner_ids):
     name = partner.name or ''
     new_name = name.strip()
-    if 'amp' in name:
-        import pdb; pdb.set_trace()
     partner_pool.write([partner.id], {
         'name': new_name,
         })
