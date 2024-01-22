@@ -2006,6 +2006,7 @@ class StockPicking(models.Model):
         else:  # Old mode
             location = '%s/Invoice/ByReference/%s/pdf' % (
                 url, order_number)
+        _logger.warning('Calling %s' % location)
 
         loop_times = 1
         while loop_times <= 2:
@@ -2336,6 +2337,8 @@ class ResCompany(models.Model):
             endpoint = 'Invoice/ByReferenceId/%s' % requote_uri(sale_order.id)
         else:  # old:
             endpoint = 'Invoice/ByReference/%s' % requote_uri(order_name)
+        _logger.warning('Calling %s' % endpoint)
+
         location = '%s/%s' % (url, endpoint)
         loop_times = 1
 
