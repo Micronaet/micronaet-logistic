@@ -1855,6 +1855,7 @@ class StockPicking(models.Model):
             'documentNo': '',  # Empty, returned from procedure
             # 'documentDate': '',  # Empty, returned from procedure
             'orderNo': order.name or '',
+            'idOdoo': str(order.id),  # New reference for Mago
             'orderDate': get_zulu_date(order.date_order),
             'documentType': account_position.id,
             'salesPerson': agent_code or '',
@@ -1960,6 +1961,7 @@ class StockPicking(models.Model):
             from Account calling invoice with ODOO reference.
         """
         company = self.env.user.company_id
+
         logistic_root_folder = os.path.expanduser(company.logistic_root_folder)
         report_path = os.path.join(logistic_root_folder, 'report')
 
@@ -1991,12 +1993,19 @@ class StockPicking(models.Model):
         #    url, invoice_year, invoice_number)
 
         # B. Call with order reference
-        order_number = urllib.parse.quote_plus(picking.sale_order_id.name)
+        sale_order = picking.sale_order_id
+        order_number = urllib.parse.quote_plus(sale_order.name)
         if not order_number:
             _logger.error('Picking without order linked, no invoice!')
             return False
-        location = '%s/Invoice/ByReference/%s/pdf' % (
-            url, order_number)
+
+        # ODOO Id management (new mode):
+        if sale_order.id > company.api_from_odoo_id:
+            location = '%s/Invoice/ByReferenceId/%s/pdf' % (
+                url, sale_order.id)
+        else:  # Old mode
+            location = '%s/Invoice/ByReference/%s/pdf' % (
+                url, order_number)
 
         loop_times = 1
         while loop_times <= 2:
@@ -2267,6 +2276,16 @@ class ResCompany(models.Model):
     """
     _inherit = 'res.company'
 
+    @api.multi
+    def get_last_api_odoo_id(self):
+        """ Get last ODOO ID from sale.order
+        """
+        cursor = self.env.cr
+        query = 'SELECT max(id) FROM sale_order;'
+        cursor.execute(query)
+        last_order = cursor.fetchall()[0]
+        self.api_from_odoo_id = last_order[0]
+
     @api.model
     def api_get_token(self):
         """ Get token
@@ -2308,8 +2327,15 @@ class ResCompany(models.Model):
         token = company.api_token or company.api_get_token()
 
         url = company.api_root_url
-        order_name = picking.sale_order_id.name
-        endpoint = 'Invoice/ByReference/%s' % requote_uri(order_name)
+
+        sale_order = picking.sale_order_id
+        order_name = sale_order.name
+
+        # ODOO ID Difference call mode, new:
+        if sale_order.id > company.api_from_odoo_id:
+            endpoint = 'Invoice/ByReferenceId/%s' % requote_uri(sale_order.id)
+        else:  # old:
+            endpoint = 'Invoice/ByReference/%s' % requote_uri(order_name)
         location = '%s/%s' % (url, endpoint)
         loop_times = 1
 
@@ -2402,6 +2428,13 @@ class ResCompany(models.Model):
             _logger.error('Cannot get PDF file for invoice %s' % invoice_ref)
             return False'''
 
+    api_from_odoo_id = fields.Integer(
+        'ID ordine ODOO API',
+        help='Indica da quale ordine di ODOO partire per la nuova gestione'
+             'che utilizza l\'ID al posto del numero ordine come riferimento. '
+             'Utilizzare l\'apposito bottone per prendere quello attuale '
+             'o metterlo a mano. La ciamata per generare il PDF verifica '
+             'in base a questo ID se usare la nuova o la vecchia modalità')
     api_store_code = fields.Char(
         'Codice magazzino API', size=20,
         help='Codice API utilizzato per il passaggio dati con il '
