@@ -2336,7 +2336,7 @@ class ResCompany(models.Model):
 
         # ODOO ID Difference call mode, new:
         if sale_order.id > company.api_from_odoo_id:
-            endpoint = 'Invoice/ByReferenceId/%s' % requote_uri(sale_order.id)
+            endpoint = 'Invoice/ByReferenceId/%s' % sale_order.id
         else:  # old:
             endpoint = 'Invoice/ByReference/%s' % requote_uri(order_name)
         _logger.warning('Calling %s' % endpoint)
