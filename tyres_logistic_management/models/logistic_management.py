@@ -2328,8 +2328,6 @@ class ResCompany(models.Model):
         token = company.api_token or company.api_get_token()
 
         url = company.api_root_url
-        if self.env.user.id == 1:
-            pdb.set_trace()
 
         sale_order = picking.sale_order_id
         order_name = sale_order.name
