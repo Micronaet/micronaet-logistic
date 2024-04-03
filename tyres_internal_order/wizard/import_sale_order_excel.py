@@ -141,13 +141,11 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                 )
 
         WS = WB.sheet_by_index(0)
-        start = False
-        currency_line = []
-        currency_col = 0  # Currency start column
-
         for row in range(WS.nrows):
-            template_id = WS.cell(row, 0).value
-            # todo
+            default_code = WS.cell(row, 0).value
+            quantity = WS.cell(row, 1).value
+            price = WS.cell(row, 2).value
+            # todo import in sale order here
         return True
 
     order_id = fields.Many2one('sale.order', 'Ordine di rif.')
