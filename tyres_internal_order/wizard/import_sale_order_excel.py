@@ -114,6 +114,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
         """ Export price file for this purchase order
         """
         wizard = self
+        line_pool = self.env['sale.order.line']
 
         # ---------------------------------------------------------------------
         # Save file passed:
@@ -125,7 +126,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
 
         b64_file = base64.decodebytes(wizard.file)
         now = str(fields.Datetime.now()).replace(':', '_').replace('-', '_')
-        filename = '/tmp/tsale_order_%s.xlsx' % now
+        filename = '/tmp/sale_order_%s.xlsx' % now
         f = open(filename, 'wb')
         f.write(b64_file)
         f.close()
