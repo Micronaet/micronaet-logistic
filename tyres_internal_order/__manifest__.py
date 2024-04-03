@@ -32,7 +32,7 @@
         'base',
         'sale',
         'tyres_logistic_management',
-        'logistic_product_supplier', # Generate purchase
+        'logistic_product_supplier',  # Generate purchase
         ],
     'data': [
         'security/ir.model.access.csv',
