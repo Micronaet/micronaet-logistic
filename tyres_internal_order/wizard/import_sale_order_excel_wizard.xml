@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_import_excel_sale_order_wizard_form" model="ir.ui.view">
+            <field name="name">import.excel.sale.order.wizard.form</field>
+            <field name="model">import.excel.sale.order.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Manage price with Excel">
+                    <header>
+                        <button name="export_sale_order_file" type="object" string="Esporta modello" attrs="{'invisible': [('mode', '!=', 'export')]}" icon="fa-print"/>
+                        <button name="import_sale_order_file" type="object" string="Import ordine XLSX" attrs="{'invisible': [('mode', '!=', 'import')]}" icon="fa-table"/>
+                        <field name="mode" readonly="1" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group col="4" colspan="4">
+                            <field name="order_id" readonly="1"/>
+                            <field name="file" attrs="{'invisible': [('mode', '!=', 'import')]}" colspan="4"/>
+                        </group>
+                    </sheet>
+                    <footer/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_sale_order_import_excel_wizard_form" model="ir.ui.view">
+            <field name="name">sale.order.excel.wizard</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="purchase.sale_order_form"/>
+            <field name="arch" type="xml">
+                <field name="date_order" position="before">
+                    <button name="open_extract_sale_exception_wizard" type="object" string="Import XLSX" icon="fa-table"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>
