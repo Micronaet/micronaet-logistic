@@ -5,7 +5,7 @@
             <field name="name">import.excel.sale.order.wizard.form</field>
             <field name="model">import.excel.sale.order.wizard</field>
             <field name="arch" type="xml">
-                <form string="Manage price with Excel">
+                <form string="Importa ordini da Excel">
                     <header>
                         <button name="export_sale_order_file" type="object" string="Esporta modello" attrs="{'invisible': [('mode', '!=', 'export')]}" icon="fa-print"/>
                         <button name="import_sale_order_file" type="object" string="Import ordine XLSX" attrs="{'invisible': [('mode', '!=', 'import')]}" icon="fa-table"/>
