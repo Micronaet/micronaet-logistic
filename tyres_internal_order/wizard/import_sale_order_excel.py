@@ -105,7 +105,8 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                 ws_name, row, empty_data, style_code=text)
 
         # Change wizard status:
-        self.mode = 'check'
+        wizard.mode = 'check'
+
         # Save file:
         return report_pool.return_attachment('template_dettaglio_ordine')
 
