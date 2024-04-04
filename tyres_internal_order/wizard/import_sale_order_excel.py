@@ -105,7 +105,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                 ws_name, row, empty_data, style_code=text)
 
         # Change wizard status:
-        self.mode = 'import'
+        self.mode = 'check'
         # Save file:
         return report_pool.return_attachment('template_dettaglio_ordine')
 
@@ -116,6 +116,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
         order_id = self.order_id.id
         line_pool = self.env['sale.order.line']
         product_pool = self.env['product.product']
+        check_mode = self.mode == 'check'
 
         # ---------------------------------------------------------------------
         # Save file passed:
@@ -144,7 +145,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
 
         WS = WB.sheet_by_index(0)
         sequence = 0
-        log = ''
+        error = ''
         for row in range(WS.nrows):
             # -----------------------------------------------------------------
             # Read Excel line:
@@ -161,21 +162,20 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                 ('default_code', '=', default_code),
             ])
             if not products:
-                log += '{}. [ERR] Codice {} non trovato\n'.format(
+                error += '{}. [ERR] Codice {} non trovato\n'.format(
                     sequence, default_code)
                 continue
             elif len(products) > 1:
-                log += '{}. [ERR] Codice {} con più ricorrenze ({})\n'.format(
-                    sequence, default_code, len(products))
+                error += '{}. [ERR] Codice {} con più ricorrenze ({})' \
+                         '\n'.format(
+                             sequence, default_code, len(products))
                 continue
             product_id = products[0].id
 
             # -----------------------------------------------------------------
             # Create sale line:
             # -----------------------------------------------------------------
-            # Onchange operation:
-
-            # Line data:
+            # Line data (automatic onchange):
             data = {
                 'sequence': sequence,
                 'order_id': order_id,
@@ -183,13 +183,34 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                 'product_uom_qty': product_uom_qty,
                 'price_unit': price_unit,
             }
-            line_pool.create(data)
+            if not check_mode:
+                line_pool.create(data)
+
+        # ---------------------------------------------------------------------
+        # Final operation:
+        # ---------------------------------------------------------------------
+        # 1. Check mode:
+        if check_mode:
+            if error:
+                self.error_text = error
+            else:
+                self.error_text = 'File corretto senza errori'
+        # 2. Write mode:
+        else:
+            if error:
+                raise exceptions.Warning(
+                    _('Il file presenta errori, riprovare la procedura'
+                      'di importazione con controllo!'),
+                    )
+
         return True
 
     order_id = fields.Many2one('sale.order', 'Ordine di rif.')
     mode = fields.Selection([
         ('export', '1. Scarica template'),
-        ('import', '2. Carica ordine'),
+        ('check', '2. Simulazione e controllo file'),
+        ('import', '3. Carica ordine'),
     ], 'Modalità', default='export')
     file = fields.Binary(
         'File', help='File con dettaglio ordine da caricare in ODOO')
+    error_text = fields.Text('Errore su file')

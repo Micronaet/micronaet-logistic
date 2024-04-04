@@ -7,14 +7,17 @@
             <field name="arch" type="xml">
                 <form string="Importa ordini da Excel">
                     <header>
-                        <button name="export_sale_order_file" type="object" string="Esporta modello" attrs="{'invisible': [('mode', '!=', 'export')]}" icon="fa-print"/>
-                        <button name="import_sale_order_file" type="object" string="Import ordine XLSX" attrs="{'invisible': [('mode', '!=', 'import')]}" icon="fa-table"/>
+                        <button name="export_sale_order_file" type="object" string="Esporta modello"  icon="fa-print"/>
+                        <button name="import_sale_order_file" type="object" string="Controlla ordine XLSX" attrs="{'invisible': ['|', ('mode', '!=', 'check'), ('file', '=', False)]}" icon="fa-table"/>
+                        <button name="import_sale_order_file" type="object" string="Import ordine XLSX" attrs="{'invisible': ['|', ('mode', '!=', 'import'), ('file', '=', False)]}" icon="fa-table"/>
                         <field name="mode" readonly="1" widget="statusbar"/>
                     </header>
                     <sheet>
                         <group col="4" colspan="4">
                             <field name="order_id" readonly="1"/>
-                            <field name="file" attrs="{'invisible': [('mode', '!=', 'import')]}" colspan="4"/>
+                            <field name="file"  colspan="4"/> <!--attrs="{'invisible': [('mode', '!=', 'import')]}"-->
+                            <separator string="Errore su file:" colspan="4" attrs="{'invisible': [('error_text', '=', False)]}"/>
+                            <field name="error_text"  colspan="4" attrs="{'invisible': [('error_text', '=', False)]}"/>
                         </group>
                     </sheet>
                     <footer/>
