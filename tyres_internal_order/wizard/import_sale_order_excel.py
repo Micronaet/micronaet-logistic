@@ -200,7 +200,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                 self.error_text = error
             else:
                 self.error_text = 'File corretto senza errori'
-                self.mode == 'import'
+                self.mode = 'import'
 
             # Reopen same wizard:
             form_id = model_pool.get_object_reference(
