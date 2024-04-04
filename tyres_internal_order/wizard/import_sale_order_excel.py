@@ -66,7 +66,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
         """ Export price file for this purchase order
         """
         wizard = self
-        order = wizard.order_id
+        # order = wizard.order_id
 
         report_pool = self.env['excel.report']
 
@@ -88,7 +88,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
         row = 0
         report_pool.write_xls_line(ws_name, row, header, style_code='header')
         report_pool.freeze_panes(ws_name, 1, 0)
-        # report_pool.autofilter(ws_name, [row, 0, row, 2])
+        report_pool.autofilter(ws_name, [row, 0, row, 0])
         # report_pool.row_hidden(ws_name, [row])
         # report_pool.column_hidden(ws_name, [0])
 
@@ -113,7 +113,9 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
         """ Export price file for this purchase order
         """
         wizard = self
+        order_id = self.order_id.id
         line_pool = self.env['sale.order.line']
+        product_pool = self.env['product.product']
 
         # ---------------------------------------------------------------------
         # Save file passed:
@@ -141,11 +143,47 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                 )
 
         WS = WB.sheet_by_index(0)
+        sequence = 0
+        log = ''
         for row in range(WS.nrows):
+            # -----------------------------------------------------------------
+            # Read Excel line:
+            # -----------------------------------------------------------------
+            sequence += 1
+
+            # Fields:
             default_code = WS.cell(row, 0).value
-            quantity = WS.cell(row, 1).value
-            price = WS.cell(row, 2).value
-            # todo import in sale order here
+            product_uom_qty = WS.cell(row, 1).value
+            price_unit = WS.cell(row, 2).value
+
+            # Get product reference:
+            products = product_pool.search([
+                ('default_code', '=', default_code),
+            ])
+            if not products:
+                log += '{}. [ERR] Codice {} non trovato\n'.format(
+                    sequence, default_code)
+                continue
+            elif len(products) > 1:
+                log += '{}. [ERR] Codice {} con più ricorrenze ({})\n'.format(
+                    sequence, default_code, len(products))
+                continue
+            product_id = products[0].id
+
+            # -----------------------------------------------------------------
+            # Create sale line:
+            # -----------------------------------------------------------------
+            # Onchange operation:
+
+            # Line data:
+            data = {
+                'sequence': sequence,
+                'order_id': order_id,
+                'product_id': product_id,
+                'product_uom_qty': product_uom_qty,
+                'price_unit': price_unit,
+            }
+            line_pool.create(data)
         return True
 
     order_id = fields.Many2one('sale.order', 'Ordine di rif.')
