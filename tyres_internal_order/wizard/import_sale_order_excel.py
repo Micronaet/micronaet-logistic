@@ -150,7 +150,8 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
         WS = WB.sheet_by_index(0)
         sequence = 0
         error = ''
-        for row in range(WS.nrows):
+        from_row = 1  # No header
+        for row in range(from_row, WS.nrows):
             # -----------------------------------------------------------------
             # Read Excel line:
             # -----------------------------------------------------------------
@@ -199,6 +200,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                 self.error_text = error
             else:
                 self.error_text = 'File corretto senza errori'
+                self.mode == 'import'
 
             # Reopen same wizard:
             form_id = model_pool.get_object_reference(

@@ -17,7 +17,7 @@
                             <field name="order_id" readonly="1"/>
                             <field name="file"  colspan="4"/> <!--attrs="{'invisible': [('mode', '!=', 'import')]}"-->
                             <separator string="Errore su file:" colspan="4" attrs="{'invisible': [('error_text', '=', False)]}"/>
-                            <field name="error_text"  colspan="4" attrs="{'invisible': [('error_text', '=', False)]}"/>
+                            <field name="error_text"  colspan="4" attrs="{'invisible': [('error_text', '=', False)]}" readonly="1" nolabel="1"/>
                         </group>
                     </sheet>
                     <footer/>
