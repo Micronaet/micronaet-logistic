@@ -237,7 +237,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
         ('export', '1. Scarica template'),
         ('check', '2. Simulazione e controllo file'),
         ('import', '3. Carica ordine'),
-    ], 'Modalità', default='export')
+        ], 'Modalità', default='export')
     file = fields.Binary(
         'File', help='File con dettaglio ordine da caricare in ODOO')
     error_text = fields.Text('Errore su file')
