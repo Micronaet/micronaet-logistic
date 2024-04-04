@@ -87,10 +87,9 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
         # Header:
         row = 0
         report_pool.write_xls_line(ws_name, row, header, style_code='header')
+        report_pool.freeze_panes(ws_name, 1, 0)
         # report_pool.autofilter(ws_name, [row, 0, row, 2])
-        row += 1
         # report_pool.row_hidden(ws_name, [row])
-        report_pool.freeze_panes(ws_name, 1, 4)
         # report_pool.column_hidden(ws_name, [0])
 
         number = 'number'
@@ -100,7 +99,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
             ('', number),
             ('', number),
         )
-        for line in range(50):
+        for line in range(150):
             row += 1
             report_pool.write_xls_line(
                 ws_name, row, empty_data, style_code=text)

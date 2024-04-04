@@ -31,6 +31,7 @@
     'depends': [
         'base',
         'sale',
+        'xlsxwriter_report',
         'tyres_logistic_management',
         'logistic_product_supplier',  # Generate purchase
         ],
