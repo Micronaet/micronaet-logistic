@@ -112,10 +112,14 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
     def import_sale_order_file(self):
         """ Export price file for this purchase order
         """
-        wizard = self
-        order_id = self.order_id.id
         line_pool = self.env['sale.order.line']
         product_pool = self.env['product.product']
+        model_pool = self.env['ir.model.data']
+
+        wizard = self
+        wizard_id = wizard.id
+        order_id = self.order_id.id
+
         check_mode = self.mode == 'check'
 
         # ---------------------------------------------------------------------
@@ -195,6 +199,26 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                 self.error_text = error
             else:
                 self.error_text = 'File corretto senza errori'
+
+            # Reopen same wizard:
+            form_id = model_pool.get_object_reference(
+                'tyres_internal_order',
+                'view_import_excel_sale_order_wizard_form')[1]
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Wizard import Ordini'),
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_id': wizard_id,
+                'res_model': 'import.excel.sale.order.wizard',
+                'view_id': form_id,
+                'views': [(form_id, 'form')],
+                'domain': [],
+                'context': self.env.context,
+                'target': 'new',
+                'nodestroy': True,
+            }
+
         # 2. Write mode:
         else:
             if error:
