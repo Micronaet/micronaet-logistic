@@ -98,6 +98,9 @@
                             <field name="carrier_ensurance" />
                             <field name="carrier_pay_mode" />
                             <newline/>
+
+                            <field name="report_supplier_hide" widget="boolean_toggle"/>
+                            <newline/>
                             <!--<field name="mmac_shippy_order_id" />-->
                         </group>
 

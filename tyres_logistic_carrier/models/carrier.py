@@ -242,6 +242,10 @@ class SaleOrder(models.Model):
     # -------------------------------------------------------------------------
     #                                   COLUMNS:
     # -------------------------------------------------------------------------
+    report_supplier_hide = fields.Boolean(
+        'Nascondi fornitore',
+        help='Nella stampa dei picking non stampa il fornitore')
+
     carrier_ok = fields.Boolean('Carrier OK',
         help='Carriere must be confirmed when done!')
     carrier_shippy = fields.Boolean('Carrier Shippy', default=True,
