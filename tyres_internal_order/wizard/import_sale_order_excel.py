@@ -265,8 +265,8 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
     order_id = fields.Many2one('sale.order.internal', 'Ordine interno')
     mode = fields.Selection([
         # ('export', '1. Scarica template'),
-        ('check', '2. Simulazione e controllo file'),
-        ('import', '3. Carica ordine'),
+        ('check', '1. Controllo file'),
+        ('import', '2. Carica ordine'),
         ], 'Modalità', default='check')
     file = fields.Binary(
         'File', help='File con dettaglio ordine da caricare in ODOO')
