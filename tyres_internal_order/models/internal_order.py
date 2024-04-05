@@ -25,16 +25,15 @@ import os
 import sys
 import logging
 import odoo
-import shutil
 from odoo import api, fields, models, tools, exceptions, SUPERUSER_ID
 from odoo.addons import decimal_precision as dp
 from odoo.tools.translate import _
 
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
 
 
 _logger = logging.getLogger(__name__)
+
 
 class ProductProduct(models.Model):
     """ Override method
@@ -54,8 +53,8 @@ class ProductProduct(models.Model):
         for product in self:
             res.append((
                 product.id,
-                product.description_sale or \
-                    product.titolocompleto or product.name or _('Not found'),
+                product.description_sale or
+                product.titolocompleto or product.name or _('Not found'),
                 ))
         return res
 
@@ -137,11 +136,11 @@ class SaleOrderInternal(models.Model):
             'view_mode': 'form',
             'res_id': order_id,
             'res_model': 'sale.order',
-            'view_id': False,#view_id, # False
+            'view_id': False,  # view_id, # False
             'views': [(False, 'form'), (False, 'tree')],
             'domain': [],
             'context': self.env.context,
-            'target': 'current', # 'new'
+            'target': 'current',  # 'new'
             'nodestroy': False,
             }
 
@@ -185,7 +184,8 @@ class SaleOrderLineInternal(models.Model):
     # -------------------------------------------------------------------------
     order_id = fields.Many2one('sale.order.internal', 'Order')
     product_id = fields.Many2one('product.product', 'Product', required=True)
-    supplier_id = fields.Many2one('res.partner', 'Supplier', required=True,
+    supplier_id = fields.Many2one(
+        'res.partner', 'Supplier', required=True,
         domain="[('supplier', '=', True), ('hide_supplier', '=', False)]")
     product_uom_qty = fields.Float(
         string='Quantity', digits=dp.get_precision('Product Unit of Measure'),
@@ -193,7 +193,8 @@ class SaleOrderLineInternal(models.Model):
     price_unit = fields.Float(
         'Unit Price', digits=dp.get_precision('Product Price'), required=True)
 
-class SaleOrderInternal(models.Model):
+
+class SaleOrderInternalInherit(models.Model):
     """ Model name: Internal sale order
     """
 
@@ -205,13 +206,14 @@ class SaleOrderInternal(models.Model):
     line_ids = fields.One2many(
         'sale.order.line.internal', 'order_id', 'Detail')
 
+
 class SaleOrderLine(models.Model):
     """ Model name: Internal sale line
     """
 
     _inherit = 'sale.order.line'
 
-    @api.multi # no api.depends?
+    @api.multi  # no api.depends?
     def _get_internal_order_pending(self, ):
         """ Get detail status of pending order
         """
@@ -236,9 +238,7 @@ class SaleOrderLine(models.Model):
         else:
             self.internal_order_pending = ''  # _('Nothing pending')
 
-    internal_order_pending = fields.Text('Internal pending',
+    internal_order_pending = fields.Text(
+        'Internal pending',
         compute='_get_internal_order_pending',
         help='Internal order pending')
-
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

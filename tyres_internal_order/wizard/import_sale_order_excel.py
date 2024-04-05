@@ -16,10 +16,10 @@ from odoo.tools.translate import _
 _logger = logging.getLogger(__name__)
 
 
-class SaleOrder(models.Model):
-    """ Sale order wizard
+class SaleOrderInternal(models.Model):
+    """ Model name: Internal sale order
     """
-    _inherit = 'sale.order'
+    _inherit = 'sale.order.internal'
 
     def open_extract_sale_exception_wizard(self):
         """ Extract data
@@ -74,10 +74,10 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
         # Excel file configuration:
         # ---------------------------------------------------------------------
         header = [
-            _('Codice'), _('Quant.'), _('Prezzo unitario'),
+            _('Fornitore'), _('Codice'), _('Quant.'), _('Prezzo unitario'),
         ]
         column_width = [
-            10, 10, 12,
+            15, 10, 10, 12,
         ]
 
         ws_name = _('Dettaglio ordine')  # Worksheet name used
@@ -96,6 +96,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
         text = 'text'
         empty_data = (
             '',
+            '',
             ('', number),
             ('', number),
         )
@@ -113,7 +114,8 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
     def import_sale_order_file(self):
         """ Export price file for this purchase order
         """
-        line_pool = self.env['sale.order.line']
+        line_pool = self.env['sale.order.line.internal']
+        partner_pool = self.env['res.partner']
         product_pool = self.env['product.product']
         model_pool = self.env['ir.model.data']
 
@@ -159,14 +161,41 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
             sequence += 1
 
             # Fields:
-            default_code = WS.cell(row, 0).value
-            product_uom_qty = WS.cell(row, 1).value
-            price_unit = WS.cell(row, 2).value
+            supplier_code = WS.cell(row, 0).value
+            default_code = WS.cell(row, 1).value
+            product_uom_qty = WS.cell(row, 2).value
+            price_unit = WS.cell(row, 3).value
 
+            # -----------------------------------------------------------------
+            # Get supplier reference:
+            # -----------------------------------------------------------------
+            supplier_domain = [
+                ('supplier', '=', True),
+                ('hide_supplier', '=', False),
+
+                ]
+            if type(supplier_code) == float:
+                supplier_domain.append(('id', '=', int(supplier_code)))
+            else:
+                supplier_domain.append(('ref', '=', supplier_code))
+            suppliers = partner_pool.search(supplier_domain)
+            if not suppliers:
+                error += '{}. [ERR] Fornitore {} non trovato\n'.format(
+                    sequence, default_code)
+                continue
+            elif len(suppliers) > 1:
+                error += '{}. [ERR] Fornitore {} con più ricorrenze ({})' \
+                         '\n'.format(
+                             sequence, default_code, len(suppliers))
+                continue
+            supplier_id = suppliers[0].id
+
+            # -----------------------------------------------------------------
             # Get product reference:
+            # -----------------------------------------------------------------
             products = product_pool.search([
                 ('default_code', '=', default_code),
-            ])
+                ])
             if not products:
                 error += '{}. [ERR] Codice {} non trovato\n'.format(
                     sequence, default_code)
@@ -185,6 +214,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
             data = {
                 'sequence': sequence,
                 'order_id': order_id,
+                'supplier_id': supplier_id,
                 'product_id': product_id,
                 'product_uom_qty': product_uom_qty,
                 'price_unit': price_unit,
@@ -209,7 +239,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                 'view_import_excel_sale_order_wizard_form')[1]
             return {
                 'type': 'ir.actions.act_window',
-                'name': _('Wizard import Ordini'),
+                'name': _('Wizard import ordini interni'),
                 'view_type': 'form',
                 'view_mode': 'form',
                 'res_id': wizard_id,
@@ -232,12 +262,12 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
 
         return True
 
-    order_id = fields.Many2one('sale.order', 'Ordine di rif.')
+    order_id = fields.Many2one('sale.order.internal', 'Ordine interno')
     mode = fields.Selection([
-        ('export', '1. Scarica template'),
+        # ('export', '1. Scarica template'),
         ('check', '2. Simulazione e controllo file'),
         ('import', '3. Carica ordine'),
-        ], 'Modalità', default='export')
+        ], 'Modalità', default='check')
     file = fields.Binary(
         'File', help='File con dettaglio ordine da caricare in ODOO')
     error_text = fields.Text('Errore su file')

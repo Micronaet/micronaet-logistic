@@ -17,29 +17,30 @@
             <field name="name">sale.order.internal.tree</field>
             <field name="model">sale.order.internal</field>
             <field name="arch" type="xml">
-                <tree string="Sale Order internal">        
+                <tree string="Sale Order internal">
                     <field name="date" />
                     <field name="note" />
                 </tree>
             </field>
         </record>
-        
+
         <record model="ir.ui.view" id="view_sale_order_internal_form">
             <field name="name">sale.order.internal.form</field>
             <field name="model">sale.order.internal</field>
             <field name="arch" type="xml">
-                <form string="Sale Order internal">  
+                <form string="Sale Order internal">
                     <header>
+                        <button name="open_extract_sale_exception_wizard" type="object" string="Import XLSX" icon="fa-table"/>
                         <button name="confirm_internal_order" string="Confirm order" type="object" confirm="Confirm internal order?" attrs="{'invisible': [('confirmed', '=', True)]}"/>
-                    </header>      
+                    </header>
                     <sheet>
                         <group colspan="4" col="4">
                             <field name="date" />
                             <field name="logistic_source" />
-                            
+
                             <field name="reference" attrs="{'invisible': [('reference','=',False)]}"/>
                             <field name="confirmed" invisible="1" />
-                            
+
                             <separator string="Detail:" colspan="4"/>
                             <field name="line_ids" colspan="4" nolabel="1">
                                 <tree string="Detail" editable="bottom">
@@ -48,10 +49,10 @@
                                     <field name="product_uom_qty" />
                                     <field name="price_unit" />
                                 </tree>
-                            </field>                            
+                            </field>
                             <separator string="Note:" colspan="4"/>
                             <field name="note" colspan="4" nolabel="1"/>
-                        </group>    
+                        </group>
                     </sheet>
                 </form>
             </field>
@@ -73,26 +74,26 @@
              <field name="context">{'search_default_logistic_state_pending': True, 'search_default_logistic_state_ready': True}</field>
              <field name="domain">[('logistic_source', '=', 'internal')]</field>
          </record>
-        
+
          <menuitem
-             id="menu_logistic_left_order_internal_root" 
+             id="menu_logistic_left_order_internal_root"
              parent="tyres_logistic_management.menu_logistic_header_root"
              name="Internal order"
-             sequence="12" 
-             groups="tyres_logistic_management.group_logistic_sale_manager,tyres_logistic_management.group_logistic_manager"            
+             sequence="12"
+             groups="tyres_logistic_management.group_logistic_sale_manager,tyres_logistic_management.group_logistic_manager"
              />
              <menuitem
-                 id="menu_logistic_left_order_internal_pending_root" 
+                 id="menu_logistic_left_order_internal_pending_root"
                  parent="menu_logistic_left_order_internal_root"
                  name="Pending order"
-                 sequence="10" 
+                 sequence="10"
                  action="action_sale_order_internal_wizard"
                  />
              <menuitem
-                 id="menu_logistic_left_order_internal_internal_root" 
+                 id="menu_logistic_left_order_internal_internal_root"
                  parent="menu_logistic_left_order_internal_root"
                  name="Internal order"
-                 sequence="20" 
+                 sequence="20"
                  action="action_sale_order_internal_pending_form"
                  />
     </data>
