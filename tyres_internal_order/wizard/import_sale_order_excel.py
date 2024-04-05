@@ -172,7 +172,6 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
             supplier_domain = [
                 ('supplier', '=', True),
                 ('hide_supplier', '=', False),
-
                 ]
             if type(supplier_code) == float:
                 supplier_domain.append(('id', '=', int(supplier_code)))
@@ -194,8 +193,13 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
             # Get product reference:
             # -----------------------------------------------------------------
             products = product_pool.search([
-                ('default_code', '=', default_code),
+                ('ipcode', '=', default_code),
                 ])
+            if not products:
+                products = product_pool.search([
+                    ('default_code', '=', default_code),
+                    ])
+
             if not products:
                 error += '{}. [ERR] Codice {} non trovato\n'.format(
                     sequence, default_code)
@@ -219,6 +223,9 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                 'product_uom_qty': product_uom_qty,
                 'price_unit': price_unit,
             }
+            if price_unit:
+                data['price_unit'] = price_unit
+
             if not check_mode:
                 line_pool.create(data)
 
