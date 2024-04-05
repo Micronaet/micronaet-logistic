@@ -167,7 +167,7 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
             price_unit = WS.cell(row, 3).value
 
             if type(default_code) == float:
-                default_code = '%.f' % default_code
+                default_code = '%.0f' % default_code
 
             # -----------------------------------------------------------------
             # Get supplier reference:
