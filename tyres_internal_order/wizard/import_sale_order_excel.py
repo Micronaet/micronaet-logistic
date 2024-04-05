@@ -190,7 +190,8 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                          '\n'.format(
                              sequence, default_code, len(suppliers))
                 continue
-            supplier_id = suppliers[0].id
+            supplier = suppliers[0]
+            supplier_id = supplier.id
 
             # -----------------------------------------------------------------
             # Get product reference:
@@ -212,7 +213,8 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                          '\n'.format(
                              sequence, default_code, len(products))
                 continue
-            product_id = products[0].id
+            product = products[0]
+            product_id = product.id
 
             # -----------------------------------------------------------------
             # Create sale line:
@@ -227,6 +229,11 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
             }
             if price_unit:
                 data['price_unit'] = price_unit
+            else:
+                for price in product.supplier_stock_ids:
+                    if price.supplier_id == supplier:
+                        data['price_unit'] = price.quotation
+                        break
 
             if not check_mode:
                 line_pool.create(data)
