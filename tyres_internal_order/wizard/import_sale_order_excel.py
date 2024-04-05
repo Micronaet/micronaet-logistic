@@ -224,7 +224,6 @@ class ImportExcelSaleOrderWizard(models.TransientModel):
                 'supplier_id': supplier_id,
                 'product_id': product_id,
                 'product_uom_qty': product_uom_qty,
-                'price_unit': price_unit,
             }
             if price_unit:
                 data['price_unit'] = price_unit
