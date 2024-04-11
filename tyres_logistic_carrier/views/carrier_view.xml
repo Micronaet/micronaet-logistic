@@ -100,7 +100,7 @@
                             <newline/>
                         </group>
                         <group colspan="4" col="5">
-                            <field name="report_supplier_hide" widget="boolean_toggle"/>
+                            <field name="report_supplier_hide" widget="boolean_toggle" colspan="2"/>
                             <newline/>
                             <!--<field name="mmac_shippy_order_id" />-->
                         </group>
