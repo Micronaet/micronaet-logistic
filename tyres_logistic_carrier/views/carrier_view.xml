@@ -99,19 +99,17 @@
                             <field name="carrier_pay_mode" />
                             <newline/>
 
-                            <field name="report_supplier_hide" widget="boolean_toggle" />
-                            <newline/>
                             <!--<field name="mmac_shippy_order_id" />-->
                         </group>
 
                         <!-- Common part: -->
                         <group colspan="4" col="5">
+                            <field name="report_supplier_hide" widget="boolean_toggle" />
+                            <newline/>
+
                             <separator string="Carrier reply:" colspan="4"/>
                             <field name="carrier_cost" />
                             <field name="carrier_track_id" />
-                            <newline/>
-
-                            <field name="report_supplier_hide" widget="boolean_toggle" />
                             <newline/>
 
                             <!--Double fields: mandatory insert the name of carrier for stock people-->
