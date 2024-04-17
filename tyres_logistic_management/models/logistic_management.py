@@ -1078,13 +1078,14 @@ class StockPicking(models.Model):
             ('scheduled_date', '<=', '%s 23:59:59' % evaluation_date),
             # XXX: This? ('ddt_date', '=', now_dt),
             ]
+
         if mode == 'extract':
             domain.append(
                 ('is_fees', '=', True),
                 )
         # Invoice need to be in report!
         # else: in Excel mode see all
-        pickings = self.search(domain)
+        pickings = self.search(domain, order='scheduled_date')
 
         channel_row = {}
         excel_row = []
