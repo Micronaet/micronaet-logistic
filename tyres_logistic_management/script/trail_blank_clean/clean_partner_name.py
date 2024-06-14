@@ -63,16 +63,15 @@ partner_pool = odoo.model('res.partner')
 partner_ids = partner_pool.search([
     '|',
     ('name', '=ilike', '% '),
-    ('name', '=ilike', ' %'),    
+    ('name', '=ilike', ' %'),
     ])
-    
+
 if not partner_ids:
     print('Not necessary')
     sys.exit()
-    
+
 now = str(datetime.now()).replace('/', '_').replace('-', '').replace(':', '_')
 log_f = codecs.open('./log/partner_%s.log' % now, 'w', 'utf-8')
-pdb.set_trace()
 for partner in partner_pool.browse(partner_ids):
     name = partner.name or ''
     new_name = name.strip()
@@ -82,7 +81,7 @@ for partner in partner_pool.browse(partner_ids):
     message = 'Update "%s" in "%s"' % (name, new_name)
     print(message)
     log_f.write(message)
-    log_f.write('\n')     
+    log_f.write('\n')
     log_f.flush()
 
 

@@ -1273,8 +1273,8 @@ class StockMove(models.Model):
             # -----------------------------------------------------------------
             delivery_id = delivery_pool.create({
                 'supplier_id': supplier.id,
-                #'carrier_id': carrier.id,
-                #'create_uid': self.env.uid,
+                # 'carrier_id': carrier.id,
+                # 'create_uid': self.env.uid,
                 }).id
             delivery_ids.append(delivery_id)
             for line in suppliers[supplier]:
@@ -1613,7 +1613,7 @@ class PurchaseOrderLine(models.Model):
     name_extended_stock = fields.Char(
         string='Stock name', compute='_get_stock_extended_name')
 
-    # TODO remove:
+    # todo remove:
     name_extended = fields.Char(
         string='Extended name', related='product_id.name_extended')
 
