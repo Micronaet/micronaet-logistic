@@ -1299,7 +1299,7 @@ class StockMove(models.Model):
             'res_id': res_id,
             'res_model': 'stock.picking.delivery',
             'view_id': tree_view_id,
-            #'search_view_id': search_view_id,
+            # 'search_view_id': search_view_id,
             'views': views,
             'domain': [('id', 'in', delivery_ids)],
             'context': self.env.context,
@@ -1327,11 +1327,11 @@ class PurchaseOrderLine(models.Model):
         # Readability:
         context = self.env.context
         uid = self.env.uid
+        ctx = {}
 
         command_clean_before = context.get('command_clean_before', False)
         if not field_name or command_clean_before:
             # Clean previous context from search defaults:
-            ctx = {}
             for key in context:
                 # Remove all previous search default:
                 if key.startswith('search_default_'):
