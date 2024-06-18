@@ -1412,16 +1412,6 @@ class PurchaseOrderLine(models.Model):
         return self.return_fast_filter_view(False, False, False)
 
     @api.multi
-    def fast_filter_product_id(self):
-        """ Filter this product_id
-        """
-        return self.return_fast_filter_view(
-            'product_id',
-            self.product_id.id,
-            self.product_id.default_code,
-            )
-
-    @api.multi
     def fast_filter_supplier(self):
         """ Filter this supplier
         """
@@ -1429,6 +1419,16 @@ class PurchaseOrderLine(models.Model):
             'order_supplier_id',
             self.order_supplier_id.id,
             self.order_supplier_id.name,
+            )
+
+    @api.multi
+    def fast_filter_product_id(self):
+        """ Filter this product_id
+        """
+        return self.return_fast_filter_view(
+            'product_id',
+            self.product_id.id,
+            self.product_id.default_code,
             )
 
     @api.multi
