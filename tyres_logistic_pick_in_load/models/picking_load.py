@@ -1608,9 +1608,9 @@ class PurchaseOrderLine(models.Model):
 
             line.name_extended_stock = '%s %s%s' % (
                 product.name_extended,
-                '<font color="blue">[{}]</font>'.format(default_code)
+                ' <font color="blue">[{}]</font>'.format(default_code)
                 if default_code else '',
-                '<font color="red">[{}]</font>'.format(order_note)
+                ' <font color="red">[{}]</font>'.format(order_note)
                 if order_note else '',
             )
 
