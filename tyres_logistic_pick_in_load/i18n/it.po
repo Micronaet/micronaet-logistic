@@ -1018,7 +1018,7 @@ msgstr "Movimento di magazzino:"
 #. module: tyres_logistic_pick_in_load
 #: model:ir.model.fields,field_description:tyres_logistic_pick_in_load.field_purchase_order_line_name_extended_stock
 msgid "Stock name"
-msgstr "Nome magazzino"
+msgstr "Descrizione per magazzinieri"
 
 #. module: tyres_logistic_pick_in_load
 #: model:ir.model.fields,field_description:tyres_logistic_pick_in_load.field_stock_picking_delivery_quant_ids

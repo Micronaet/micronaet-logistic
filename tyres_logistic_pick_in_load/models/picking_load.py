@@ -1600,18 +1600,25 @@ class PurchaseOrderLine(models.Model):
             except:
                 order_note = ''
 
-            line.name_extended_stock = '%s %s%s%s' % (
-                line.product_id.name_extended,
-                '<font color="red">[' if order_note else '',
-                order_note,
-                ']</font>' if order_note else '',
-                )
+            product = line.product_id
+            try:
+                default_code = product.default_code or ''
+            except:
+                default_code = ''
+
+            line.name_extended_stock = '%s %s%s' % (
+                product.name_extended,
+                '<font color="red">[{}]</font>'.format(order_note)
+                if order_note else '',
+                '<font color="blue">[{}]</font>'.format(default_code)
+                if default_code else '',
+            )
 
     # -------------------------------------------------------------------------
     # Columns:
     # -------------------------------------------------------------------------
     name_extended_stock = fields.Char(
-        string='Stock name', compute='_get_stock_extended_name')
+        string='Nome per magazzinieri', compute='_get_stock_extended_name')
 
     # todo remove:
     name_extended = fields.Char(

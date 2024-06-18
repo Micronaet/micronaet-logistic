@@ -1870,6 +1870,7 @@ class StockPicking(models.Model):
             'destination': get_address_block(address),
             # 'address': get_partner_block(address), # TODO
             'details': []
+
         }
         for move in self.move_lines:
             line = move.logistic_unload_id
