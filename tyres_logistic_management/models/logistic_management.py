@@ -1985,7 +1985,10 @@ class StockPicking(models.Model):
         """ Save invoice for picking passed if not reference in picking reload
             from Account calling invoice with ODOO reference.
             Context params:
-            > call_mode: 'ddt' or 'invoice' for generate correct document
+            > call_mode:
+                'ddt' print DDT in PDF folderDDT folder
+                'invoice' print direct invoice in PDF report folder
+            Note: Invoice for DDT is generated in another funct!
         """
         call_mode = self.env.get('call_mode', 'invoice')  # todo
 
@@ -2065,6 +2068,73 @@ class StockPicking(models.Model):
             else:  # todo raise error!
                 _logger.error('API Error: \n%s' % (reply.text, ))
                 return False
+
+    @api.multi
+    def api_save_deferred_invoice_pdf(self):
+        """ Save deferred invoice for DDT not yet generated!
+            Search all picking with DDT assigned but not Invoice
+        """
+        company = self.env.user.company_id
+        token = company.api_token or company.api_get_token()
+        url = company.api_root_url
+
+        # Folder path:
+        logistic_root_folder = os.path.expanduser(company.logistic_root_folder)
+        report_path = os.path.join(logistic_root_folder, 'reportDDT')
+
+        # Search pending DDT to be invoiced:
+        pickings = self.search([
+            ('invoice_number', '=', False),  # Invoice not present
+            ('ddt_number', '!=', False),  # DDT present
+            ('sale_order_id', '!=', False),  # Order linked
+            ])
+        # todo NC or other document not included? invoice_number is empty?
+        _logger.info('Found {} picking/DDT to be invoiced!'.format(
+            len(pickings)))
+
+        done_ids = []  # List of order_id with invoice yet generated
+        for picking in pickings:
+            order_id = picking.sale_order_id.id
+            if order_id not in done_ids:
+                endpoint = 'Invoice/FromDdt/%s' % order_id
+                _logger.warning('Calling %s' % endpoint)
+                location = '%s/%s' % (url, endpoint)
+                loop_times = 1
+
+                while loop_times <= 2:
+                    loop_times += 1
+                    header = {
+                        'Authorization': 'bearer %s' % token,
+                        'accept': 'text/plain',
+                        'Content-Type': 'application/json',
+                        }
+                    reply = requests.get(location, headers=header)
+                    if reply.ok:
+                        reply_json = reply.json()
+                        # todo parse reply and update also extra orders!
+
+                        # Update done_ids for not considered
+
+                        # Update all picking reference data:
+                        # picking.write({
+                        #    'invoice_number': invoice_number,
+                        #    'invoice_date': invoice_date,
+                        #    'invoice_filename': invoice_filename,
+                        # })
+
+                        # Print Invoice PDF:
+                        # Reload data for update information
+                        # todo with_context(mode='deferred_invoice')
+                        self.browse(picking.id).api_save_invoice_pdf()
+                        # >> Print as an invoice
+                        # todo print picking
+
+                    elif reply.status_code == 401:
+                        token = company.api_get_token()
+                    else:
+                        _logger.error(
+                            'Cannot get deferred invoice by ID %s' % order_id)
+                        return False
 
     @api.model
     def send_invoice_to_account_csv(self, logistic_root_folder):
