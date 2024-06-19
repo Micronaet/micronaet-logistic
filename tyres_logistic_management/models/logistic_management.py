@@ -2033,8 +2033,8 @@ class StockPicking(models.Model):
 
         # ODOO Id management (new mode):
         if sale_order.id > company.api_from_odoo_id:
-            location = '%s/Invoice/ByReferenceId/%s/pdf' % (
-                url, sale_order.id)
+            location = '%s/Invoice/ByReferenceId/%s/pdf?mode=%s' % (
+                url, sale_order.id, call_mode)
         else:  # Old mode
             location = '%s/Invoice/ByReference/%s/pdf' % (
                 url, order_number)
