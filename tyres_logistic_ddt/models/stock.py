@@ -168,8 +168,8 @@ class StockPicking(models.Model):
         for picking in self: # Use DDT counter:
             if picking.stock_mode == 'out':
                 counter = self.env['ir.sequence'].next_by_code(
-                'stock.picking.ddt.sequence')
-            else: # in >> Refund value:
+                    'stock.picking.ddt.sequence')
+            else:  # in >> Refund value:
                 counter = self.env['ir.sequence'].next_by_code(
                     'stock.picking.refund.sequence')
 
@@ -190,14 +190,25 @@ class StockPicking(models.Model):
     refund_origin_id = fields.Many2one(
         'stock.picking', string='Back document refunded')
 
+    # -------------------------------------------------------------------------
+    # API fields:
     ddt_number = fields.Char('Document number')
     ddt_date = fields.Datetime('Document date')
+    ddt_filename = fields.Char(
+        'DDT filename', size=80,
+        help='DDT filename for PDF report')
+
     invoice_number = fields.Char('Invoice number')
     invoice_date = fields.Datetime('Invoice date')
     invoice_filename = fields.Char(
         'Invoice filename', size=80,
         help='Invoice filename for PDF report')
-    invoice_json = fields.Text('Invoice JSON')
+
+    invoice_json = fields.Text(
+        'JSON Reply',
+        help='Invoice od DDT reply in JSON')
+    # -------------------------------------------------------------------------
+
     carriage_condition_id = fields.Many2one(
         'stock.picking.carriage_condition', string='Carriage Condition')
     goods_description_id = fields.Many2one(

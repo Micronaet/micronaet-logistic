@@ -1725,18 +1725,19 @@ class StockPicking(models.Model):
     @api.model
     def extract_invoice_data_from_account(self, reply_json):
         """ Extract invoice 3 field data from reply
+            Used for Invoice and DDT mode parse reference
         """
         if not reply_json:
             _logger.error('No reply so no invoice in accounting!')
             return '', '', ''
 
-        invoice_number = (reply_json['documentNo'] or '').replace('/', '-')
-        invoice_date = reply_json['documentDate'][:10]
-        invoice_filename = '%s.%s.PDF' % (
-            invoice_date[:4],  # year
-            invoice_number,
+        document_number = (reply_json['documentNo'] or '').replace('/', '-')
+        document_date = reply_json['documentDate'][:10]
+        document_filename = '%s.%s.PDF' % (
+            document_date[:4],  # year
+            document_number,
         )
-        return invoice_number, invoice_date, invoice_filename
+        return document_number, document_date, document_filename
 
     @api.model
     def send_invoice_to_account_api(self):
@@ -1852,6 +1853,16 @@ class StockPicking(models.Model):
         remove_vat = vat_included
         vat_included = False
 
+        # ---------------------------------------------------------------------
+        # Check API call mode:
+        # ---------------------------------------------------------------------
+        if order.need_ddt:
+            call_mode = 'ddt'
+            _logger.info('API Invoice call: DDT Mode ON')
+        else:
+            call_mode = 'invoice'
+            _logger.info('API Invoice call: Invoice Mode ON')
+
         invoice_call = {
             'documentNo': '',  # Empty, returned from procedure
             # 'documentDate': '',  # Empty, returned from procedure
@@ -1868,10 +1879,13 @@ class StockPicking(models.Model):
             'notes': order.note_invoice or '',
             'customer': get_partner_block(partner),
             'destination': get_address_block(address),
-            # 'address': get_partner_block(address), # TODO
-            'details': []
+            # 'address': get_partner_block(address),  # todo
+            'details': [],
 
+            # DDT mode:
+            'mode': call_mode,
         }
+
         for move in self.move_lines:
             line = move.logistic_unload_id
             product = move.product_id
@@ -1934,20 +1948,29 @@ class StockPicking(models.Model):
             _logger.info('Calling: %s\nJSON: %s\nReply: %s' % (
                 location, json_dumps, reply))
             if reply.ok:
+                # Manage API reply:
                 reply_json = reply.json()
 
-                # Extract Invoice number and save in correct field
-                invoice_number, invoice_date, invoice_filename = \
+                # -------------------------------------------------------------
+                #                    Mode management:
+                # -------------------------------------------------------------
+                # Extract Invoice / DDT number and save in correct field
+                doc_number, doc_date, doc_filename = \
                     self.extract_invoice_data_from_account(reply_json)
-                _logger.warning('Invoice generated: %s' % invoice_number)
+                _logger.warning('Document {} generated: {}'.format(
+                    call_mode, doc_number))
+
+                # Write field parameter mode:
                 picking.write({
-                    'invoice_number': invoice_number,
-                    'invoice_date': invoice_date,
-                    'invoice_filename': invoice_filename,  # PDF name
+                    '{}_number'.format(call_mode): doc_number,
+                    '{}_date'.format(call_mode): doc_date,
+                    '{}_filename'.format(call_mode): doc_filename,  # PDF name
                     'invoice_json': json_dumps,
                 })
-                # Extract PDF file and save in correct folder:
-                picking.api_save_invoice_pdf()
+
+                # Extract PDF file (DDT or Invoice) and save in correct folder:
+                picking.with_context(
+                    call_mode=call_mode).api_save_invoice_pdf()
                 # todo 13/09 da togliere quando Cedrik lo genera automatic.
 
                 return True
@@ -1961,21 +1984,28 @@ class StockPicking(models.Model):
     def api_save_invoice_pdf(self):
         """ Save invoice for picking passed if not reference in picking reload
             from Account calling invoice with ODOO reference.
+            Context params:
+            > call_mode: 'ddt' or 'invoice' for generate correct document
         """
+        call_mode = self.env.get('call_mode', 'invoice')  # todo
+
         company = self.env.user.company_id
 
         logistic_root_folder = os.path.expanduser(company.logistic_root_folder)
         report_path = os.path.join(logistic_root_folder, 'report')
 
         picking = self
+        # Invoice mode:
         invoice_number = requote_uri(picking.invoice_number or '')  # quoted!
         invoice_year = (picking.invoice_date or '')[:4]
 
+        # ---------------------------------------------------------------------
         # Call API for PDF file:
+        # ---------------------------------------------------------------------
         url = company.api_root_url
         token = company.api_token or company.api_get_token()
 
-        # 2 cases: has number assigned, without number assigned
+        # 2 Cases: has number assigned, without number assigned
         if not invoice_year or not invoice_number:
             reply_json = company.api_get_invoice_by_reference(picking)
             invoice_number, invoice_date, invoice_filename = \
@@ -1986,7 +2016,7 @@ class StockPicking(models.Model):
                 'invoice_number': invoice_number,
                 'invoice_date': invoice_date,
                 'invoice_filename': invoice_filename,
-            })
+                })
             # invoice_number = requote_uri(invoice_number)
             # invoice_year = (invoice_date or '')[:4]
 
@@ -2239,6 +2269,7 @@ class StockPicking(models.Model):
             # Invoice procedure (check rules):
             if need_invoice:
                 is_fees = False
+
                 # 1. Amazon manage invoice:
                 if no_print_invoice:
                     picking.write({
@@ -2337,7 +2368,7 @@ class ResCompany(models.Model):
         # ODOO ID Difference call mode, new:
         if sale_order.id > company.api_from_odoo_id:
             endpoint = 'Invoice/ByReferenceId/%s' % sale_order.id
-        else:  # old:
+        else:  # old mode (no more used!):
             endpoint = 'Invoice/ByReference/%s' % requote_uri(order_name)
         _logger.warning('Calling %s' % endpoint)
 
@@ -2470,6 +2501,10 @@ class ResPartner(models.Model):
         help='Invia la mail con la notifica della merce scaricata'
              ' per essere poi spostata da un magazzino all''altro')
     need_invoice = fields.Boolean('Always invoice')
+    need_ddt = fields.Boolean(
+        'Consegna con DDT',
+        help='Il partner riceve consegne con DDT e Fattura differita '
+             'giornaliera.')
     sql_customer_code = fields.Char('SQL customer code', size=20)
     sql_supplier_code = fields.Char('SQL supplier code', size=20)
     pfu_invoice_fiscal = fields.Boolean(
@@ -3362,6 +3397,12 @@ class SaleOrder(models.Model):
         """
         self.need_invoice = self.partner_id.need_invoice
 
+    @api.onchange('partner_id')
+    def onchange_partner_need_ddt(self):
+        """ Update order status for DDT if change partner
+        """
+        self.need_ddt = self.partner_id.need_ddt
+
     # -------------------------------------------------------------------------
     # Function field:
     # -------------------------------------------------------------------------
@@ -3642,9 +3683,16 @@ class SaleOrder(models.Model):
         ('ok', 'Ship OK'),
         ('error', 'Error'),
         ], 'Shippy ship result', help='Shippy ship called correctly!')
+    need_ddt = fields.Boolean(
+        'Consegna con DDT',
+        help='Se spuntato indica che l''ordine genera prima i DDT e '
+             'successivamente collega la fattura (usato per la chiamata '
+             'successiva di chiusura Fattura differita). Default impostato '
+             'dal partner poi modificabile solo per un det. ordine.')
     need_invoice = fields.Boolean(
         'Order need invoice invoice',
         default=lambda s: s.partner_id.need_invoice)
+
     check_need_invoice = fields.Boolean(
         'Check need invoice',
         compute='_get_check_need_invoice_boolean',

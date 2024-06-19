@@ -15,6 +15,7 @@
 
                             <field name="ddt_number" attrs="{'invisible': [('ddt_number','=',False)]}" />
                             <field name="ddt_date" attrs="{'invisible': [('ddt_number','=',False)]}"/>
+                            <field name="ddt_filename" attrs="{'invisible': [('ddt_number','=',False)]}"/>
 
                             <!--Invoice or credit note:-->
                             <field name="invoice_number" attrs="{'invisible': [('invoice_number','=',False)]}"/>

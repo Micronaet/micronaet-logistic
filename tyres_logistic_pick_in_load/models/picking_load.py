@@ -461,7 +461,7 @@ class SaleOrder(models.Model):
                     for time in range(0, loop_ddt):
                         order.workflow_ready_print_ddt()
                     log_print[order].append('Print #%s DDT' % loop_ddt)
-            # End Alessandro Conti, [31.03.21 13: 16]
+            # End Alessandro Conti, [31.03.21 13:16]
             # =================================================================
 
             # -----------------------------------------------------------------

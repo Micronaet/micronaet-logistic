@@ -84,6 +84,7 @@
                  <field name="ref" position="after">
                      <separator string="Account document" />
                      <field name="need_invoice" />
+                     <field name="need_ddt" />
                  </field>
              </field>
          </record>

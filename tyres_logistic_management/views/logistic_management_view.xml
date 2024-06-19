@@ -243,6 +243,7 @@
                      <field name="internal_stock_mail" attrs="{'invisible': [('internal_stock', '=', False)]}"/>
                      <separator string="Account document" />
                      <field name="need_invoice" />
+                     <field name="need_ddt" />
                      <field name="sql_customer_code" />
                      <field name="sql_supplier_code" />
                      <field name="pfu_invoice_fiscal" />
@@ -651,6 +652,7 @@
                  <field name="payment_term_id" position="before">
                      <field name="partner_need_invoice" />
                      <field name="need_invoice" />
+                     <field name="need_ddt" />
                      <field name="logistic_source" />
                  </field>
                  <xpath expr="//page[1]" position="after">
