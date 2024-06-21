@@ -2519,78 +2519,6 @@ class ResCompany(models.Model):
                     'Cannot get invoice by reference %s' % order_name)
                 return False
 
-    '''
-    @api.model
-    def api_logoff(self, token):
-        """ Logoff
-        """
-        company = self.env.user.company_id
-        url = company.api_root_url
-        endpoint = 'Account/login'
-        location = '%s/%s' % (url, endpoint)
-        header = {
-            'Authorization': 'bearer %s' % token,
-            'accept': 'text/plain',
-            'Content-Type': 'application/json',
-        }
-        reply = requests.post(location, headers=header)
-        if reply.ok:
-            _logger.info('Logout from API Accounting')
-            return True
-        else:
-            _logger.error('Cannot logout from API Accounting')
-            return False
-
-    @api.model
-    def api_get_invoice(self, token, invoice_ref):
-        """ Get PDF from invoice
-        """
-        # todo review (not used for now)!
-        company = self.env.user.company_id
-        url = company.api_root_url
-        endpoint = 'Invoice/%s/pdf' % requote_uri(invoice_ref)
-        location = '%s/%s' % (url, endpoint)
-
-        header = {
-            'Authorization': 'bearer %s' % token,
-            'accept': 'text/plain',
-            'Content-Type': 'application/json',
-        }
-        reply = requests.get(location, headers=header)
-        if reply.ok:
-            return reply.json()
-
-        else:
-            _logger.error('Cannot get invoice from accounting %s' %
-                          invoice_ref)
-            return False
-    
-    @api.model
-    def api_get_invoice_pdf(self, token, invoice_ref):
-        """ Get PDF from invoice
-        """
-        import urllib
-
-        company = self.env.user.company_id
-        url = company.api_root_url
-        endpoint = 'Invoice/%s/pdf' % urllib.quote_plus(invoice_ref)
-        location = '%s/%s' % (url, endpoint)
-
-        header = {
-            'Authorization': 'bearer %s' % token,
-            'accept': 'text/plain',
-        }
-        reply = requests.get(location, headers=header)
-        if reply.ok:
-            pdf_file = ''  # TODO fullname of file
-            with open(pdf_file, 'wb') as f:
-                f.write(reply.content)
-            _logger.info('Invoice PDF save: %s' % pdf_file)
-            return pdf_file
-        else:
-            _logger.error('Cannot get PDF file for invoice %s' % invoice_ref)
-            return False'''
-
     api_from_odoo_id = fields.Integer(
         'ID ordine ODOO API',
         help='Indica da quale ordine di ODOO partire per la nuova gestione'
@@ -2773,7 +2701,7 @@ class SaleOrder(models.Model):
     def workflow_ready_print_picking(self):
         """ Print picking
         """
-        # TODO param in DDT report for add stock note
+        # todo param in DDT report for add stock note
         # self.workflow_ready_print_ddt()
         # return send_report_to_printer(fullname, picking')
         return True
@@ -3195,7 +3123,7 @@ class SaleOrder(models.Model):
         lines = line_pool.search([
             ('order_id.logistic_state', '=', 'draft'),  # Draft order
             ('logistic_state', '=', 'draft'),  # Draft line
-             # Direct ready:
+            # Direct ready:
             ('product_id.type', '=', 'service'),
             ('product_id.is_expence', '=', True),
             ])
@@ -3773,7 +3701,7 @@ class SaleOrder(models.Model):
     # -------------------------------------------------------------------------
     # Columns:
     # -------------------------------------------------------------------------
-    # Overrided fields:
+    # Overriden fields:
     carrier_shippy = fields.Boolean('Carrier Shippy', default=True,
         help='Corriere gestito da hippy pro (altrimenti manuale)!')
 
@@ -3787,13 +3715,15 @@ class SaleOrder(models.Model):
     exported_date = fields.Date('Exported date')
     undo_comment = fields.Text('Undo comment', compute=_get_undo_comment)
 
-    note_invoice = fields.Text('Invoice note',
-        help='Note for invoice document')
-    note_ddt = fields.Text('DDT Note',
-        help='Note for DDT document')
-    note_picking = fields.Text('Stock note',
+    note_invoice = fields.Text(
+        'Invoice note', help='Note for invoice document')
+    note_ddt = fields.Text(
+        'DDT Note', help='Note for DDT document')
+    note_picking = fields.Text(
+        'Stock note',
         help='Note for Picking document and stock operator')
-    note_delay = fields.Text('Delay note',
+    note_delay = fields.Text(
+        'Delay note',
         help='Note for problem have on this order')
 
     market_type = fields.Selection((
@@ -4272,10 +4202,10 @@ class SaleOrderLine(models.Model):
             'view_mode': 'form,tree',
             'res_id': self.order_id.id,
             'res_model': 'sale.order',
-            #'view_id': view_id, # False
+            # 'view_id': view_id, # False
             'views': [(False, 'form'), (False, 'tree')],
             'domain': [('id', '=', self.order_id.id)],
-            #'context': self.env.context,
+            # 'context': self.env.context,
             'target': 'current', # 'new'
             'nodestroy': False,
             }
@@ -4293,10 +4223,10 @@ class SaleOrderLine(models.Model):
             'view_mode': 'form,tree',
             'res_id': self.product_id.id,
             'res_model': 'product.product',
-            #'view_id': view_id, # False
+            # 'view_id': view_id, # False
             'views': [(False, 'form'), (False, 'tree')],
             'domain': [('id', '=', self.product_id.id)],
-            #'context': self.env.context,
+            # 'context': self.env.context,
             'target': 'current', # 'new'
             'nodestroy': False,
             }
@@ -4314,10 +4244,10 @@ class SaleOrderLine(models.Model):
             'view_mode': 'form,tree',
             'res_id': self.origin_product_id.id,
             'res_model': 'product.product',
-            #'view_id': view_id, # False
+            # 'view_id': view_id, # False
             'views': [(False, 'form'), (False, 'tree')],
             'domain': [('id', '=', self.origin_product_id.id)],
-            #'context': self.env.context,
+            # 'context': self.env.context,
             'target': 'current', # 'new'
             'nodestroy': False,
             }
@@ -4335,10 +4265,10 @@ class SaleOrderLine(models.Model):
             'view_mode': 'form,tree',
             'res_id': self.kit_product_id.id,
             'res_model': 'product.product',
-            #'view_id': view_id, # False
+            # 'view_id': view_id, # False
             'views': [(False, 'form'), (False, 'tree')],
             'domain': [('id', '=', self.kit_product_id.id)],
-            #'context': self.env.context,
+            # 'context': self.env.context,
             'target': 'current', # 'new'
             'nodestroy': False,
             }
@@ -4520,7 +4450,7 @@ class SaleOrderLine(models.Model):
             line.logistic_uncovered_qty = logistic_uncovered_qty
 
             # State valuation:
-            #if state != 'ready' and not logistic_uncovered_qty: # XXX
+            # if state != 'ready' and not logistic_uncovered_qty: # XXX
             #    state = 'ordered' # A part (or all) is order
 
             # -------------------------------------------------------------
@@ -4540,7 +4470,7 @@ class SaleOrderLine(models.Model):
             line.logistic_remain_qty = logistic_remain_qty
 
             # State valuation:
-            #if state != 'ready' and not logistic_remain_qty: # XXX
+            # if state != 'ready' and not logistic_remain_qty: # XXX
             #    state = 'ready' # All present coveder or in purchase
 
             # -------------------------------------------------------------
@@ -4559,13 +4489,14 @@ class SaleOrderLine(models.Model):
             line.logistic_undelivered_qty = logistic_undelivered_qty
 
             # State valuation:
-            #if not logistic_undelivered_qty: # XXX
+            # if not logistic_undelivered_qty: # XXX
             #    state = 'done' # All delivered to customer
 
     # -------------------------------------------------------------------------
     #                                   COLUMNS:
     # -------------------------------------------------------------------------
-    undo_returned = fields.Boolean('Undo returned',
+    undo_returned = fields.Boolean(
+        'Undo returned',
         help='Can unlink some operation that are present')
 
     # RELATION MANY 2 ONE:
@@ -4581,7 +4512,7 @@ class SaleOrderLine(models.Model):
 
     # C. Deliver:
     delivered_line_ids = fields.One2many(
-        'stock.move', 'logistic_unload_id', 'Linked to deliveder',
+        'stock.move', 'logistic_unload_id', 'Linked to delivered',
         help='Deliver movement in pick out documents',
         )
 
@@ -4638,5 +4569,5 @@ class SaleOrderLine(models.Model):
         ('ready', 'Ready'), # Order to be picked out (all in stock)
         ('done', 'Done'), # Delivered qty (order will be closed)
         ], 'Logistic state', default='draft',
-        #compute='_get_logistic_status_field', multi=True,
+        # compute='_get_logistic_status_field', multi=True,
         )
