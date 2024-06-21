@@ -29,11 +29,12 @@
                             <button name="extra_bf_confirm" string="Check extra import" type="object" class="btn-primary" />
                         </group>
 
-                        <group colspan="4" col="4">
-                            <separator string="E. Genera i documenti di consegna (e conferma):" colspan="4"/>
+                        <group colspan="4" col="5">
+                            <separator string="E. Genera i documenti di consegna (e conferma):" colspan="5" />
+
                             <field name="limit" />
                             <field name="loop" />
-                            <button name="generate_delivery" string="Generate _Delivery" type="object" class="btn-primary" />
+                            <button name="generate_delivery" string="Generate _Delivery" type="object" class="btn-primary" colspan="1"/>
 
                             <!--<group colspan="4" col="2">
                                 <separator string="G. Close customer order delivered:"/>
@@ -44,9 +45,7 @@
                                 <separator string="Report: Load position"/>
                                 <button name="load_position_print" string="Load position report" type="object" class="btn-primary" />
                             </group>-->
-                        </group>
 
-                        <group colspan="4" col="5">
                             <separator string="Stampe:" colspan="5"/>
 
                             <separator string="Registro corrispettivi" colspan="2"/>
@@ -55,7 +54,9 @@
 
                             <separator string="Bug check:" colspan="4"/>
                             <button name="print_bug_check_pending_draft_line" string="Check pending order with draft lines" type="object" class="btn-primary" colspan="1"/>
+                        </group>
 
+                        <group colspan="4" col="5">
                             <separator string="API:" colspan="5"/>
                             <separator string="Fatturazione Differita DDT:" colspan="4"/>
                             <button name="button_api_save_deferred_invoice_pdf" string="Recupera fatture e genera PDF" type="object" class="btn-primary" colspan="1"/>
