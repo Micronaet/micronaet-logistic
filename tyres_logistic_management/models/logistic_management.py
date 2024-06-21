@@ -2074,6 +2074,9 @@ class StockPicking(models.Model):
         """ Save deferred invoice for DDT not yet generated!
             Search all picking with DDT assigned but not Invoice
         """
+        # Pool used:
+        order_pool = self.env['sale.order']
+
         company = self.env.user.company_id
         token = company.api_token or company.api_get_token()
         url = company.api_root_url
@@ -2088,53 +2091,91 @@ class StockPicking(models.Model):
             ('ddt_number', '!=', False),  # DDT present
             ('sale_order_id', '!=', False),  # Order linked
             ])
-        # todo NC or other document not included? invoice_number is empty?
+        # todo NC or other document not included?
+        #  invoice_number is empty?
         _logger.info('Found {} picking/DDT to be invoiced!'.format(
             len(pickings)))
 
         done_ids = []  # List of order_id with invoice yet generated
         for picking in pickings:
             order_id = picking.sale_order_id.id
-            if order_id not in done_ids:
-                endpoint = 'Invoice/FromDdt/%s' % order_id
-                _logger.warning('Calling %s' % endpoint)
-                location = '%s/%s' % (url, endpoint)
-                loop_times = 1
+            if order_id in done_ids:
+                _logger.warning('Picking order ID {} yet consider!'.format(
+                    order_id
+                ))
+                continue
 
-                while loop_times <= 2:
-                    loop_times += 1
-                    header = {
-                        'Authorization': 'bearer %s' % token,
-                        'accept': 'text/plain',
-                        'Content-Type': 'application/json',
-                        }
-                    reply = requests.get(location, headers=header)
-                    if reply.ok:
-                        reply_json = reply.json()
-                        # todo parse reply and update also extra orders!
+            endpoint = 'Invoice/FromDdt/%s' % order_id
+            location = '%s/%s' % (url, endpoint)
+            _logger.warning('Calling %s' % location)
+            loop_times = 1
+            doc_number = False  # For print purposes
 
-                        # Update done_ids for not considered
+            # Try twice max:
+            while loop_times <= 2:
+                loop_times += 1
+                header = {
+                    'Authorization': 'bearer %s' % token,
+                    'accept': 'text/plain',
+                    'Content-Type': 'application/json',
+                    }
+                reply = requests.get(location, headers=header)
+                if reply.ok:
+                    reply_json = reply.json()
+                    doc_number, doc_date, doc_filename = \
+                        self.extract_invoice_data_from_account(reply_json)
 
-                        # Update all picking reference data:
-                        # picking.write({
-                        #    'invoice_number': invoice_number,
-                        #    'invoice_date': invoice_date,
-                        #    'invoice_filename': invoice_filename,
-                        # })
+                    if not doc_number:  # Found invoice:
+                        _logger.warning(
+                            'Not found invoice number for order {}'.format(
+                                order_id))
+                        break
 
-                        # Print Invoice PDF:
-                        # Reload data for update information
-                        # todo with_context(mode='deferred_invoice')
+                    # ---------------------------------------------------------
+                    # Update all Order in invoice:
+                    # ---------------------------------------------------------
+                    error = ''  # Used in try except management
+                    for linked_id in (reply_json['orderIds'] or []):
+                        try:
+                            error = 'Order ID {} not found'.format(linked_id)
+                            linked_order = order_pool.browse(linked_id)
+
+                            # Update picking if present:
+                            error = \
+                                'Picking not found, order {}'.format(linked_id)
+                            linked_picking = \
+                                linked_order.logistic_picking_ids[0]
+
+                            # Update Invoice reference in picking:
+                            linked_picking.write({
+                                'invoice_number': doc_number,
+                                'invoice_date': doc_date,
+                                'invoice_filename': doc_filename,
+                                })
+
+                            # Update done_ids for not considered other orders
+                            done_ids.append(linked_id)
+                        except:
+                            # In case of error continue with next:
+                            _logger.error(error)
+                            continue
+
+                    # ---------------------------------------------------------
+                    # Print Invoice PDF:
+                    # ---------------------------------------------------------
+                    # Reload data for update information
+                    # todo with_context(mode='deferred_invoice')
+                    if doc_number:
                         self.browse(picking.id).api_save_invoice_pdf()
-                        # >> Print as an invoice
-                        # todo print picking
-
-                    elif reply.status_code == 401:
-                        token = company.api_get_token()
                     else:
-                        _logger.error(
-                            'Cannot get deferred invoice by ID %s' % order_id)
-                        return False
+                        _logger.error('Not printed, not found Invoice num.')
+
+                elif reply.status_code == 401:
+                    token = company.api_get_token()
+                else:
+                    _logger.error(
+                        'Cannot get deferred invoice by ID %s' % order_id)
+                    return False
 
     @api.model
     def send_invoice_to_account_csv(self, logistic_root_folder):
