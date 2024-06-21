@@ -141,8 +141,7 @@ class StockChangeStandardPrice(models.TransientModel):
 
         excel_pool.save_file_as('/home/thebrush/position.xlsx')
         return True
-        #return excel_pool.return_attachment('prova_report')
-
+        # return excel_pool.return_attachment('prova_report')
 
         self.ensure_one()
 
@@ -186,4 +185,13 @@ class StockChangeStandardPrice(models.TransientModel):
 
         line_pool.logistic_check_ready_order()
         return True
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+
+    # -------------------------------------------------------------------------
+    #                              API Calls:
+    # -------------------------------------------------------------------------
+    @api.multi
+    def button_api_save_deferred_invoice_pdf(self):
+        """ API call for generate Deferred Invoice
+        """
+        picking_pool = self.env['stock.picking']
+        return picking_pool.api_save_deferred_invoice_pdf()

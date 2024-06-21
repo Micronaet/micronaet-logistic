@@ -5,66 +5,62 @@
             <field name="name">Logistic operation wizard</field>
             <field name="model">logistic.manual.operation.wizard</field>
             <field name="arch" type="xml">
-              <form string="Logistic operation management:">
-                  <header>
-                      <button string="Cancel" class="btn-default" special="cancel" />
-                  </header>
-                  <sheet>                  
-                      <group colspan="4" col="2">
-                          <separator string="A. Confirm payment on new order:"/>
-                          <button name="confirm_payment" string="Confirm _payment" type="object" class="btn-primary" />
-                      </group>    
-                      <group colspan="4" col="2">
-                          <separator string="D. Generate supplier purchase:"/>
-                          <!--<button name="generate_purchase" string="_Generate purchase" type="object" class="btn-primary" colspan="1"/>-->
-                          <!--<button name="confirm_generated_purchase" string="Confirm Draft _Purchase" type="object" class="btn-primary" colspan="1"/>-->
-                          <button name="check_internal_order" string="Check internal Purchase" type="object" class="btn-primary" colspan="1"/>
-                      </group>    
-                      <group colspan="4" col="2">
-                          <separator string="D. Check invoice imported Account:"/>
-                          <button name="import_invoice_confirm" string="Check invoice imported" type="object" class="btn-primary" colspan="1"/>
-                      </group>    
-                      <group colspan="4" col="2">
-                          <separator string="F. Update picking in loading:"/>
-                          <!--<button name="update_ready" string="_Update ready" type="object" class="btn-primary" />-->
-                          <!--Not necessary (work after update_ready)
-                          <button name="update_ready_purchase_check" string="Update ready purchase check" type="object" class="btn-primary" /> -->
-                          <button name="extra_bf_confirm" string="Check extra import" type="object" class="btn-primary" />
-                      </group>    
-                      
-                      
-                      <group colspan="4" col="4">
-                          <separator string="G. Generate picking out document (and confirm):" colspan="4"/>
-                          <field name="limit" />
-                          <field name="loop" />
-                          <button name="generate_delivery" string="Generate _Delivery" type="object" class="btn-primary" />
-                          
-                      </group>                          
-                      <!--<group colspan="4" col="2">
-                          <separator string="G. Close customer order delivered:"/>
-                          <button name="closed_delivered" string="_Closed Delivered" type="object" class="btn-primary" />
-                      </group>-->
+                <form string="Logistic operation management:">
+                    <header>
+                        <button string="Cancel" class="btn-default" special="cancel" />
+                    </header>
+                    <sheet>
+                        <group colspan="4" col="2">
+                            <separator string="A. Conferma pagamento su nuovo ordine:"/>
+                            <button name="confirm_payment" string="Confirm _payment" type="object" class="btn-primary" />
 
-                      <separator string="Report:" colspan="4"/>
-                      <!--<group colspan="4" col="2">
-                          <separator string="Report: Load position"/>
-                          <button name="load_position_print" string="Load position report" type="object" class="btn-primary" />
-                      </group>-->
+                            <separator string="B. Genera ordini a fornitore:"/>
+                            <!--<button name="generate_purchase" string="_Generate purchase" type="object" class="btn-primary" colspan="1"/>-->
+                            <!--<button name="confirm_generated_purchase" string="Confirm Draft _Purchase" type="object" class="btn-primary" colspan="1"/>-->
+                            <button name="check_internal_order" string="Check internal Purchase" type="object" class="btn-primary" colspan="1"/>
 
-                      <group colspan="4" col="5">
-                          <separator string="Report: Accounting Fees" colspan="2"/><field name="evaluation_date" />
-                          <button name="print_report_account_fees_month" string="Print account fees" type="object" class="btn-primary" colspan="1"/>
-                          
-                      </group>                          
+                            <separator string="C. Controlla importazione fatture in contabilità:"/>
+                            <button name="import_invoice_confirm" string="Check invoice imported" type="object" class="btn-primary" colspan="1"/>
 
-                      <group colspan="4" col="2">
-                          <separator string="Bug check:"/>
-                          <button name="print_bug_check_pending_draft_line" string="Check pending order with draft lines" type="object" class="btn-primary" />
-                      </group>                          
+                            <separator string="D. Aggiorna carichi di magazzino:"/>
+                            <!--<button name="update_ready" string="_Update ready" type="object" class="btn-primary" />-->
+                            <!--Not necessary (work after update_ready)
+                            <button name="update_ready_purchase_check" string="Update ready purchase check" type="object" class="btn-primary" /> -->
+                            <button name="extra_bf_confirm" string="Check extra import" type="object" class="btn-primary" />
+                        </group>
 
+                        <group colspan="4" col="4">
+                            <separator string="E. Genera i documenti di consegna (e conferma):" colspan="4"/>
+                            <field name="limit" />
+                            <field name="loop" />
+                            <button name="generate_delivery" string="Generate _Delivery" type="object" class="btn-primary" />
 
+                            <!--<group colspan="4" col="2">
+                                <separator string="G. Close customer order delivered:"/>
+                                <button name="closed_delivered" string="_Closed Delivered" type="object" class="btn-primary" />
+                            </group>-->
 
-                  </sheet>
+                            <!--<group colspan="4" col="2">
+                                <separator string="Report: Load position"/>
+                                <button name="load_position_print" string="Load position report" type="object" class="btn-primary" />
+                            </group>-->
+                        </group>
+
+                        <group colspan="4" col="5">
+                            <separator string="Stampe:" colspan="5"/>
+
+                            <separator string="Registro corrispettivi" colspan="2"/>
+                            <field name="evaluation_date" />
+                            <button name="print_report_account_fees_month" string="Controllo errori" type="object" class="btn-primary" colspan="1"/>
+
+                            <separator string="Bug check:" colspan="4"/>
+                            <button name="print_bug_check_pending_draft_line" string="Check pending order with draft lines" type="object" class="btn-primary" colspan="1"/>
+
+                            <separator string="API:" colspan="5"/>
+                            <separator string="Fatturazione Differita DDT:" colspan="4"/>
+                            <button name="button_api_save_deferred_invoice_pdf" string="Recupera fatture e genera PDF" type="object" class="btn-primary" colspan="1"/>
+                        </group>
+                    </sheet>
               </form>
             </field>
         </record>
@@ -78,20 +74,20 @@
             <field name="view_id" ref="view_logistic_manual_operation_wizard"/>
             <field name="target">new</field>
         </record>
-        
-        <menuitem 
+
+        <menuitem
             parent="menu_logistic_management_root"
             sequence="5"
-            id="menu_logistic_manual_operation_wizard" 
+            id="menu_logistic_manual_operation_wizard"
             action="action_logistic_manual_operation_wizard"
              />
-        <menuitem 
+        <menuitem
             parent="menu_logistic_left_configuration_root"
             sequence="5"
-            id="menu_logistic_manual_operation_wizard_master" 
+            id="menu_logistic_manual_operation_wizard_master"
             action="action_logistic_manual_operation_wizard"
              />
-        
+
 
     </data>
 </openerp>
