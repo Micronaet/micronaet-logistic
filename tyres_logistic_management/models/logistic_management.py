@@ -2100,7 +2100,6 @@ class StockPicking(models.Model):
         url = company.api_root_url
 
         # Search pending DDT to be invoiced:
-        pdb.set_trace()
         pickings = self.search([
             ('invoice_number', '=', False),  # Invoice not present
             ('ddt_number', '!=', False),  # DDT present
