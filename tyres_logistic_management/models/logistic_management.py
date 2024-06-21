@@ -1988,19 +1988,19 @@ class StockPicking(models.Model):
             > call_mode:
                 'ddt' print DDT in PDF folderDDT folder
                 'invoice' print direct invoice in PDF report folder
+                'deferred_invoice' print Invoice of DDT order ID passed
             Note: Invoice for DDT is generated in another funct!
         """
-        call_mode = self.env.get('call_mode', 'invoice')  # todo
+        # ---------------------------------------------------------------------
+        # Parameters:
+        # ---------------------------------------------------------------------
+        # Function:
+        call_mode = self.env.get('call_mode', 'invoice')
 
+        # Company:
         company = self.env.user.company_id
-
         logistic_root_folder = os.path.expanduser(company.logistic_root_folder)
-        report_path = os.path.join(logistic_root_folder, 'report')
-
         picking = self
-        # Invoice mode:
-        invoice_number = requote_uri(picking.invoice_number or '')  # quoted!
-        invoice_year = (picking.invoice_date or '')[:4]
 
         # ---------------------------------------------------------------------
         # Call API for PDF file:
@@ -2008,30 +2008,37 @@ class StockPicking(models.Model):
         url = company.api_root_url
         token = company.api_token or company.api_get_token()
 
-        # 2 Cases: has number assigned, without number assigned
-        if not invoice_year or not invoice_number:
-            reply_json = company.api_get_invoice_by_reference(picking)
-            invoice_number, invoice_date, invoice_filename = \
-                self.extract_invoice_data_from_account(reply_json)
+        # For Invoice mode only (reload if not present picking references):
+        if call_mode == 'invoice':
+            invoice_number = requote_uri(
+                picking.invoice_number or '')  # quoted!
+            invoice_year = (picking.invoice_date or '')[:4]
 
-            # Update picking reference data:
-            picking.write({
-                'invoice_number': invoice_number,
-                'invoice_date': invoice_date,
-                'invoice_filename': invoice_filename,
-                })
-            # invoice_number = requote_uri(invoice_number)
-            # invoice_year = (invoice_date or '')[:4]
+            # Cases possible: has number assigned, without number assigned
+            if not invoice_year or not invoice_number:
+                # Reload data form Account:
+                reply_json = company.api_get_invoice_by_reference(picking)
+                invoice_number, invoice_date, invoice_filename = \
+                    self.extract_invoice_data_from_account(reply_json)
 
-        # A. Call with invoice reference:
-        # location = '%s/Invoice/%s/%s/pdf' % (
-        #    url, invoice_year, invoice_number)
+                # Update picking reference data:
+                picking.write({
+                    'invoice_number': invoice_number,
+                    'invoice_date': invoice_date,
+                    'invoice_filename': invoice_filename,
+                    })
+                # invoice_number = requote_uri(invoice_number)
+                # invoice_year = (invoice_date or '')[:4]
+
+            # A. Call with invoice reference:
+            # location = '%s/Invoice/%s/%s/pdf' % (
+            #    url, invoice_year, invoice_number)
 
         # B. Call with order reference
         sale_order = picking.sale_order_id
         order_number = urllib.parse.quote_plus(sale_order.name)
         if not order_number:
-            _logger.error('Picking without order linked, no invoice!')
+            _logger.error('Picking without order linked, so no invoice!')
             return False
 
         # ODOO Id management (new mode):
@@ -2039,9 +2046,7 @@ class StockPicking(models.Model):
             location = '%s/Invoice/ByReferenceId/%s/pdf?mode=%s' % (
                 url, sale_order.id, call_mode)
         else:  # Old mode
-            location = '%s/Invoice/ByReference/%s/pdf' % (
-                url, order_number)
-        _logger.warning('Calling %s' % location)
+            location = '%s/Invoice/ByReference/%s/pdf' % (url, order_number)
 
         loop_times = 1
         while loop_times <= 2:
@@ -2051,17 +2056,29 @@ class StockPicking(models.Model):
                 'accept': 'text/plain',
                 'Content-Type': 'application/json',
             }
-            # Get PDF for invoice:
+            # Receive PDF document, GET call:
             _logger.warning('Calling: %s...' % location)
             reply = requests.get(location, headers=header)
 
             if reply.ok:
-                # Generate filename:
-                invoice_filename = picking.invoice_filename
-                fullname = os.path.join(report_path, invoice_filename)
+                # -------------------------------------------------------------
+                #                   Save PDF operation:
+                # -------------------------------------------------------------
+                # Generate filename (3 mode):
+                if call_mode == 'ddt':
+                    report_path = os.path.join(
+                        logistic_root_folder, 'reportDDT')
+                    filename = picking.ddt_filename
+                else:  # invoice, deferred_invoice
+                    report_path = os.path.join(
+                        logistic_root_folder, 'report')
+                    filename = picking.invoice_filename
+
+                fullname = os.path.join(report_path, filename)
                 with open(fullname, 'wb') as f:
                     f.write(reply.content)
-                _logger.warning('Saved PDF document: %s' % fullname)
+                _logger.warning(
+                    'Saved PDF document {}: {}'.format(call_mode, fullname))
                 return True
             elif reply.status_code == 401:
                 token = company.api_get_token()
@@ -2077,13 +2094,10 @@ class StockPicking(models.Model):
         # Pool used:
         order_pool = self.env['sale.order']
 
+        # Parameters:
         company = self.env.user.company_id
         token = company.api_token or company.api_get_token()
         url = company.api_root_url
-
-        # Folder path:
-        logistic_root_folder = os.path.expanduser(company.logistic_root_folder)
-        report_path = os.path.join(logistic_root_folder, 'reportDDT')
 
         # Search pending DDT to be invoiced:
         pickings = self.search([
@@ -2109,7 +2123,7 @@ class StockPicking(models.Model):
             location = '%s/%s' % (url, endpoint)
             _logger.warning('Calling %s' % location)
             loop_times = 1
-            doc_number = False  # For print purposes
+            invoice_number = False  # Check (for print purposes)
 
             # Try twice max:
             while loop_times <= 2:
@@ -2122,10 +2136,10 @@ class StockPicking(models.Model):
                 reply = requests.get(location, headers=header)
                 if reply.ok:
                     reply_json = reply.json()
-                    doc_number, doc_date, doc_filename = \
+                    invoice_number, invoice_date, invoice_filename = \
                         self.extract_invoice_data_from_account(reply_json)
 
-                    if not doc_number:  # Found invoice:
+                    if not invoice_number:  # Not found invoice:
                         _logger.warning(
                             'Not found invoice number for order {}'.format(
                                 order_id))
@@ -2148,9 +2162,9 @@ class StockPicking(models.Model):
 
                             # Update Invoice reference in picking:
                             linked_picking.write({
-                                'invoice_number': doc_number,
-                                'invoice_date': doc_date,
-                                'invoice_filename': doc_filename,
+                                'invoice_number': invoice_number,
+                                'invoice_date': invoice_date,
+                                'invoice_filename': invoice_filename,
                                 })
 
                             # Update done_ids for not considered other orders
@@ -2163,10 +2177,12 @@ class StockPicking(models.Model):
                     # ---------------------------------------------------------
                     # Print Invoice PDF:
                     # ---------------------------------------------------------
-                    # Reload data for update information
-                    # todo with_context(mode='deferred_invoice')
-                    if doc_number:
-                        self.browse(picking.id).api_save_invoice_pdf()
+                    if invoice_number:
+                        # Reload data for update invoice information
+                        reloaded_picking = self.browse(picking.id)
+                        # Print in deferred mode:
+                        reloaded_picking.with_context(
+                            mode='deferred_invoice').api_save_invoice_pdf()
                     else:
                         _logger.error('Not printed, not found Invoice num.')
 
