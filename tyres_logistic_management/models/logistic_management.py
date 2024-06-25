@@ -2008,12 +2008,14 @@ class StockPicking(models.Model):
         picking = self
 
         # ---------------------------------------------------------------------
-        # Call API for PDF file:
+        #                      Call API for PDF file:
         # ---------------------------------------------------------------------
         url = company.api_root_url
         token = company.api_token or company.api_get_token()
 
+        # ---------------------------------------------------------------------
         # For Invoice mode only (reload if not present picking references):
+        # ---------------------------------------------------------------------
         if call_mode == 'invoice':
             invoice_number = requote_uri(
                 picking.invoice_number or '')  # quoted!
@@ -2039,7 +2041,9 @@ class StockPicking(models.Model):
             # location = '%s/Invoice/%s/%s/pdf' % (
             #    url, invoice_year, invoice_number)
 
+        # ---------------------------------------------------------------------
         # B. Call with order reference
+        # ---------------------------------------------------------------------
         sale_order = picking.sale_order_id
         order_number = urllib.parse.quote_plus(sale_order.name)
         if not order_number:
@@ -2050,7 +2054,7 @@ class StockPicking(models.Model):
         if sale_order.id > company.api_from_odoo_id:
             location = '%s/Invoice/ByReferenceId/%s/pdf?mode=%s' % (
                 url, sale_order.id, call_mode)
-        else:  # Old mode
+        else:  # Old mode (no more used!)
             location = '%s/Invoice/ByReference/%s/pdf' % (url, order_number)
 
         loop_times = 1
@@ -2114,7 +2118,6 @@ class StockPicking(models.Model):
         #  invoice_number is empty?
         _logger.info('Found {} picking/DDT to be invoiced!'.format(
             len(pickings)))
-        pdb.set_trace()
         if pickings:
             _logger.info('Found {} picking/DDT to be invoiced!'.format(
                 len(pickings)))
@@ -2134,6 +2137,7 @@ class StockPicking(models.Model):
             endpoint = 'Invoice/FromDdt/%s' % order_id
             location = '%s/%s' % (url, endpoint)
             _logger.warning('Calling %s' % location)
+            pdb.set_trace()
             loop_times = 1
             invoice_number = False  # Check (for print purposes)
 
