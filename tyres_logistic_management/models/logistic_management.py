@@ -1006,7 +1006,7 @@ class PurchaseOrderLine(models.Model):
         store=False,
         )
 
-    # TODO logistic state?
+    # todo logistic state?
     # RELATIONAL:
     load_line_ids = fields.One2many(
         'stock.move', 'logistic_purchase_id', 'Linked load to purchase',
