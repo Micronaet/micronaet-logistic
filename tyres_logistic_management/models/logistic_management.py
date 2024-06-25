@@ -2172,6 +2172,7 @@ class StockPicking(models.Model):
                         try:
                             if not linked_id:
                                 _logger.warning('Empty order ID, jump')
+                                continue
                             # JSON string ODOO int
                             linked_id = int(linked_id)
 
