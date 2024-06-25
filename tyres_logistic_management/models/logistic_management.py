@@ -2199,8 +2199,8 @@ class StockPicking(models.Model):
                         # Reload data for update invoice information
                         reloaded_picking = self.browse(picking.id)
                         # Print in deferred mode:
-                        # reloaded_picking.with_context(
-                        #     mode='deferred_invoice').api_save_invoice_pdf()
+                        reloaded_picking.with_context(
+                            mode='deferred_invoice').api_save_invoice_pdf()
                     else:
                         _logger.error('Not printed, not found Invoice num.')
 
