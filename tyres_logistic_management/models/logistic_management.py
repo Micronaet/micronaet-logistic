@@ -1822,7 +1822,6 @@ class StockPicking(models.Model):
         self.ensure_one()
 
         # Readability:
-        pdb.set_trace()
         picking = self
         order = picking.sale_order_id
         partner = order.partner_invoice_id or order.partner_id
@@ -1970,6 +1969,7 @@ class StockPicking(models.Model):
                 })
 
                 # Extract PDF file (DDT or Invoice) and save in correct folder:
+                pdb.set_trace()
                 picking.with_context(
                     call_mode=call_mode).api_save_invoice_pdf()
                 # todo 13/09 da togliere quando Cedrik lo genera automatic.
