@@ -2114,6 +2114,13 @@ class StockPicking(models.Model):
         #  invoice_number is empty?
         _logger.info('Found {} picking/DDT to be invoiced!'.format(
             len(pickings)))
+        pdb.set_trace()
+        if pickings:
+            _logger.info('Found {} picking/DDT to be invoiced!'.format(
+                len(pickings)))
+        else:
+            _logger.error('Found 0 picking/DDT, nothing todo')
+            return False
 
         done_ids = []  # List of order_id with invoice yet generated
         for picking in pickings:
