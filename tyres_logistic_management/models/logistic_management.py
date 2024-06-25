@@ -2170,6 +2170,9 @@ class StockPicking(models.Model):
                     pdb.set_trace()
                     for linked_id in (reply_json['orderIds'] or []):
                         try:
+                            # JSON string ODOO int
+                            linked_id = int(linked_id)
+
                             error = 'Order ID {} not found'.format(linked_id)
                             linked_order = order_pool.browse(linked_id)
 
