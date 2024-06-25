@@ -2167,6 +2167,7 @@ class StockPicking(models.Model):
                     # Update all Order in invoice:
                     # ---------------------------------------------------------
                     error = ''  # Used in try except management
+                    pdb.set_trace()
                     for linked_id in (reply_json['orderIds'] or []):
                         try:
                             error = 'Order ID {} not found'.format(linked_id)
