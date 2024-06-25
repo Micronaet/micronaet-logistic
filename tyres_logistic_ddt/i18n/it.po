@@ -97,7 +97,7 @@ msgstr "Data documento"
 #. module: tyres_logistic_ddt
 #: model:ir.model.fields,field_description:tyres_logistic_ddt.field_stock_picking_ddt_number
 msgid "Document number"
-msgstr "Numero documento"
+msgstr "Numero DDT"
 
 #. module: tyres_logistic_ddt
 #: model:ir.model.fields,field_description:tyres_logistic_ddt.field_stock_picking_refunded_ids

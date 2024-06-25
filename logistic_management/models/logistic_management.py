@@ -1864,7 +1864,7 @@ class SaleOrder(models.Model):
                     # reference'
                     # sale_line_id
                     # procure_method,
-                    #'product_qty': select_qty,
+                    # 'product_qty': select_qty,
                     })
             # TODO check if DDT / INVOICE document:
 
@@ -1884,7 +1884,7 @@ class SaleOrder(models.Model):
             _logger.warning('Check other order remain: %s' % limit)
             orders = self.search([
                 ('logistic_state', '=', 'ready'),
-                ], limit=limit) # keep limit instead of search all
+                ], limit=limit)  # keep limit instead of search all
             return orders or False
 
         return picking_ids

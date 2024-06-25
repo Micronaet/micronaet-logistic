@@ -192,10 +192,10 @@ class StockPicking(models.Model):
 
     # -------------------------------------------------------------------------
     # API fields:
-    ddt_number = fields.Char('Document number')
-    ddt_date = fields.Datetime('Document date')
+    ddt_number = fields.Char('Numero DDT')
+    ddt_date = fields.Datetime('Data DDT')
     ddt_filename = fields.Char(
-        'DDT filename', size=80,
+        'Nome file DDT', size=80,
         help='DDT filename for PDF report')
 
     invoice_number = fields.Char('Invoice number')
