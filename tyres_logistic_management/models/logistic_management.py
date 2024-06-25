@@ -1995,7 +1995,12 @@ class StockPicking(models.Model):
         # Parameters:
         # ---------------------------------------------------------------------
         # Function:
-        call_mode = self.env.context.get('call_mode', 'invoice')
+        call_mode = self.env.context.get('call_mode')
+        if not call_mode:
+            if self.ddt_number:
+                call_mode = 'deferred_invoice'
+            else:
+                call_mode = 'invoice'
 
         # Company:
         company = self.env.user.company_id
