@@ -2014,7 +2014,7 @@ class StockPicking(models.Model):
         token = company.api_token or company.api_get_token()
 
         # ---------------------------------------------------------------------
-        # For Invoice mode only (reload if not present picking references):
+        # For Invoice mode ONLY (reload if not present picking references):
         # ---------------------------------------------------------------------
         if call_mode == 'invoice':
             invoice_number = requote_uri(
@@ -2054,6 +2054,7 @@ class StockPicking(models.Model):
         if sale_order.id > company.api_from_odoo_id:
             location = '%s/Invoice/ByReferenceId/%s/pdf?mode=%s' % (
                 url, sale_order.id, call_mode)
+            # Call mode to pass DDT or Deferred Invoice request
         else:  # Old mode (no more used!)
             location = '%s/Invoice/ByReference/%s/pdf' % (url, order_number)
 
@@ -2082,6 +2083,8 @@ class StockPicking(models.Model):
                     report_path = os.path.join(
                         logistic_root_folder, 'report')
                     filename = picking.invoice_filename
+                    # todo call will not update invoice reference for
+                    #  deferred invoice call! (save only PDF file)
 
                 fullname = os.path.join(report_path, filename)
                 with open(fullname, 'wb') as f:
