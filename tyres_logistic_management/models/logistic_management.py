@@ -2438,7 +2438,7 @@ class StockPicking(models.Model):
 
             # Correct exit:
             picking.write({
-                'state': 'done',  # TODO needed?
+                'state': 'done',  # todo needed?
                 'is_fees': is_fees,
                 })
 
