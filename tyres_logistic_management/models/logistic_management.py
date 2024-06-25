@@ -2067,7 +2067,7 @@ class StockPicking(models.Model):
                 'Content-Type': 'application/json',
             }
             # Receive PDF document, GET call:
-            _logger.warning('Calling: %s...' % location)
+            _logger.warning('Calling: %s ...' % location)
             reply = requests.get(location, headers=header)
 
             if reply.ok:
@@ -2199,8 +2199,8 @@ class StockPicking(models.Model):
                         # Reload data for update invoice information
                         reloaded_picking = self.browse(picking.id)
                         # Print in deferred mode:
-                        reloaded_picking.with_context(
-                            mode='deferred_invoice').api_save_invoice_pdf()
+                        # reloaded_picking.with_context(
+                        #     mode='deferred_invoice').api_save_invoice_pdf()
                     else:
                         _logger.error('Not printed, not found Invoice num.')
 
