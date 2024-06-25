@@ -679,7 +679,7 @@
                                      <field name="name" />
                                      <field name="date" invisible="1" />
                                      <field name="scheduled_date" />
-                                     <field name="ddt_number" />
+                                     <field name="ddt_number" string="Numero DDT"/>
                                      <field name="invoice_number" />
                                      <field name="state" invisible="1"/>
                                      <button name="api_save_invoice_pdf" type="object" string="Refresh PDF" icon="fa-print"/>
