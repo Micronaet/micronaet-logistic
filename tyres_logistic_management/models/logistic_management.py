@@ -1996,6 +1996,7 @@ class StockPicking(models.Model):
         # Parameters:
         # ---------------------------------------------------------------------
         # Function:
+        pdb.set_trace()
         call_mode = self.env.get('call_mode', 'invoice')
 
         # Company:
