@@ -2140,7 +2140,6 @@ class StockPicking(models.Model):
             endpoint = 'Invoice/FromDdt/%s' % order_id
             location = '%s/%s' % (url, endpoint)
             _logger.warning('Calling %s' % location)
-            pdb.set_trace()
             loop_times = 1
             invoice_number = False  # Check (for print purposes)
 
