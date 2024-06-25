@@ -2170,6 +2170,8 @@ class StockPicking(models.Model):
                     pdb.set_trace()
                     for linked_id in (reply_json['orderIds'] or []):
                         try:
+                            if not linked_id:
+                                _logger.warning('Empty order ID, jump')
                             # JSON string ODOO int
                             linked_id = int(linked_id)
 
