@@ -1969,7 +1969,6 @@ class StockPicking(models.Model):
                 })
 
                 # Extract PDF file (DDT or Invoice) and save in correct folder:
-                pdb.set_trace()
                 picking.with_context(
                     call_mode=call_mode).api_save_invoice_pdf()
                 # todo 13/09 da togliere quando Cedrik lo genera automatic.
