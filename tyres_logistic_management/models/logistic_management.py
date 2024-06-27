@@ -1981,6 +1981,28 @@ class StockPicking(models.Model):
                 return False
 
     @api.multi
+    def api_print_ddt_pdf(self):
+        """ Print picking DDT
+        """
+        picking = self
+        order = picking.sale_order_id
+
+        company = self.env.user.company_id
+        logistic_root_folder = os.path.expanduser(
+            company.logistic_root_folder)
+        report_path = os.path.join(
+            logistic_root_folder, 'reportDDT')
+
+        fullname = os.path.join(report_path, picking.ddt_filename)
+
+        # Managed for office redirect:
+        try:
+            redirect_print = order.manage_office_id.cups_printer or False
+        except:
+            redirect_print = False
+        return order.send_report_to_printer(fullname, 'ddt', redirect_print)
+
+    @api.multi
     def api_save_invoice_pdf(self):
         """ Save invoice for picking passed if not reference in picking reload
             from Account calling invoice with ODOO reference.

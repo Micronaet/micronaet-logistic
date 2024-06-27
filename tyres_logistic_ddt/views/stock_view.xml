@@ -53,6 +53,8 @@
              <field name="arch" type="xml">
                  <field name="state" position="before">
                     <field name="ddt_number" />
+                    <button name="api_print_ddt_pdf" type="object" string="Stampa DDT" icon="fa-print" attrs="{'invisible': [('ddt_number', '=', False)]}"/>
+
                     <field name="invoice_number" />
                  </field>
              </field>

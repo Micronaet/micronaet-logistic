@@ -679,11 +679,14 @@
                                      <field name="name" />
                                      <field name="date" invisible="1" />
                                      <field name="scheduled_date" />
+
                                      <field name="ddt_number" string="Numero DDT"/>
+                                     <button name="api_print_ddt_pdf" type="object" string="Stampa DDT" icon="fa-print" attrs="{'invisible': [('ddt_number', '=', False)]}"/>
+
                                      <field name="invoice_number" />
-                                     <field name="state" invisible="1"/>
                                      <button name="api_save_invoice_pdf" type="object" string="Rigenera PDF fattura" icon="fa-print"/>
-                                     <!--<button name="api_save_ddt_pdf" type="object" string="Refresh PDF" icon="fa-print"/>-->
+
+                                     <field name="state" invisible="1"/>
                                  </tree>
                              </field>
                          </group>
