@@ -189,7 +189,8 @@ class ResCompany(models.Model):
     product_account_ref = fields.Char('Product account ref.', size=20)
 
     cups_picking = fields.Char('CUPS picking', size=30)
-    cups_ddt = fields.Char('CUPS ddt', size=30)
+    cups_ddt = fields.Char('CUPS DDT', size=30)
+    cups_sale_ddt = fields.Char('CUPS DDT vendita', size=30)
     cups_invoice = fields.Char('CUPS Invoice', size=30)
 
 
@@ -1995,12 +1996,8 @@ class StockPicking(models.Model):
 
         fullname = os.path.join(report_path, picking.ddt_filename)
 
-        # Managed for office redirect:
-        try:
-            redirect_print = order.manage_office_id.cups_printer or False
-        except:
-            redirect_print = False
-        return order.send_report_to_printer(fullname, 'ddt', redirect_print)
+        return order.send_report_to_printer(
+            fullname, 'sale_ddt', False)
 
     @api.multi
     def api_save_invoice_pdf(self):

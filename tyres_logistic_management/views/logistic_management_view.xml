@@ -544,6 +544,7 @@
                                          <field name="cups_picking" />
                                          <field name="cups_ddt" />
                                          <field name="cups_invoice" />
+                                         <field name="cups_sale_ddt" />
                                      </group>
                                  </page>
                                  <page name="api_page" string="API">
