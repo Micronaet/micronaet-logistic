@@ -98,16 +98,22 @@ class LogisticDeliveryReportWizard(models.TransientModel):
 
             'Codice',
             'Nome',
+            'Stagione',
+            'Marca',
+            'Raggio',
+
             'Q.',
-            'Prezzo un.',
-            'Subtotal',
+            'Prezzo un.',  # "Totale"
+            'Subtotal',  # Total ref.
             'Drop.',
             'Int.',
             ]
+        total_col = header.index('Subtotal') - 1
 
         width = [
             30, 10, 8, 15, 18, 12,
-            12, 40, 5, 10, 15, 5, 5,
+            12, 40, 15, 15, 10,
+            5, 10, 15, 5, 5,
             ]
 
         excel_pool.column_width(ws_name, width)
@@ -118,13 +124,14 @@ class LogisticDeliveryReportWizard(models.TransientModel):
             ], default_format=format_text['title'])
 
         row += 2
-        excel_pool.write_xls_line(ws_name, row, header,
+        excel_pool.write_xls_line(
+            ws_name, row, header,
             default_format=format_text['header'])
 
         total = 0.0
         for delivery in sorted(
                 delivery_data, key=lambda x:
-                    (x.supplier_id.name, x.date)):
+                (x.supplier_id.name, x.date)):
 
             header = [
                 delivery.supplier_id.name,
@@ -176,9 +183,14 @@ class LogisticDeliveryReportWizard(models.TransientModel):
                 # Detail:
                 subtotal = quant.product_qty * quant.price
                 total += subtotal
+                product = quant.product_id
                 line = [
-                    quant.product_id.default_code,
-                    quant.product_id.name_extended,
+                    product.default_code,
+                    product.name_extended,
+                    product.stagione,
+                    product.brand,
+                    product.raggio,
+
                     (quant.product_qty, format_text['number']),
                     (quant.price, format_text['number']),
                     (subtotal, format_text['number']),
@@ -187,7 +199,7 @@ class LogisticDeliveryReportWizard(models.TransientModel):
                     ]
                 excel_pool.write_xls_line(
                     ws_name, row, line,
-                    default_format=format_text['text'], col=6)
+                    default_format=format_text['text'], col=total_col)
 
         row += 1
         # Write formatted with color
