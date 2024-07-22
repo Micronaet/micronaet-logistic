@@ -2156,85 +2156,97 @@ class StockPicking(models.Model):
                 ))
                 continue
 
+            # Prepare parameters:
             endpoint = 'Invoice/FromDdt/%s' % order_id
             location = '%s/%s' % (url, endpoint)
             _logger.warning('Calling %s' % location)
             loop_times = 1
             invoice_number = False  # Check (for print purposes)
 
-            # Try twice max:
-            while loop_times <= 2:
-                loop_times += 1
-                header = {
-                    'Authorization': 'bearer %s' % token,
-                    'accept': 'text/plain',
-                    'Content-Type': 'application/json',
-                    }
-                reply = requests.get(location, headers=header)
-                if reply.ok:
-                    reply_json = reply.json()
-                    invoice_number, invoice_date, invoice_filename = \
-                        self.extract_invoice_data_from_account(reply_json)
+            # If reply from Account raise an error continue with the other DDT:
+            try:
+                # Try twice max:
+                while loop_times <= 2:
+                    loop_times += 1
+                    header = {
+                        'Authorization': 'bearer %s' % token,
+                        'accept': 'text/plain',
+                        'Content-Type': 'application/json',
+                        }
+                    reply = requests.get(location, headers=header)
+                    if reply.ok:
+                        reply_json = reply.json()
+                        invoice_number, invoice_date, invoice_filename = \
+                            self.extract_invoice_data_from_account(reply_json)
 
-                    if not invoice_number:  # Not found invoice:
-                        _logger.warning(
-                            'Not found invoice number for order {}'.format(
-                                order_id))
-                        break
+                        if not invoice_number:  # Not found invoice:
+                            _logger.warning(
+                                'Not found invoice number for order {}'.format(
+                                    order_id))
+                            break
 
-                    # ---------------------------------------------------------
-                    # Update all Order in invoice:
-                    # ---------------------------------------------------------
-                    error = ''  # Used in try except management
-                    for linked_id in (reply_json['orderIds'] or []):
-                        try:
-                            if not linked_id:
-                                _logger.warning('Empty order ID, jump')
+                        # -----------------------------------------------------
+                        # Update all Order in invoice:
+                        # -----------------------------------------------------
+                        error = ''  # Used in try except management
+                        for linked_id in (reply_json['orderIds'] or []):
+                            try:
+                                if not linked_id:
+                                    _logger.warning('Empty order ID, jump')
+                                    continue
+                                # JSON string ODOO int
+                                linked_id = int(linked_id)
+
+                                error = 'Order ID {} not found'.format(
+                                    linked_id)
+                                linked_order = order_pool.browse(
+                                    linked_id)
+
+                                # Update picking if present:
+                                error = 'Picking not found, order {}'.format(
+                                    linked_id)
+                                linked_picking = \
+                                    linked_order.logistic_picking_ids[0]
+
+                                # Update Invoice reference in picking:
+                                linked_picking.write({
+                                    'invoice_number': invoice_number,
+                                    'invoice_date': invoice_date,
+                                    'invoice_filename': invoice_filename,
+                                    })
+
+                                # Update done_ids for not considered
+                                # other orders:
+                                done_ids.append(linked_id)
+                            except:
+                                # In case of error continue with next:
+                                _logger.error(error)
                                 continue
-                            # JSON string ODOO int
-                            linked_id = int(linked_id)
 
-                            error = 'Order ID {} not found'.format(linked_id)
-                            linked_order = order_pool.browse(linked_id)
+                        # -----------------------------------------------------
+                        # Print Invoice PDF:
+                        # -----------------------------------------------------
+                        if invoice_number:
+                            # Reload data for update invoice information
+                            reloaded_picking = self.browse(picking.id)
+                            # Print in deferred mode:
+                            reloaded_picking.with_context(
+                                mode='deferred_invoice').api_save_invoice_pdf()
+                        else:
+                            _logger.error(
+                                'Not printed, not found Invoice number')
 
-                            # Update picking if present:
-                            error = \
-                                'Picking not found, order {}'.format(linked_id)
-                            linked_picking = \
-                                linked_order.logistic_picking_ids[0]
-
-                            # Update Invoice reference in picking:
-                            linked_picking.write({
-                                'invoice_number': invoice_number,
-                                'invoice_date': invoice_date,
-                                'invoice_filename': invoice_filename,
-                                })
-
-                            # Update done_ids for not considered other orders
-                            done_ids.append(linked_id)
-                        except:
-                            # In case of error continue with next:
-                            _logger.error(error)
-                            continue
-
-                    # ---------------------------------------------------------
-                    # Print Invoice PDF:
-                    # ---------------------------------------------------------
-                    if invoice_number:
-                        # Reload data for update invoice information
-                        reloaded_picking = self.browse(picking.id)
-                        # Print in deferred mode:
-                        reloaded_picking.with_context(
-                            mode='deferred_invoice').api_save_invoice_pdf()
+                    elif reply.status_code == 401:
+                        token = company.api_get_token()
                     else:
-                        _logger.error('Not printed, not found Invoice num.')
-
-                elif reply.status_code == 401:
-                    token = company.api_get_token()
-                else:
-                    _logger.error(
-                        'Cannot get deferred invoice by ID %s' % order_id)
-                    return False
+                        _logger.error(
+                            'Cannot get deferred invoice by ID %s' % order_id)
+                        return False
+            except:
+                # In case of error continue with next:
+                _logger.error('Generic error calling Account Program!'
+                              'Go ahead with other picking-DDT!')
+                continue
 
     @api.model
     def send_invoice_to_account_csv(self, logistic_root_folder):
