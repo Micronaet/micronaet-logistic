@@ -184,12 +184,28 @@ class LogisticDeliveryReportWizard(models.TransientModel):
                 subtotal = quant.product_qty * quant.price
                 total += subtotal
                 product = quant.product_id
+
+                try:
+                    stagione = product.stagione or ''
+                except:
+                    stagione = 'Errore!'
+                try:
+                    brand = product.brand
+                    if brand:
+                        brand = brand.name
+                except:
+                    brand = 'Errore!'
+                try:
+                    raggio = product.raggio or ''
+                except:
+                    raggio = 'Errore!'
+
                 line = [
                     product.default_code,
                     product.name_extended,
-                    product.stagione,
-                    product.brand,
-                    product.raggio,
+                    stagione,
+                    brand,
+                    raggio,
 
                     (quant.product_qty, format_text['number']),
                     (quant.price, format_text['number']),
@@ -206,7 +222,7 @@ class LogisticDeliveryReportWizard(models.TransientModel):
         excel_pool.write_xls_line(ws_name, row, [
             'Totale',
             (total, format_text['number']),
-            ], default_format=format_text['text'], col=9)
+            ], default_format=format_text['text'], col=total_col)
         return excel_pool.return_attachment(filename)
 
     # -------------------------------------------------------------------------
