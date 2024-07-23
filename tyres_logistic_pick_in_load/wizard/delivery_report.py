@@ -134,7 +134,7 @@ class LogisticDeliveryReportWizard(models.TransientModel):
 
         width = [
             30, 10, 8, 15, 18, 12,
-            12, 40, 15, 15, 10,
+            15, 40, 10, 15, 10,
             5, 10, 15, 5, 5,
             ]
 
