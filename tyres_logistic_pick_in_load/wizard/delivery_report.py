@@ -44,6 +44,27 @@ class LogisticDeliveryReportWizard(models.TransientModel):
     def delivery_report_button(self):
         """ Account fees report
         """
+        # Utility:
+        def get_extra_product_info(product):
+            """ Extract extra info from product template
+            """
+            try:
+                stagione = product.stagione or ''
+            except:
+                stagione = 'Errore!'
+            try:
+                brand = product.brand
+                if brand:
+                    brand = brand.name
+            except:
+                brand = 'Errore!'
+            try:
+                raggio = product.raggio or ''
+            except:
+                raggio = 'Errore!'
+
+            return stagione, brand, raggio
+
         delivery_pool = self.env['stock.picking.delivery']
         excel_pool = self.env['excel.writer']
 
@@ -108,6 +129,7 @@ class LogisticDeliveryReportWizard(models.TransientModel):
             'Drop.',
             'Int.',
             ]
+        detail_col = 6
         total_col = header.index('Subtotal') - 1
 
         width = [
@@ -156,9 +178,17 @@ class LogisticDeliveryReportWizard(models.TransientModel):
                 # Detail:
                 subtotal = detail.product_uom_qty * detail.price_unit
                 total += subtotal
+
+                # Extra data for product:
+                product = detail.product_id
+                stagione, brand, raggio = get_extra_product_info(product)
                 line = [
                     detail.default_code,
                     detail.name_extended,
+                    stagione,
+                    brand,
+                    raggio,
+
                     (detail.product_uom_qty, format_text['number']),
                     (detail.price_unit, format_text['number']),
                     (subtotal, format_text['number']),
@@ -167,7 +197,7 @@ class LogisticDeliveryReportWizard(models.TransientModel):
                     ]
                 excel_pool.write_xls_line(
                     ws_name, row, line,
-                    default_format=format_text['text'], col=6)
+                    default_format=format_text['text'], col=detail_col)
 
             # -----------------------------------------------------------------
             # Row linked to internal stock:
@@ -185,21 +215,7 @@ class LogisticDeliveryReportWizard(models.TransientModel):
                 total += subtotal
                 product = quant.product_id
 
-                try:
-                    stagione = product.stagione or ''
-                except:
-                    stagione = 'Errore!'
-                try:
-                    brand = product.brand
-                    if brand:
-                        brand = brand.name
-                except:
-                    brand = 'Errore!'
-                try:
-                    raggio = product.raggio or ''
-                except:
-                    raggio = 'Errore!'
-
+                stagione, brand, raggio = get_extra_product_info(product)
                 line = [
                     product.default_code,
                     product.name_extended,
@@ -215,7 +231,7 @@ class LogisticDeliveryReportWizard(models.TransientModel):
                     ]
                 excel_pool.write_xls_line(
                     ws_name, row, line,
-                    default_format=format_text['text'], col=total_col)
+                    default_format=format_text['text'], col=detail_col)
 
         row += 1
         # Write formatted with color
