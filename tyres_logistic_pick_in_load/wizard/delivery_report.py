@@ -51,17 +51,17 @@ class LogisticDeliveryReportWizard(models.TransientModel):
             try:
                 stagione = product.stagione or ''
             except:
-                stagione = 'Errore!'
+                stagione = u'Errore!'
             try:
                 brand = product.brand
                 if brand:
-                    brand = brand.name
+                    brand = u'%' % brand.name
             except:
-                brand = 'Errore!'
+                brand = u'Errore!'
             try:
                 raggio = product.raggio or ''
             except:
-                raggio = 'Errore!'
+                raggio = u'Errore!'
 
             return stagione, brand, raggio
 
