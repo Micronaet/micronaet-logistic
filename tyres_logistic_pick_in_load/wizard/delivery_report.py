@@ -55,7 +55,7 @@ class LogisticDeliveryReportWizard(models.TransientModel):
             try:
                 if product.brand:
                     brand = u'%' % product.brand.name
-                else
+                else:
                     brand = u'/'
             except:
                 brand = u'Errore!'
