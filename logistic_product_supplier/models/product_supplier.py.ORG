@@ -93,7 +93,6 @@ class ProductTemplateSupplierStock(models.Model):
             current_line.write({
                 'purchase_price': self.quotation,
                 'product_uom_qty': new_qty,
-                'dispatch_time': self.dispatch_time_est,
                 })
         return True
 
@@ -133,7 +132,6 @@ class ProductTemplateSupplierStock(models.Model):
             current_line.write({
                 'purchase_price': self.quotation,
                 'product_uom_qty': used_qty,
-                'dispatch_time': self.dispatch_time_est,
                 })
         else:
             purchase_pool.create({
@@ -141,7 +139,6 @@ class ProductTemplateSupplierStock(models.Model):
                 'purchase_price': self.quotation,
                 'supplier_id': self.supplier_id.id,
                 'product_uom_qty': used_qty,
-                'dispatch_time': self.dispatch_time_est,
                 })
         return True
 
@@ -169,8 +166,8 @@ class ProductTemplateSupplierStock(models.Model):
             'purchase_price': self.quotation,
             'supplier_id': self.supplier_id.id,
             'product_uom_qty': used_qty,
-            'dispatch_time': self.dispatch_time_est,
             })
+
 
     @api.multi
     def assign_to_purchase_this(self):
@@ -208,7 +205,6 @@ class ProductTemplateSupplierStock(models.Model):
             current_line.write({
                 'purchase_price': self.quotation,
                 'product_uom_qty': used_qty,
-                'dispatch_time': self.dispatch_time_est,
                 })
         else:
             purchase_pool.create({
@@ -216,7 +212,6 @@ class ProductTemplateSupplierStock(models.Model):
                 'purchase_price': self.quotation,
                 'supplier_id': self.supplier_id.id,
                 'product_uom_qty': used_qty,
-                'dispatch_time': self.dispatch_time_est,
                 })
         return True
 
@@ -269,9 +264,7 @@ class SaleOrderLinePurchase(models.Model):
         """ Calc delivery date depend on passed partial list
         """
         try:
-            supplier_day = \
-                self.dispatch_time or self.supplier_id.mmac_b2b_daytoproblem
-            # supplier_day = self.supplier_id.mmac_b2b_daytoproblem
+            supplier_day = self.supplier_id.mmac_b2b_daytoproblem
         except:
             supplier_day = 2  # Default 2 days if error
 
@@ -316,9 +309,6 @@ class SaleOrderLinePurchase(models.Model):
         'Data consegna prevista',
         help='Calcolata in funzione dei giorni di lead time impostati nel '
              'fornitore')
-
-    dispatch_time = fields.Integer("Dispatch time", default=0)
-
     # -------------------------------------------------------------------------
 
 
@@ -438,3 +428,5 @@ class SaleOrder(models.Model):
             'target': 'current', # 'new'
             'nodestroy': False,
             }
+
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
