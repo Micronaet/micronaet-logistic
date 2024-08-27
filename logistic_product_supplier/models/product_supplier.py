@@ -46,7 +46,7 @@ class ProductTemplateSupplierStock(models.Model):
 
     @api.model
     def get_context_sale_order_object(self):
-        """ Return browseable sale line reference:
+        """ Return browsable sale line reference:
         """
         line_pool = self.env['sale.order.line']
         context = self.env.context
@@ -68,8 +68,8 @@ class ProductTemplateSupplierStock(models.Model):
     def assign_to_purchase_minus(self):
         """ Assign -1 to this supplier
         """
-        sale_pool = self.env['sale.order.line']
-        purchase_pool = self.env['sale.order.line.purchase']
+        # sale_pool = self.env['sale.order.line']
+        # purchase_pool = self.env['sale.order.line.purchase']
 
         # Current sale line:
         line = self.get_context_sale_order_object()
@@ -101,7 +101,7 @@ class ProductTemplateSupplierStock(models.Model):
     def assign_to_purchase_plus(self):
         """ Assign +1 to this supplier
         """
-        sale_pool = self.env['sale.order.line']
+        # sale_pool = self.env['sale.order.line']
         purchase_pool = self.env['sale.order.line.purchase']
 
         # Current sale line:
@@ -129,7 +129,7 @@ class ProductTemplateSupplierStock(models.Model):
                 'Stock not available to cover! [%s < %s]' % (
                     stock_qty, product_uom_qty))
 
-        if current_line: # Update:
+        if current_line:  # Update:
             current_line.write({
                 'purchase_price': self.quotation,
                 'product_uom_qty': used_qty,
@@ -176,7 +176,7 @@ class ProductTemplateSupplierStock(models.Model):
     def assign_to_purchase_this(self):
         """ Assign max stock from this supplier (or remain)
         """
-        sale_pool = self.env['sale.order.line']
+        # sale_pool = self.env['sale.order.line']
         purchase_pool = self.env['sale.order.line.purchase']
 
         # Current sale line:
@@ -360,8 +360,8 @@ class SaleOrderLine(models.Model):
     # -------------------------------------------------------------------------
     #                                   COLUMNS:
     # -------------------------------------------------------------------------
-    # TODO field for state of purchase
-    # TODO field for purchase supplier present
+    # todo field for state of purchase
+    # todo field for purchase supplier present
     product_supplier_ids = fields.One2many(
         'product.template.supplier.stock',
         related='product_id.supplier_stock_ids',
@@ -390,8 +390,10 @@ class ResPartner(models.Model):
     # -------------------------------------------------------------------------
     #                                   COLUMNS:
     # -------------------------------------------------------------------------
-    hide_supplier = fields.Boolean('Hide supplier',
+    hide_supplier = fields.Boolean(
+        'Hide supplier',
         help='Supplier hide from generate purchase order')
+
 
 class SaleOrder(models.Model):
     """ Model name: Sale order line relations
@@ -411,8 +413,8 @@ class SaleOrder(models.Model):
             'logistic_product_supplier',
             'view_sale_order_line_purchase_management_form')[1]
 
-        line_ids = [item.id for item in self.order_line if \
-            not item.product_id.is_expence]
+        line_ids = [item.id for item in self.order_line if
+                    not item.product_id.is_expence]
         if len(line_ids) == 1:
             view_id = form_view_id
             views = [(form_view_id, 'form'), (tree_view_id, 'tree')]
@@ -435,6 +437,6 @@ class SaleOrder(models.Model):
             'views': views,
             'domain': [('id', 'in', line_ids)],
             'context': self.env.context,
-            'target': 'current', # 'new'
+            'target': 'current',  # 'new'
             'nodestroy': False,
             }
