@@ -237,6 +237,7 @@ class ProductTemplateSupplierStock(models.Model):
     best_price = fields.Boolean('Best price')
     ipcode = fields.Char('Supplier code', size=24)
     promo = fields.Boolean('Promo')
+    hide_supplier = fields.Boolean('Hide supplier')
 
 
 class ProductTemplate(models.Model):
@@ -316,7 +317,6 @@ class SaleOrderLinePurchase(models.Model):
              'fornitore')
 
     dispatch_time = fields.Integer('Dispatch time')
-    hide_supplier = fields.Boolean('Hide supplier')
     # -------------------------------------------------------------------------
 
 
