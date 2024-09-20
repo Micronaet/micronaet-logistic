@@ -34,6 +34,9 @@ from datetime import datetime, timedelta
 
 _logger = logging.getLogger(__name__)
 
+# Parameters:
+excluded_day = (5, 6)
+
 
 class ProductTemplateSupplierStock(models.Model):
     """ Model name: ProductTemplateSupplierStock
@@ -68,15 +71,11 @@ class ProductTemplateSupplierStock(models.Model):
     def assign_to_purchase_minus(self):
         """ Assign -1 to this supplier
         """
-        # sale_pool = self.env['sale.order.line']
-        # purchase_pool = self.env['sale.order.line.purchase']
-
         # Current sale line:
         line = self.get_context_sale_order_object()
 
-        product_uom_qty = line.product_uom_qty
-        stock_qty = self.stock_qty
-
+        # product_uom_qty = line.product_uom_qty
+        # stock_qty = self.stock_qty
         current_qty = 0.0
         current_line = False
         for splitted in line.purchase_split_ids:
@@ -271,22 +270,21 @@ class SaleOrderLinePurchase(models.Model):
         try:
             supplier_day = \
                 self.dispatch_time or self.supplier_id.mmac_b2b_daytoproblem
-            # supplier_day = self.supplier_id.mmac_b2b_daytoproblem
         except:
             supplier_day = 2  # Default 2 days if error
 
         current = datetime.now()
-        excluded_day = (5, 6)
         while supplier_day > 0:
             current = current + timedelta(days=1)
             if current.weekday() in excluded_day:
                 continue  # add another day
             else:
                 supplier_day -= 1  # Day left
-        _logger.warning('Update date for delivery')
+
+        # Update date for delivery
         return self.write({
             'supplier_delivery_date': current,
-        })
+            })
 
     # Override:
     @api.model
@@ -317,8 +315,8 @@ class SaleOrderLinePurchase(models.Model):
         help='Calcolata in funzione dei giorni di lead time impostati nel '
              'fornitore')
 
-    dispatch_time = fields.Integer("Dispatch time", default=0)
-
+    dispatch_time = fields.Integer('Dispatch time')
+    hide_supplier = fields.Boolean('Hide supplier')
     # -------------------------------------------------------------------------
 
 
