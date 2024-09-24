@@ -190,14 +190,12 @@
              </field>
          </record>
 
-
         <menuitem
             parent="stock.menu_product_variant_config_stock"
             id="menu_product_template_supplier_stock_bom"
             action="action_view_product_template_supplier_stock_tree"
             sequence="10"
             />
-
     </data>
 </openerp>
 
