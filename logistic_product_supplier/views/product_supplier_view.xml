@@ -159,6 +159,7 @@
                                     <field name="best_price" invisible="1"/>
                                     <field name="supplier_id" context="{'default_supplier': True}" />
                                     <field name="ipcode" />
+                                    <field name="supplier_delivery_date" />
                                     <field name="quotation" />
                                     <field name="promo" invisible="1"/>
                                     <button name="dummy" string="Promo" type="object" icon="fa-thumbs-up" attrs="{'invisible': [('promo','=',False)]}"/>

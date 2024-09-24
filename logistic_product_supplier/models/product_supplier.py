@@ -47,6 +47,36 @@ class ProductTemplateSupplierStock(models.Model):
     _rec_name = 'supplier_id'
     _order = 'quotation'
 
+    # -------------------------------------------------------------------------
+    # Utility:
+    # -------------------------------------------------------------------------
+
+    # @api.depends('dispatch_time_est', 'supplier_id')
+    @api.multi
+    def _get_supplier_delivery_date(self):
+        """ Calc delivery date depend on passed partial list
+        """
+        default_supplier_day = 2
+        now = datetime.now()
+        for line in self:
+            try:
+                supplier_day = \
+                    line.dispatch_time_est or \
+                    line.supplier_id.mmac_b2b_daytoproblem
+            except:
+                supplier_day = default_supplier_day
+
+            current = now
+            while supplier_day > 0:
+                current = current + timedelta(days=1)
+                if current.weekday() in excluded_day:
+                    continue  # add another day
+                else:
+                    supplier_day -= 1  # Day left
+
+            # Update date for delivery
+            line.supplier_delivery_date = current
+
     @api.model
     def get_context_sale_order_object(self):
         """ Return browsable sale line reference:
@@ -238,6 +268,9 @@ class ProductTemplateSupplierStock(models.Model):
     ipcode = fields.Char('Supplier code', size=24)
     promo = fields.Boolean('Promo')
     hide_supplier = fields.Boolean('Hide supplier')
+    supplier_delivery_date = fields.Date(
+        'Consegna prev.',
+        compute='_get_supplier_delivery_date')
 
 
 class ProductTemplate(models.Model):
