@@ -2241,7 +2241,7 @@ class StockPicking(models.Model):
                     else:
                         _logger.error(
                             'Cannot get deferred invoice by ID %s' % order_id)
-                        return False
+                        continue
             except:
                 # In case of error continue with next:
                 _logger.error('Generic error calling Account Program!'
