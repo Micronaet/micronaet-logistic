@@ -61,7 +61,7 @@ class ProductTemplateSupplierStock(models.Model):
         for line in self:
             try:
                 supplier_day = \
-                    line.dispatch_time_est or \
+                    line.dispatch_time_est + line.cut_off_day or \
                     line.supplier_id.mmac_b2b_daytoproblem
             except:
                 supplier_day = default_supplier_day
