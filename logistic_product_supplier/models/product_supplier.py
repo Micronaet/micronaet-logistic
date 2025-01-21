@@ -300,15 +300,16 @@ class SaleOrderLinePurchase(models.Model):
     # -------------------------------------------------------------------------
     # Utility:
     # -------------------------------------------------------------------------
-    '''
-    21/01/2025: Micronaet - Removed not used (passed in create from p.t.s.stock
-    @api.multi
     def update_supplier_delivery_date(self):
         """ Calc delivery date depend on passed partial list
         """
+        if self.supplier_delivery_date:
+            # Update only lines that has not setup supplier_delivery_date!
+            return True
+
         try:
-            supplier_day = \
-                self.dispatch_time or self.supplier_id.mmac_b2b_daytoproblem
+            supplier_day = self.supplier_id.mmac_b2b_daytoproblem or 2
+            # self.dispatch_time or self.supplier_id.mmac_b2b_daytoproblem
         except:
             supplier_day = 2  # Default 2 days if error
 
@@ -334,7 +335,6 @@ class SaleOrderLinePurchase(models.Model):
         line = super(SaleOrderLinePurchase, self).create(values)
         line.update_supplier_delivery_date()  # Update delivery data
         return line
-    '''
 
     # -------------------------------------------------------------------------
     # COLUMNS:
