@@ -171,6 +171,7 @@ class ProductTemplateSupplierStock(models.Model):
                 'supplier_id': self.supplier_id.id,
                 'product_uom_qty': used_qty,
                 'dispatch_time': self.dispatch_time_est,
+                'supplier_delivery_date': self.supplier_delivery_date,
                 })
         return True
 
@@ -199,6 +200,7 @@ class ProductTemplateSupplierStock(models.Model):
             'supplier_id': self.supplier_id.id,
             'product_uom_qty': used_qty,
             'dispatch_time': self.dispatch_time_est,
+            'supplier_delivery_date': self.supplier_delivery_date,
             })
 
     @api.multi
@@ -246,6 +248,7 @@ class ProductTemplateSupplierStock(models.Model):
                 'supplier_id': self.supplier_id.id,
                 'product_uom_qty': used_qty,
                 'dispatch_time': self.dispatch_time_est,
+                'supplier_delivery_date': self.supplier_delivery_date,
                 })
         return True
 
@@ -297,6 +300,8 @@ class SaleOrderLinePurchase(models.Model):
     # -------------------------------------------------------------------------
     # Utility:
     # -------------------------------------------------------------------------
+    '''
+    21/01/2025: Micronaet - Removed not used (passed in create from p.t.s.stock
     @api.multi
     def update_supplier_delivery_date(self):
         """ Calc delivery date depend on passed partial list
@@ -329,6 +334,7 @@ class SaleOrderLinePurchase(models.Model):
         line = super(SaleOrderLinePurchase, self).create(values)
         line.update_supplier_delivery_date()  # Update delivery data
         return line
+    '''
 
     # -------------------------------------------------------------------------
     # COLUMNS:
