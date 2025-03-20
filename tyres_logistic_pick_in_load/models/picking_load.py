@@ -1246,16 +1246,16 @@ class StockMove(models.Model):
     @api.multi
     def generate_delivery_orders_from_line(self):
         """ Delivery order creation:
-            Create the list of all order received splitted for supplier
+            Create the list of all order received split for supplier
         """
         delivery_pool = self.env['stock.picking.delivery']
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Extract supplier line list:
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         suppliers = {} # TODO also with carrier?
         for line in self:
-            sale_order = line.logistic_load_id.order_id
+            # sale_order = line.logistic_load_id.order_id
             purchase_order = line.logistic_purchase_id.order_id
 
             supplier = purchase_order.partner_id
@@ -1263,14 +1263,14 @@ class StockMove(models.Model):
                 suppliers[supplier] = []
             suppliers[supplier].append(line)
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Create purchase order:
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         delivery_ids = []
         for supplier in suppliers:
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             # Create header:
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             delivery_id = delivery_pool.create({
                 'supplier_id': supplier.id,
                 # 'carrier_id': carrier.id,
@@ -1280,9 +1280,9 @@ class StockMove(models.Model):
             for line in suppliers[supplier]:
                 line.delivery_id = delivery_id # Link to delivery order
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Return created order:
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         tree_view_id = form_view_id = False
         if len(delivery_ids) == 1:
             res_id = delivery_ids[0]
@@ -1306,6 +1306,13 @@ class StockMove(models.Model):
             'target': 'current', # 'new'
             'nodestroy': False,
             }
+
+    def unlink_from_stock_picking_load(self):
+        """ Unlink stock move from order
+        """
+        return self.write({
+            'supplier_id': False,
+        })
 
 
 class PurchaseOrderLine(models.Model):

@@ -551,6 +551,8 @@
                                                  <field name="price_unit"/>
                                                  <field name="dropship_manage" invisible="1"/>
                                                  <field name="delivery_id" groups="tyres_logistic_management.group_logistic_purchase_manager"/>
+                                                 <button name="unlink_from_stock_picking_load" string="Scollega riga" type="object" help="Scollega la riga riportandola tra quelle da assegnare" icon="fa-chain-broken"/>
+
                                             </tree>
                                         </field>
                                     </group>
