@@ -1254,7 +1254,7 @@ class StockMove(models.Model):
         new_quantity = 1  # todo
         old_quantity = old_move.product_uom_qty - new_quantity
         if new_quantity >= old_quantity:
-            raise odoo.exceptions.Warning(_('La nuova quantità deve essere minore di {}'.format(old_quantity)))
+            raise exceptions.Warning(_('La nuova quantità deve essere minore di {}'.format(old_quantity)))
 
         # Update old record:
         old_move.write({
