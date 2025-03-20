@@ -1202,7 +1202,6 @@ class StockMove(models.Model):
                 self.product_id.default_code,
                 self.product_uom_qty,
                 ))
-
         self.force_hide = True
 
     @api.multi
@@ -1251,14 +1250,24 @@ class StockMove(models.Model):
     def split_pending_stock_movement(self):
         """ Split stock.move
         """
-        quantity = 1
-        self.write({
-            'product_uom_qty': self.product_uom_qty - quantity
+        old_move = self
+        new_quantity = 1  # todo
+        old_quantity = old_move.product_uom_qty - new_quantity
+        if new_quantity >= old_quantity:
+            raise odoo.exceptions.Warning(_('La nuova quantità deve essere minore di {}'.format(old_quantity)))
+
+        # Update old record:
+        old_move.write({
+            'product_uom_qty': old_quantity,
         })
+
+        # Create new record:
         new_move = self.copy(default={
             'product_uom_qty': quantity,
+            'price_unit': old_move,
+            # 'ordered_qty'
         })
-        # new_move.action_confirm()
+        new_move.action_confirm()
         return True
 
     @api.multi
