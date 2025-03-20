@@ -54,7 +54,7 @@ class LogisticDeliveryReportWizard(models.TransientModel):
                 stagione = u'Errore!'
             try:
                 if product.brand:
-                    brand = u'%' % product.brand.name
+                    brand = u'%' % product.product_tmpl_id.brand.name
                 else:
                     brand = u'/'
             except:
@@ -152,10 +152,7 @@ class LogisticDeliveryReportWizard(models.TransientModel):
             default_format=format_text['header'])
 
         total = 0.0
-        for delivery in sorted(
-                delivery_data, key=lambda x:
-                (x.supplier_id.name, x.date)):
-
+        for delivery in sorted(delivery_data, key=lambda x: (x.supplier_id.name, x.date)):
             header = [
                 delivery.supplier_id.name,
                 delivery.name,
@@ -165,9 +162,9 @@ class LogisticDeliveryReportWizard(models.TransientModel):
                 delivery.picking_id.name,
                 ]
 
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             # Row linked to customer order:
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             internal = ''
             for detail in delivery.move_line_ids:
                 row += 1
