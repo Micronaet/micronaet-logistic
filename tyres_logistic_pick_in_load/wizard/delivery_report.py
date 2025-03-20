@@ -58,7 +58,7 @@ class LogisticDeliveryReportWizard(models.TransientModel):
                 else:
                     brand_name = u'/'
             except:
-                brand_name = u'Errore!'
+                brand_name = u'Errore: {}'.format(sys.exc_info())
             try:
                 raggio = product.raggio or ''
             except:
