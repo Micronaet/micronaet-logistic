@@ -367,7 +367,7 @@
                     <field name="logistic_load_id" readonly="1"/>
                     <button name="split_pending_stock_movement" string="Dividi il movimento"
                         type="object" confirm="Confermi la divisione del movimento di carico per assegnare 2 documenti padre?"
-                        icon="fa-cut fa-2x" attrs="{'invisible': [('product_uom_qty', '<=', 1)]}"
+                        icon="fa-cut fa-2x" attrs="{'invisible': [('product_uom_qty', '&lt;=', 1)]}"
                         groups="tyres_logistic_management.group_logistic_account_manager,tyres_logistic_management.group_logistic_manager"
                         /><!--attrs="{'invisible': [('dropship_manage','=',True)]}"-->
                     <field name="product_uom_qty" readonly="1" />
