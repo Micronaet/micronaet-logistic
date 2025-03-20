@@ -1263,7 +1263,7 @@ class StockMove(models.Model):
 
         # Create new record:
         new_move = self.copy(default={
-            'product_uom_qty': quantity,
+            'product_uom_qty': new_quantity,
             'price_unit': old_move,
             # 'ordered_qty'
         })
