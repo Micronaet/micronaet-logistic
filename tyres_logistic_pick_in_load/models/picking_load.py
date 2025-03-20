@@ -1332,7 +1332,7 @@ class StockMove(models.Model):
                 'view_type': 'form',
                 'view_mode': 'tree,form',
                 'res_id': False,
-                'res_model': 'stock.picking.delivery',
+                'res_model': 'stock.move',
                 'view_id': tree_view_id,
                 'views': [(tree_view_id, 'tree'), (form_view_id, 'form')],
                 'domain': [('force_hide', '=', False), ('delivery_id', '=', False), ('picking_id', '=', False)],
