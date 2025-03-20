@@ -1315,9 +1315,7 @@ class StockMove(models.Model):
         is_last = len(delivery.move_line_ids) <= 1
 
         # Remove line:
-        self.write({
-            'delivery_id': False,
-        })
+        self.write({'delivery_id': False})
 
         # Remove document:
         if is_last:
