@@ -1311,7 +1311,7 @@ class StockMove(models.Model):
         """ Unlink stock move from order
         """
         return self.write({
-            'supplier_id': False,
+            'delivery_id': False,
         })
 
 
