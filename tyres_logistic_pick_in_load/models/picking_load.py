@@ -1342,8 +1342,6 @@ class StockMove(models.Model):
         return True
 
 
-
-
 class PurchaseOrderLine(models.Model):
     """ Model name: Purchase Order Line
     """
