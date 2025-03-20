@@ -54,7 +54,7 @@ class LogisticDeliveryReportWizard(models.TransientModel):
                 stagione = u'Errore!'
             try:
                 if product.brand:
-                    brand_name = u'{}'.format(brand.name)
+                    brand_name = u'{}'.format(brand.id)  # name)
                 else:
                     brand_name = u'/'
             except:
