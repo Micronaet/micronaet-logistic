@@ -48,13 +48,15 @@ class LogisticDeliveryReportWizard(models.TransientModel):
         def get_extra_product_info(product):
             """ Extract extra info from product template
             """
+            brand_pool = self.env['mmac_brand']
             try:
                 stagione = product.stagione or ''
             except:
                 stagione = u'Errore!'
             try:
-                _logger.info('Brand ID: {}'.format(product.brand.id))
-                if product.brand:
+                brand_id = product.brand.id
+                brand = brand_pool.browse(brand_id)
+                if brand:
                     brand_name = u'{}'.format(brand.name)
                 else:
                     brand_name = u'/'
