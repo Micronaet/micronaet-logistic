@@ -954,7 +954,7 @@ class PurchaseOrderLine(models.Model):
                 # Sale order line link:
                 'logistic_load_id': logistic_sale.id,
 
-                # Purchase order line line:
+                # Purchase order line:
                 'logistic_purchase_id': line.id,
 
                 # 'purchase_line_id': load_line.id, # XXX needed?
