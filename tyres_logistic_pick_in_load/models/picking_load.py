@@ -1310,9 +1310,38 @@ class StockMove(models.Model):
     def unlink_from_stock_picking_load(self):
         """ Unlink stock move from order
         """
-        return self.write({
+        picking_pool = self.env['stock.picking.delivery']
+        delivery = self.delivery_id
+        is_last = len(delivery.move_line_ids) <= 1
+
+        # Remove line:
+        self.write({
             'delivery_id': False,
         })
+        if is_last:
+            delivery.unlink()
+
+            # Return to assign view
+            form_view_id = False
+            tree_view_id = model_pool.get_object_reference(
+                'tyres_logistic_pick_in_load', 'view_delivery_selection_stock_move_tree')[1]
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Assegna doc. di consegna:'),
+                'view_type': 'form',
+                'view_mode': 'tree,form',
+                'res_id': False,
+                'res_model': 'stock.picking.delivery',
+                'view_id': tree_view_id,
+                'views': [(tree_view_id, 'tree'), (form_view_id, 'form')],
+                'domain': [('force_hide', '=', False), ('delivery_id', '=', False), ('picking_id', '=', False)],
+                'context': self.env.context,
+                'target': 'current', # 'new'
+                'nodestroy': False,
+                }
+        return True
+
+
 
 
 class PurchaseOrderLine(models.Model):
