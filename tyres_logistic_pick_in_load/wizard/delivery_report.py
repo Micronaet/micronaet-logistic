@@ -53,20 +53,18 @@ class LogisticDeliveryReportWizard(models.TransientModel):
             except:
                 stagione = u'Errore!'
             try:
-                import pdb; pdb.set_trace()
-                brand = product.product_tmpl_id.brand
-                if brand:
-                    brand = u'%' % brand
+                if product.brand:
+                    brand_name = u'{}'.format(brand.name)
                 else:
-                    brand = u'/'
+                    brand_name = u'/'
             except:
-                brand = u'Errore!'
+                brand_name = u'Errore!'
             try:
                 raggio = product.raggio or ''
             except:
                 raggio = u'Errore!'
 
-            return stagione, brand, raggio
+            return stagione, brand_name, raggio
 
         delivery_pool = self.env['stock.picking.delivery']
         excel_pool = self.env['excel.writer']
