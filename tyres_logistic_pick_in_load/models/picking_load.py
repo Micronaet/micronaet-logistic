@@ -1266,8 +1266,8 @@ class StockMove(models.Model):
             'product_uom_qty': new_quantity,
             'price_unit': old_move.price_unit,
             # 'ordered_qty'
+            'state': 'done',  # todo used WFK action?
         })
-        new_move.action_confirm()
         return True
 
     @api.multi
