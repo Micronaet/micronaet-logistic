@@ -1251,6 +1251,14 @@ class StockMove(models.Model):
     def split_pending_stock_movement(self):
         """ Split stock.move
         """
+        quantity = 1
+        self.write({
+            'product_uom_qty': self.product_uom_qty - quantity
+        })
+        new_move = self.copy(default={
+            'product_uom_qty': quantity,
+        })
+        # new_move.action_confirm()
         return True
 
     @api.multi
