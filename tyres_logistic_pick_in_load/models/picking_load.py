@@ -1222,9 +1222,10 @@ class StockMove(models.Model):
 
     @api.multi
     def unlink_pending_stock_movement(self):
-        """ Unlink stock move with log
+        """ Button [-]
+            Unlink stock move with log
         """
-        # Log deletion on original order:
+        # 1. Log deletion on original sale order:
         order = self.logistic_load_id.order_id
         order.write_log_chatter_message(_(
             'Delete stock move, Delivery: %s, wrong load: %s [%s] q %s') % (
@@ -1233,6 +1234,8 @@ class StockMove(models.Model):
                 self.product_id.default_code,
                 self.product_uom_qty,
                 ))
+
+        # 2. Restore purchase order line:
         purchase_line = self.logistic_purchase_id
         purchase_line.write({
             'user_select_id': False,
@@ -1240,8 +1243,15 @@ class StockMove(models.Model):
             'check_status': 'partial',
             })
 
+        # 3. Delete stock.move:
         self.state = 'draft'
-        self.unlink()
+        return self.unlink()
+
+    @api.multi
+    def split_pending_stock_movement(self):
+        """ Split stock.move
+        """
+        return True
 
     @api.multi
     def generate_delivery_orders_from_line(self):
