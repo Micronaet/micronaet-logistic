@@ -53,8 +53,9 @@ class LogisticDeliveryReportWizard(models.TransientModel):
             except:
                 stagione = u'Errore!'
             try:
+                _logger.info('Brand ID: {}'.format(product.brand.id))
                 if product.brand:
-                    brand_name = u'{}'.format(brand.id)  # name)
+                    brand_name = u'{}'.format(brand.name)
                 else:
                     brand_name = u'/'
             except:
