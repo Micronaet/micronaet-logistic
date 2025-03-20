@@ -1310,7 +1310,6 @@ class StockMove(models.Model):
     def unlink_from_stock_picking_load(self):
         """ Unlink stock move from order
         """
-        picking_pool = self.env['stock.picking.delivery']
         delivery = self.delivery_id
         is_last = len(delivery.move_line_ids) <= 1
 
@@ -1318,6 +1317,8 @@ class StockMove(models.Model):
         self.write({
             'delivery_id': False,
         })
+
+        # Remove document:
         if is_last:
             delivery.unlink()
 
