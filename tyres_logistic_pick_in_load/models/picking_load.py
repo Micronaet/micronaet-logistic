@@ -1252,13 +1252,13 @@ class StockMove(models.Model):
         """
         old_move = self
         new_quantity = 1  # todo
-        old_quantity = old_move.product_uom_qty - new_quantity
+        old_quantity = old_move.product_uom_qty
         if new_quantity >= old_quantity:
             raise exceptions.Warning(_('La nuova quantità deve essere minore di {}'.format(old_quantity)))
 
         # Update old record:
         old_move.write({
-            'product_uom_qty': old_quantity,
+            'product_uom_qty': old_quantity - new_quantity,
         })
 
         # Create new record:
