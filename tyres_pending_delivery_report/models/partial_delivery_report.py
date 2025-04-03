@@ -100,6 +100,7 @@ class SaleOrder(models.AbstractModel):
         for line in lines:  # TODO sort?
             order = line.order_id
             logistic_received_qty = line.logistic_received_qty
+            order_name = '{} del {}'.format(order.name, order.date_order)[:-9],
 
             if logistic_received_qty <= 0:
                 continue
@@ -122,7 +123,7 @@ class SaleOrder(models.AbstractModel):
             excel_pool.write_xls_line(ws_name, row, [
                 template.default_code,
                 line.name,
-                '{} del {}'.format(order.name, order.date_order)[:-9],
+                '{} [{}]'.format(order_name, order.logistic_state),
 
                 (line.product_uom_qty, f_white_number),
                 (line.logistic_received_qty, f_white_number),
