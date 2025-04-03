@@ -123,8 +123,8 @@ class SaleOrder(models.AbstractModel):
             load_comment = []
             pdb.set_trace()
             for load in line.load_line_ids:
-                load_comment.append('{}: q. {} Carico: {}'.format(
-                    (load.date or '')[:10], int(load.product_uom_qty), load.origin))
+                load_comment.append('{} >> {}: q. {} Carico: {}'.format(
+                    load.delivery_id.supplier_id.name, (load.date or '')[:10], int(load.product_uom_qty), load.origin))
             load_total = len(load_comment) or 1
             row += 1
             excel_pool.write_xls_line(ws_name, row, [
