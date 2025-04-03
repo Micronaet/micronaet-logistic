@@ -118,7 +118,6 @@ class SaleOrder(models.AbstractModel):
             for load in line.load_line_ids:
                 load_comment.append('{}: {} da doc. {}'.format(load.date, load.product_uom_qty, load.origin))
             load_total = len(load_comment) or 1
-            pdb.set_trace()
             row += 1
             excel_pool.write_xls_line(ws_name, row, [
                 template.default_code,
