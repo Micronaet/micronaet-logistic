@@ -22,11 +22,11 @@
 ###############################################################################
 
 {
-    'name': 'Logistic Account Report',
+    'name': 'Logistic: Extra account Report',
     'version': '1.0',
     'category': 'Logistic',
     'sequence': 5,
-    'summary': 'Logistic, Accounting report',
+    'summary': 'Logistic, Report',
     # 'description': '',
     'website': 'https://micronaet.com',
     'depends': [
