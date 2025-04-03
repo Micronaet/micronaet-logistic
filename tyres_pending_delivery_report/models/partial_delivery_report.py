@@ -75,25 +75,25 @@ class SaleOrder(models.AbstractModel):
         excel_pool.column_width(ws_name, [
             15, 40, 30,
             15, 15, 15,
-            80,
+            60,
         ])
 
         row = 0
         excel_pool.write_xls_line(ws_name, row, [
-            'Consegne pendenti derivate da ordini non ancora chiusi'], default_format=f_title)
+            u'Consegne pendenti derivate da ordini non ancora chiusi'], default_format=f_title)
 
         row += 1
         excel_pool.write_xls_line(ws_name, row, [
-            'Codice', 'Descrizione', 'Ordine cliente',
-            'Ordinati', 'Ricevuti', 'Da ricevere',
-            'Dettalio consegne',
+            u'Codice', u'Descrizione', u'Ordine cliente',
+            u'Ordinati', u'Ricevuti', u'Da ricevere',
+            u'Dettalio consegne',
         ], default_format=f_header)
 
         # --------------------------------------------------------------------------------------------------------------
         # Read data
         # --------------------------------------------------------------------------------------------------------------
         lines = sorted(line_pool.search(domain), key=lambda l: (l.order_id.name, l.sequence))
-        _logger.warning('Report status filter with: %s [Tot. %s]' % (domain, len(lines)))
+        _logger.warning(u'Report status filter with: %s [Tot. %s]' % (domain, len(lines)))
 
         not_consider = ('PFU', )
         for line in lines:  # TODO sort?
@@ -122,11 +122,14 @@ class SaleOrder(models.AbstractModel):
             excel_pool.write_xls_line(ws_name, row, [
                 template.default_code,
                 line.name,
-                '{} del {}'.format(order.name, order.date_order)[:-9],
+                u'{} del {}'.format(order.name, order.date_order)[:-9],
 
-                (line.product_uom_qty, f_white_number),
-                (line.logistic_received_qty, f_white_number),
-                (line.logistic_remain_qty, f_white_number),
+                # (line.product_uom_qty, f_white_number),
+                # (line.logistic_received_qty, f_white_number),
+                # (line.logistic_remain_qty, f_white_number),
+                line.product_uom_qty,
+                line.logistic_received_qty,
+                line.logistic_remain_qty,
 
                 load_comment,  # Supply detail (supplier, q., data)
 
@@ -142,4 +145,4 @@ class SaleOrder(models.AbstractModel):
         # ---------------------------------------------------------------------
         # Save file:
         # ---------------------------------------------------------------------
-        return excel_pool.return_attachment('Ordini_pendenti')
+        return excel_pool.return_attachment(u'Ordini_pendenti')
