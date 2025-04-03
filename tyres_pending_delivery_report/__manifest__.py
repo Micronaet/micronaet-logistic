@@ -31,6 +31,7 @@
     'website': 'https://micronaet.com',
     'depends': [
         'base',
+        'excel_export',  # Export in Excel
         'tyres_logistic_management',
         ],
     'data': [

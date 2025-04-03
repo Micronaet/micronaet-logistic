@@ -40,4 +40,93 @@ class SaleOrder(models.AbstractModel):
     def partial_delivery_status_report(self):
         """ Extract partial order delivery report
         """
-        return True
+        line_pool = self.env['sale.order.line']
+        excel_pool = self.env['excel.writer']
+
+        # Domain generation:
+        domain = [
+            ('order_id.logistic_state', '=', self.order_logistic_state),
+
+        ]
+
+        # ---------------------------------------------------------------------
+        #                       Excel Extract:
+        # ---------------------------------------------------------------------
+        ws_name = 'Consegne pendenti'
+        excel_pool.create_worksheet(ws_name)
+
+        # ---------------------------------------------------------------------
+        # Format:
+        # ---------------------------------------------------------------------
+        excel_pool.set_format()
+        f_title = excel_pool.get_format('title')
+        f_header = excel_pool.get_format('header')
+
+        f_white_text = excel_pool.get_format('text')
+        # f_green_text = excel_pool.get_format('bg_green')
+        # f_yellow_text = excel_pool.get_format('bg_yellow')
+
+        f_white_number = excel_pool.get_format('number')
+        # f_green_number = excel_pool.get_format('bg_green_number')
+        # f_yellow_number = excel_pool.get_format('bg_yellow_number')
+
+        # ---------------------------------------------------------------------
+        # Setup page:
+        # ---------------------------------------------------------------------
+        excel_pool.column_width(ws_name, [
+            20, 15, 25, 2, 2, 20, 10,
+        ])
+
+        # ---------------------------------------------------------------------
+        # Extra data:
+        # ---------------------------------------------------------------------
+        row = 0
+        excel_pool.write_xls_line(ws_name, row, [
+            'Consegne pendenti derivate da ordini non ancora chiusi'], default_format=f_title)
+
+        row += 1
+        excel_pool.write_xls_line(ws_name, row, [
+            'Ordine', 'Data', 'Prodotto', 'Kit', 'Serv.', 'Originale', 'Modo',
+        ], default_format=f_header)
+
+        # ---------------------------------------------------------------------
+        # Read data
+        # ---------------------------------------------------------------------
+        lines = line_pool.search(domain)
+        _logger.warning('Report status filter with: %s [Tot. %s]' % (domain, len(lines)))
+        for line in lines:  # TODO sort?
+            row += 1
+            order = line.order_id
+            # template = line.product_id.product_tmpl_id
+            # origin = line.origin_product_id.product_tmpl_id
+
+            excel_pool.write_xls_line(ws_name, row, [
+                # description
+                order.name,
+                #order.date_order,
+                #template.default_code or template.name,
+                #template.is_kit,
+                #'x' if template.type == 'service' else '',
+                #origin.default_code if origin else '',
+                #line.linked_mode,
+                ## template.name,
+
+                # Q. block:
+                #line.product_uom_qty,
+                #line.logistic_covered_qty,
+                #line.logistic_uncovered_qty,
+                #line.logistic_purchase_qty,
+                #line.logistic_received_qty,
+                #line.logistic_remain_qty,
+                #line.logistic_delivered_qty,
+                #line.logistic_undelivered_qty,
+
+                # State
+                #line.mrp_state,
+                #line.logistic_state,
+            ], default_format=f_white_text)
+
+        # ---------------------------------------------------------------------
+        # Save file:
+        # ---------------------------------------------------------------------
+        return excel_pool.return_attachment('Ordini_pendenti')
