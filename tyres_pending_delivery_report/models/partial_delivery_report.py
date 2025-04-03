@@ -98,6 +98,9 @@ class SaleOrder(models.AbstractModel):
         not_consider = ('PFU', )
         for line in lines:  # TODO sort?
             order = line.order_id
+            logistic_received_qty = line.logistic_received_qty
+            if logistic_received_qty <= 0:
+                continue
             template = line.product_id.product_tmpl_id
             default_code = template.default_code or ''
 
