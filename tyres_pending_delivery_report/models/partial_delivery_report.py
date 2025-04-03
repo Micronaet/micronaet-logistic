@@ -89,7 +89,7 @@ class SaleOrder(models.AbstractModel):
         title = [
             'Codice', 'Descrizione', 'Ordine cliente', 'Origine',
             'Ordinati', 'Ricevuti', 'Da ricevere',
-            'Dettalio consegne',
+            'Dettaglio consegne',
         ]
         excel_pool.write_xls_line(ws_name, row, title, default_format=f_header)
         excel_pool.autofilter(ws_name, row, 0, row, len(title) - 1)
