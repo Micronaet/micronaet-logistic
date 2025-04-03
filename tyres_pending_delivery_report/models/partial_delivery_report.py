@@ -97,7 +97,6 @@ class SaleOrder(models.AbstractModel):
 
         not_consider = ('PFU', )
         for line in lines:  # TODO sort?
-            row += 1
             order = line.order_id
             template = line.product_id.product_tmpl_id
             default_code = template.default_code or ''
@@ -109,6 +108,7 @@ class SaleOrder(models.AbstractModel):
             # origin = line.origin_product_id.product_tmpl_id
             # 'x' if template.type == 'service' else '',
 
+            row += 1
             excel_pool.write_xls_line(ws_name, row, [
                 template.default_code,
                 line.name,
