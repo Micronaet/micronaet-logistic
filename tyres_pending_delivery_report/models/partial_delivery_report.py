@@ -76,7 +76,7 @@ class SaleOrder(models.AbstractModel):
         # Setup page:
         # --------------------------------------------------------------------------------------------------------------
         excel_pool.column_width(ws_name, [
-            15, 45, 40,
+            15, 45, 40, 20,
             15, 15, 15,
             60,
         ])
@@ -87,7 +87,7 @@ class SaleOrder(models.AbstractModel):
 
         row += 1
         title = [
-            'Codice', 'Descrizione', 'Ordine cliente',
+            'Codice', 'Descrizione', 'Ordine cliente', 'Origine',
             'Ordinati', 'Ricevuti', 'Da ricevere',
             'Dettalio consegne',
         ]
@@ -121,15 +121,23 @@ class SaleOrder(models.AbstractModel):
 
             # Load analysis:
             load_comment = []
+            supplier = False
             for load in line.load_line_ids:
+                supplier_name = load.delivery_id.supplier_id.name
+                if supplier_name:
+                    supplier = True
                 load_comment.append('{} >> {}: q. {} Carico: {}'.format(
-                    load.delivery_id.supplier_id.name, (load.date or '')[:10], int(load.product_uom_qty), load.origin))
+                    supplier_name or 'FELAPPI', (load.date or '')[:10], int(load.product_uom_qty), load.origin))
+            if not supplier:
+                _logger.warning('Jump line, supplier is internal')
+                continue
             load_total = len(load_comment) or 1
             row += 1
             excel_pool.write_xls_line(ws_name, row, [
                 template.default_code,
                 line.name,
                 '{} [{}]'.format(order_name, order.logistic_state),
+                order.logistic_source,
 
                 (int(line.product_uom_qty), f_white_number),
                 (int(line.logistic_received_qty), f_white_number),
