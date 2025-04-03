@@ -121,6 +121,7 @@ class SaleOrder(models.AbstractModel):
 
             # Load analysis:
             load_comment = []
+            pdb.set_trace()
             for load in line.load_line_ids:
                 load_comment.append('{}: q. {} Carico: {}'.format(
                     (load.date or '')[:10], int(load.product_uom_qty), load.origin))
