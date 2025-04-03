@@ -73,9 +73,9 @@ class SaleOrder(models.AbstractModel):
         # Setup page:
         # --------------------------------------------------------------------------------------------------------------
         excel_pool.column_width(ws_name, [
-            15, 30, 20,
+            15, 40, 30,
             15, 15, 15,
-            40,
+            80,
         ])
 
         row = 0
@@ -113,9 +113,11 @@ class SaleOrder(models.AbstractModel):
             # 'x' if template.type == 'service' else '',
 
             # Load analysis:
-            load_comment = ''
+            load_comment = []
             for load in line.load_line_ids:
-                load_comment += '{}: {} da doc. {}'.format(load.date, load.product_uom_qty, load.origin)
+                load_comment.append('{}: {} da doc. {}'.format(load.date, load.product_uom_qty, load.origin))
+            load_total = len(load_comment) or 1
+
             row += 1
             excel_pool.write_xls_line(ws_name, row, [
                 template.default_code,
@@ -135,6 +137,7 @@ class SaleOrder(models.AbstractModel):
                 #line.logistic_delivered_qty,
                 #line.logistic_undelivered_qty,
             ], default_format=f_white_text)
+            excel_pool.row_height(ws_name, [row], 20 * load_total)
 
         # ---------------------------------------------------------------------
         # Save file:
