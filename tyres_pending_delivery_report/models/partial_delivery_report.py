@@ -46,7 +46,8 @@ class SaleOrder(models.AbstractModel):
 
         # Domain generation:
         domain = [
-            ('order_id.logistic_state', 'in', ('draft', 'order', 'pending', 'delivering')),
+            ('order_id.logistic_state', 'in', (  # 'draft', 'order', 'delivering'
+                'pending', )),
         ]
 
         # --------------------------------------------------------------------------------------------------------------
@@ -81,7 +82,7 @@ class SaleOrder(models.AbstractModel):
 
         row = 0
         excel_pool.write_xls_line(ws_name, row, [
-            'Consegne pendenti derivate da ordini non ancora chiusi'], default_format=f_title)
+            'Consegne pendenti derivate da ordini in "Consegna Pentente"'], default_format=f_title)
 
         row += 1
         title = [
