@@ -137,7 +137,7 @@ class SaleOrder(models.AbstractModel):
                 #line.logistic_delivered_qty,
                 #line.logistic_undelivered_qty,
             ], default_format=f_white_text)
-            excel_pool.row_height(ws_name, [row], height=40)  #20 * load_total)
+            # excel_pool.row_height(ws_name, [row], height=40)  #20 * load_total)
 
         # ---------------------------------------------------------------------
         # Save file:
