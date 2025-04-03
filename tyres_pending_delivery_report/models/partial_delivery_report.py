@@ -115,7 +115,7 @@ class SaleOrder(models.AbstractModel):
             # Load analysis:
             load_comment = []
             for load in line.load_line_ids:
-                load_comment.append('{}: {} da doc. {}'.format(load.date, load.product_uom_qty, load.origin))
+                load_comment.append('{}: {} da doc. {}\n'.format(load.date, load.product_uom_qty, load.origin))
             load_total = len(load_comment) or 1
 
             row += 1
@@ -128,7 +128,7 @@ class SaleOrder(models.AbstractModel):
                 (line.logistic_received_qty, f_white_number),
                 (line.logistic_remain_qty, f_white_number),
 
-                '\n'.join(load_comment),  # Supply detail (supplier, q., data)
+                ''.join(load_comment),  # Supply detail (supplier, q., data)
                 # Q. block:
                 #line.logistic_covered_qty,
                 #line.logistic_uncovered_qty,
