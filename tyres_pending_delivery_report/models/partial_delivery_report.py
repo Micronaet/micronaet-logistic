@@ -125,9 +125,9 @@ class SaleOrder(models.AbstractModel):
                 line.name,
                 '{} [{}]'.format(order_name, order.logistic_state),
 
-                (line.product_uom_qty, f_white_number),
-                (line.logistic_received_qty, f_white_number),
-                (line.logistic_remain_qty, f_white_number),
+                (int(line.product_uom_qty), f_white_number),
+                (int(line.logistic_received_qty), f_white_number),
+                (int(line.logistic_remain_qty), f_white_number),
 
                 '\n'.join(load_comment),  # Supply detail (supplier, q., data)
                 # Q. block:
