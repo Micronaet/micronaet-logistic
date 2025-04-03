@@ -74,9 +74,9 @@ class SaleOrder(models.AbstractModel):
         # Setup page:
         # --------------------------------------------------------------------------------------------------------------
         excel_pool.column_width(ws_name, [
-            15, 40, 30,
+            15, 45, 35,
             15, 15, 15,
-            80,
+            60,
         ])
 
         row = 0
@@ -100,7 +100,7 @@ class SaleOrder(models.AbstractModel):
         for line in lines:  # TODO sort?
             order = line.order_id
             logistic_received_qty = line.logistic_received_qty
-            order_name = '{} del {}'.format(order.name, order.date_order)[:-9],
+            order_name = '{} del {}'.format(order.name, order.date_order)[:-9]
 
             if logistic_received_qty <= 0:
                 continue
@@ -117,7 +117,8 @@ class SaleOrder(models.AbstractModel):
             # Load analysis:
             load_comment = []
             for load in line.load_line_ids:
-                load_comment.append('{}: {} da doc. {}'.format(load.date, load.product_uom_qty, load.origin))
+                load_comment.append('{}: q. {} Carico: {}'.format(
+                    (load.date or '')[:10], int(load.product_uom_qty), load.origin))
             load_total = len(load_comment) or 1
             row += 1
             excel_pool.write_xls_line(ws_name, row, [
