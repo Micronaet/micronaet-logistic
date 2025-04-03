@@ -136,6 +136,7 @@ class SaleOrder(models.AbstractModel):
                 (int(line.logistic_remain_qty), f_white_number),
 
                 '\n'.join(load_comment),  # Supply detail (supplier, q., data)
+
                 # Q. block:
                 #line.logistic_covered_qty,
                 #line.logistic_uncovered_qty,
