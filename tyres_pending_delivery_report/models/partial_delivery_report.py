@@ -62,11 +62,11 @@ class SaleOrder(models.AbstractModel):
         f_title = excel_pool.get_format('title')
         f_header = excel_pool.get_format('header')
 
-        f_white_text = excel_pool.get_format('text')
-        f_white_text = excel_pool.get_format('bg_green')
+        f_white_text = excel_pool.get_format('text_top')
+        # f_green_text = excel_pool.get_format('bg_green')
         # f_yellow_text = excel_pool.get_format('bg_yellow')
 
-        f_white_number = excel_pool.get_format('number')
+        f_white_number = excel_pool.get_format('number_top')
         # f_green_number = excel_pool.get_format('bg_green_number')
         # f_yellow_number = excel_pool.get_format('bg_yellow_number')
 
