@@ -112,7 +112,7 @@ class SaleOrder(models.AbstractModel):
             excel_pool.write_xls_line(ws_name, row, [
                 template.default_code,
                 line.name,
-                '{} del {}'.format(order.name, order.date_order),
+                '{} del {}'.format(order.name, order.date_order)[:-9],
 
                 line.product_uom_qty,
                 line.logistic_received_qty,
