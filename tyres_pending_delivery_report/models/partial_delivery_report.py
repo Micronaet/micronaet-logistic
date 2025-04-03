@@ -84,11 +84,14 @@ class SaleOrder(models.AbstractModel):
             'Consegne pendenti derivate da ordini non ancora chiusi'], default_format=f_title)
 
         row += 1
-        excel_pool.write_xls_line(ws_name, row, [
+        title = [
             'Codice', 'Descrizione', 'Ordine cliente',
             'Ordinati', 'Ricevuti', 'Da ricevere',
             'Dettalio consegne',
-        ], default_format=f_header)
+        ]
+        excel_pool.write_xls_line(ws_name, row, title, default_format=f_header)
+        report_pool.autofilter(ws_name, [row, 0, row, len(title) - 1])
+        report_pool.freeze_panes(ws_name, 1, 0)
 
         # --------------------------------------------------------------------------------------------------------------
         # Read data
