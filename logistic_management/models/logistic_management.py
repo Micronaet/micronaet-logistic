@@ -379,8 +379,7 @@ class PurchaseOrderLine(models.Model):
                 logistic_delivered_qty += move.product_uom_qty
             # Generate data for fields:
             line.logistic_delivered_qty = logistic_delivered_qty
-            line.logistic_undelivered_qty = \
-                line.product_qty - logistic_delivered_qty
+            line.logistic_undelivered_qty = line.product_qty - logistic_delivered_qty
 
     # -------------------------------------------------------------------------
     #                                   COLUMNS:

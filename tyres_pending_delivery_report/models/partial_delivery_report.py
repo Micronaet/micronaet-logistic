@@ -99,6 +99,7 @@ class SaleOrder(models.AbstractModel):
         for line in lines:  # TODO sort?
             order = line.order_id
             logistic_received_qty = line.logistic_received_qty
+
             if logistic_received_qty <= 0:
                 continue
             template = line.product_id.product_tmpl_id
@@ -111,17 +112,21 @@ class SaleOrder(models.AbstractModel):
             # origin = line.origin_product_id.product_tmpl_id
             # 'x' if template.type == 'service' else '',
 
+            # Load analysis:
+            load_comment = ''
+            for load in line.load_line_ids:
+                load_comment += '{}: {} da doc. {}'.format(load.date, load.product_uom_qty, load.origin)
             row += 1
             excel_pool.write_xls_line(ws_name, row, [
                 template.default_code,
                 line.name,
                 '{} del {}'.format(order.name, order.date_order)[:-9],
 
-                line.product_uom_qty,
-                line.logistic_received_qty,
-                line.logistic_remain_qty,
+                (line.product_uom_qty, f_white_number),
+                (line.logistic_received_qty, f_white_number),
+                (line.logistic_remain_qty, f_white_number),
 
-                '',  # Supply detail (supplier, q., data)
+                load_comment,  # Supply detail (supplier, q., data)
 
                 # Q. block:
                 #line.logistic_covered_qty,
