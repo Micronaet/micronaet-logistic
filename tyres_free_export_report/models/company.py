@@ -66,6 +66,3 @@ class ResCompany(models.Model):
     # -------------------------------------------------------------------------
     # report_free_export = fields.Text('Report text: Free Export')
     # -------------------------------------------------------------------------
-
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

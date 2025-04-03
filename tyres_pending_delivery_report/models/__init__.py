@@ -21,4 +21,4 @@
 #
 ###############################################################################
 
-from . import account_report
+from . import partial_delivery_report

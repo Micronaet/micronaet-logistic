@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
 #
-# ODOO (ex OpenERP) 
+# ODOO (ex OpenERP)
 # Open Source Management Solution
 # Copyright (C) 2001-2015 Micronaet S.r.l. (<https://micronaet.com>)
 # Developer: Nicola Riolini @thebrush (<https://it.linkedin.com/in/thebrush>)
@@ -13,7 +13,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU Affero General Public License for more details.
 #
 # You should have received a copy of the GNU Affero General Public License
@@ -21,4 +21,23 @@
 #
 ###############################################################################
 
-from . import account_report
+import os
+import sys
+import logging
+from odoo import fields, api, models
+from odoo import tools
+from odoo.tools.translate import _
+
+_logger = logging.getLogger(__name__)
+
+
+class SaleOrder(models.AbstractModel):
+    """ Sale Order Report action
+    """
+    _inherit = 'sale.order'
+
+    @api.multi
+    def partial_delivery_status_report(self):
+        """ Extract partial order delivery report
+        """
+        return True

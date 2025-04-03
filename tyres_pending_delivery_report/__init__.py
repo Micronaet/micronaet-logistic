@@ -1,10 +1,10 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+#!/usr/bin/python
 ###############################################################################
 #
 # ODOO (ex OpenERP) 
 # Open Source Management Solution
-# Copyright (C) 2001-2015 Micronaet S.r.l. (<https://micronaet.com>)
+# Copyright (C) 2001-2018 Micronaet S.r.l. (<https://micronaet.com>)
 # Developer: Nicola Riolini @thebrush (<https://it.linkedin.com/in/thebrush>)
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -21,4 +21,5 @@
 #
 ###############################################################################
 
-from . import account_report
+
+from . import models
