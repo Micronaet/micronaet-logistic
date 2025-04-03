@@ -46,8 +46,9 @@ class SaleOrder(models.AbstractModel):
 
         # Domain generation:
         domain = [
-            ('order_id.logistic_state', 'in', (  # 'draft', 'order', 'delivering'
-                'pending', )),
+            ('order_id.logistic_source', 'not in', ('internal', 'refund')),
+            ('order_id.logistic_state', '=', 'pending'),
+            # ('order_id.logistic_state', 'in', ('draft', 'order', 'delivering', 'pending')),
         ]
 
         # --------------------------------------------------------------------------------------------------------------
