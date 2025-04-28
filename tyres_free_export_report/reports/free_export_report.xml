@@ -169,7 +169,7 @@
                                         <td style="font-size: 14 px; border: 0px solid black;">
                                             <span t-esc="month_convert.get(context_timestamp(datetime.datetime.now()).strftime('%m'))"/> <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d, %Y')"/><br/><br/><br/>
                                             To Whom It May Concern,<br/><br/>
-                                            We are writing to you regarding the informations requested for the shipment nr. <b><span t-field="o.carrier_track_id" /></b>.<br/><br/>
+                                            We are writing to you regarding the information requested for the shipment nr. <b><span t-field="o.carrier_track_id" /></b>.<br/><br/>
                                             The parcel is composed by:<br/><br/><br/>
 
                                             <!--Brand table for product:-->
