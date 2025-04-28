@@ -158,7 +158,6 @@
                             <t t-set="brand_data" t-value="o.get_brand_document()"/>
                             <t t-if="brand_data">
                                 <p style="page-break-after:always;" />
-
                                 <table class="width: 100%; font-size: 12 px;">
                                     <tr>
                                         <td style="border: 0px solid black;">
