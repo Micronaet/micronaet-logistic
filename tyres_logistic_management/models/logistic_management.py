@@ -3077,6 +3077,9 @@ class SaleOrder(models.Model):
     @api.multi
     def launch_shippy_ship(self, ):
         """ Check and launch shippy ship function:
+            Relaunch shippy ship call, missing data: carrier or mode,
+            insert and press this button, if done confirm
+            todo never used (button disabled)
         """
         if self.carrier_shippy:
             if self.carrier_supplier_id and self.carrier_mode_id:
@@ -3378,18 +3381,14 @@ class SaleOrder(models.Model):
         # ---------------------------------------------------------------------
         # Shippy call:
         # ---------------------------------------------------------------------
-        shippy_selected = any([True for item in order.shippy_rate_ids
-                               if item.shippy_rate_selected])
+        shippy_selected = any([True for item in order.shippy_rate_ids if item.shippy_rate_selected])
         if order.carrier_shippy and not order.mmac_shippy_order_id:
-            if order.carrier_supplier_id and \
-                    order.carrier_mode_id and \
-                    shippy_selected:
+            if order.carrier_supplier_id and order.carrier_mode_id and shippy_selected:
                 order_ref = order.shippy_ship()
                 if order_ref:
                     order.shippy_ship_error = 'ok'
                     order.write_log_chatter_message(
-                        _('Launched shippy ship call now [%s]!'
-                            ) % order_ref)
+                        _('Launched shippy ship call now [%s]!') % order_ref)
                 else:
                     order.shippy_ship_error = 'error'  # XXX No more need!
                     raise exceptions.Warning(
@@ -3398,15 +3397,12 @@ class SaleOrder(models.Model):
                 order.shippy_ship_error = 'error'
                 raise exceptions.Warning(
                     _('Error check shippy needed data: %s%s%s') % (
-                        '' if order.carrier_supplier_id else _(
-                            ' Carrier not present'),
-                        '' if order.carrier_mode_id else _(
-                            ' Carrier mode not present'),
-                        '' if shippy_selected else _(
-                            ' No rates selected!'),
+                        '' if order.carrier_supplier_id else _(' Carrier not present'),
+                        '' if order.carrier_mode_id else _(' Carrier mode not present'),
+                        '' if shippy_selected else _(' No rates selected!'),
                     ))
 
-        # else: order no shippy or yet assegnent mmac_shippy_order_id
+        # else: order no shippy or yet assigned mmac_shippy_order_id
         # ---------------------------------------------------------------------
 
         # ---------------------------------------------------------------------
