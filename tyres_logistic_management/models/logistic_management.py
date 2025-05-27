@@ -3384,7 +3384,7 @@ class SaleOrder(models.Model):
         # ==============================================================================================================
         # Select order to prepare:
         # ==============================================================================================================
-        picking_ids = []  # return value
+        picking_ids = []  # returned value (picking is only one!)
         _logger.warning('Generate pick out from order')
 
         # --------------------------------------------------------------------------------------------------------------
@@ -3478,7 +3478,7 @@ class SaleOrder(models.Model):
         else:
             order.shippy_ship_error = 'error'  # XXX No more need!
             # raise exceptions.Warning(_('Shippy call return no Order ID!'))
-            # todo need to be test if shippy_ship_error to recall only order.shippy_ship()
+            # todo need to be test if shippy_ship_error == 'ok', otherwise need to recall only order.shippy_ship()
             order.write_log_chatter_message(_('Shippy call return no Order ID (need to recall manually)'))
         return picking_ids
 
