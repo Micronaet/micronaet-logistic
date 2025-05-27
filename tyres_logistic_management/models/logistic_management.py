@@ -3324,20 +3324,13 @@ class SaleOrder(models.Model):
         self.ensure_one()
         return self.wf_set_order_as_done()
 
-    # -------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     # C. delivering > done
-    # -------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     @api.multi
     def wf_set_order_as_done(self):
         """ Set order as done (from delivering)
         """
-        # Manage simultaneous click:
-        if self.go_purchase_pressed:
-            raise exceptions.Warning(
-                _('Button yet pressed! Please refresh the view'))
-        self.go_purchase_pressed = True
-
-        now = fields.Datetime.now()
         order = self  # readability
 
         # Pool used:
@@ -3345,9 +3338,15 @@ class SaleOrder(models.Model):
         move_pool = self.env['stock.move']
         company_pool = self.env['res.company']
 
-        # ---------------------------------------------------------------------
+        # Manage simultaneous click:
+        if order.go_purchase_pressed:
+            raise exceptions.Warning(_('Button yet pressed! Please refresh the view'))
+        order.go_purchase_pressed = True
+        now = fields.Datetime.now()
+
+        # --------------------------------------------------------------------------------------------------------------
         # Parameters:
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         company = company_pool.search([])[0]
         logistic_pick_out_type = company.logistic_pick_out_type_id
 
@@ -3356,43 +3355,23 @@ class SaleOrder(models.Model):
         location_to = logistic_pick_out_type.default_location_dest_id.id
         partner = order.partner_invoice_id
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Pre-Check (before document generation):
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         if not order.payment_term_id:
-            # if not raise_error:
-            #    return False
-            # else:
-            raise exceptions.Warning(
-                _('Payment not present in sale order!'))
+            raise exceptions.Warning(_('Payment not present in sale order!'))
 
         if not partner.property_account_position_id:
-            # if not raise_error:
-            #    return False
-            # else:
-            raise exceptions.Warning(
-                _('Fiscal position not present (invoice partner)!'))
+            raise exceptions.Warning(_('Fiscal position not present (invoice partner)!'))
 
-        # XXX No more used?
-        # if self.fiscal_position_id != partner.property_account_position_id:
-        #    raise exceptions.Warning(
-        #        _('Fiscal position different for order and fiscal partner!'))
-
-        # ---------------------------------------------------------------------
-        # Shippy call:
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
+        #                                Shippy requirements check:
+        # --------------------------------------------------------------------------------------------------------------
         shippy_selected = any([True for item in order.shippy_rate_ids if item.shippy_rate_selected])
-        if order.carrier_shippy and not order.mmac_shippy_order_id:
+        if order.carrier_shippy and not order.mmac_shippy_order_id:  # Not manual delivery!
             if order.carrier_supplier_id and order.carrier_mode_id and shippy_selected:
-                order_ref = order.shippy_ship()
-                if order_ref:
-                    order.shippy_ship_error = 'ok'
-                    order.write_log_chatter_message(
-                        _('Launched shippy ship call now [%s]!') % order_ref)
-                else:
-                    order.shippy_ship_error = 'error'  # XXX No more need!
-                    raise exceptions.Warning(
-                        _('Shippy call return no Order ID!'))
+                # 27/05/2025: Shippy call available (call after)
+                _logger.info('Shippy requirement found, can be called, after!')
             else:
                 order.shippy_ship_error = 'error'
                 raise exceptions.Warning(
@@ -3402,18 +3381,15 @@ class SaleOrder(models.Model):
                         '' if shippy_selected else _(' No rates selected!'),
                     ))
 
-        # else: order no shippy or yet assigned mmac_shippy_order_id
-        # ---------------------------------------------------------------------
-
-        # ---------------------------------------------------------------------
+        # ==============================================================================================================
         # Select order to prepare:
-        # ---------------------------------------------------------------------
+        # ==============================================================================================================
         picking_ids = []  # return value
         _logger.warning('Generate pick out from order')
 
-        # -----------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Create picking out document header:
-        # -----------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         partner = order.partner_id
         name = order.name  # same as order_ref
         origin = _('%s [%s]') % (name, order.create_date[:10])
@@ -3435,10 +3411,10 @@ class SaleOrder(models.Model):
         for line in order.order_line:
             product = line.product_id
 
-            # =================================================================
+            # ==========================================================================================================
             # Speed up (check if yet delivered):
-            # -----------------------------------------------------------------
-            # TODO check if there's another cases: service, kit, etc.
+            # ----------------------------------------------------------------------------------------------------------
+            # TODO check if there's other cases: service, kit, etc.
             if line.delivered_line_ids:
                 product_qty = line.logistic_undelivered_qty
             else:
@@ -3446,11 +3422,11 @@ class SaleOrder(models.Model):
 
             # Update line status:
             line.write({'logistic_state': 'done', })
-            # =================================================================
+            # ==========================================================================================================
 
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             # Create movement (not load stock):
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             # TODO Check kit!!
             move_pool.create({
                 'company_id': company.id,
@@ -3480,17 +3456,30 @@ class SaleOrder(models.Model):
 
         # TODO check if DDT / INVOICE document:
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Confirm picking (DDT and INVOICE)
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Do all export procedure here:
         picking_pool.browse(picking_ids).workflow_ready_to_done_done_picking()
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Order status:
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Change status order delivering > done
         order.logistic_check_and_set_done()
+
+        # ==============================================================================================================
+        # Shippy call (end of procedure):
+        # ==============================================================================================================
+        order_ref = order.shippy_ship()
+        if order_ref:
+            order.shippy_ship_error = 'ok'
+            order.write_log_chatter_message(_('Launched shippy ship call now [%s]!') % order_ref)
+        else:
+            order.shippy_ship_error = 'error'  # XXX No more need!
+            # raise exceptions.Warning(_('Shippy call return no Order ID!'))
+            # todo need to be test if shippy_ship_error to recall only order.shippy_ship()
+            order.write_log_chatter_message(_('Shippy call return no Order ID (need to recall manually)'))
         return picking_ids
 
     # -------------------------------------------------------------------------

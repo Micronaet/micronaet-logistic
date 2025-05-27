@@ -919,8 +919,7 @@ class StockPicking(models.Model):
                 _logger.error('Picking without order linked')
 
             # Need invoice check:
-            need_invoice = order.fiscal_position_id.need_invoice or \
-                partner.need_invoice
+            need_invoice = order.fiscal_position_id.need_invoice or partner.need_invoice
 
             # Assign always DDT number:
             picking.assign_ddt_number()
@@ -949,8 +948,7 @@ class StockPicking(models.Model):
         for picking in self.browse(ddt_ids):
             sale_order = picking.sale_order_id
             # TODO Sanitize:
-            supplier_name = \
-                sale_order.default_supplier_id.name or 'NESSUNO'
+            supplier_name = sale_order.default_supplier_id.name or 'NESSUNO'
             supplier_name = supplier_name.replace(' ', '')
 
             # -----------------------------------------------------------------
