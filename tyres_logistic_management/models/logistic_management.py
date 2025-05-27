@@ -3371,11 +3371,11 @@ class SaleOrder(models.Model):
         if order.carrier_shippy and not order.mmac_shippy_order_id:  # Not manual delivery!
             if order.carrier_supplier_id and order.carrier_mode_id and shippy_selected:
                 # 27/05/2025: Shippy call available (call after)
-                # [RESTORED HERE!]
+                # 27/07/2025: RESTORED HERE! (Documenti libera esportazione richiede il corriere ma non era presente!)
                 # _logger.info('Shippy requirement found, can be called, after!')
 
                 # ======================================================================================================
-                # Shippy call (end of procedure):
+                # Shippy call:
                 # ======================================================================================================
                 order_ref = order.shippy_ship()
                 if order_ref:
@@ -3384,9 +3384,9 @@ class SaleOrder(models.Model):
                 else:
                     order.shippy_ship_error = 'error'  # XXX No more need!
                     raise exceptions.Warning(_('Shippy call return no Order ID!'))
-                    # todo need to be test if shippy_ship_error == 'ok',
-                    #  otherwise need to recall only order.shippy_ship()
                     # order.write_log_chatter_message(_('Shippy call return no Order ID (need to recall manually)'))
+                    # todo need to be test if shippy_ship_error == 'ok',
+                    # otherwise need to recall only order.shippy_ship()
 
             else:
                 order.shippy_ship_error = 'error'
