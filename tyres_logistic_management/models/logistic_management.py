@@ -3371,7 +3371,22 @@ class SaleOrder(models.Model):
         if order.carrier_shippy and not order.mmac_shippy_order_id:  # Not manual delivery!
             if order.carrier_supplier_id and order.carrier_mode_id and shippy_selected:
                 # 27/05/2025: Shippy call available (call after)
-                _logger.info('Shippy requirement found, can be called, after!')
+                # [RESTORED HERE!]
+                # _logger.info('Shippy requirement found, can be called, after!')
+
+                # ======================================================================================================
+                # Shippy call (end of procedure):
+                # ======================================================================================================
+                order_ref = order.shippy_ship()
+                if order_ref:
+                    order.shippy_ship_error = 'ok'
+                    order.write_log_chatter_message(_('Launched shippy ship call now [%s]!') % order_ref)
+                else:
+                    order.shippy_ship_error = 'error'  # XXX No more need!
+                    raise exceptions.Warning(_('Shippy call return no Order ID!'))
+                    # todo need to be test if shippy_ship_error == 'ok', otherwise need to recall only order.shippy_ship()
+                    # order.write_log_chatter_message(_('Shippy call return no Order ID (need to recall manually)'))
+
             else:
                 order.shippy_ship_error = 'error'
                 raise exceptions.Warning(
@@ -3467,19 +3482,6 @@ class SaleOrder(models.Model):
         # --------------------------------------------------------------------------------------------------------------
         # Change status order delivering > done
         order.logistic_check_and_set_done()
-
-        # ==============================================================================================================
-        # Shippy call (end of procedure):
-        # ==============================================================================================================
-        order_ref = order.shippy_ship()
-        if order_ref:
-            order.shippy_ship_error = 'ok'
-            order.write_log_chatter_message(_('Launched shippy ship call now [%s]!') % order_ref)
-        else:
-            order.shippy_ship_error = 'error'  # XXX No more need!
-            # raise exceptions.Warning(_('Shippy call return no Order ID!'))
-            # todo need to be test if shippy_ship_error == 'ok', otherwise need to recall only order.shippy_ship()
-            order.write_log_chatter_message(_('Shippy call return no Order ID (need to recall manually)'))
         return picking_ids
 
     # -------------------------------------------------------------------------
