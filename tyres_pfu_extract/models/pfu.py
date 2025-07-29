@@ -112,9 +112,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
     _name = 'stock.picking.pfu.extract.wizard'
     _description = 'Logistic manual operation'
 
-    # -------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     #                            COLUMNS:
-    # -------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     mode = fields.Selection([
         ('extra', 'Extra Italia'),
         ('internal', 'Da magazzino interno'),
@@ -123,7 +123,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
     partner_id = fields.Many2one('res.partner', 'Fornitore', domain="[('supplier', '=', True)]")
     from_date = fields.Date('Dalla data >=')
     to_date = fields.Date('Alla data <')
-    # -------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
 
     @api.model
     def get_data_domain(self, from_date, to_date):
