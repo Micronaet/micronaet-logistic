@@ -34,8 +34,10 @@
         'tyres_logistic_management',
         'mmac_odoo4', # PFU Table
         'excel_export',
+        'tyres_logistic_pick_in_load',  # Quant ref.
         ],
-    'data': [        
+    'data': [
+        'security/ir.model.access.csv',
         'views/pfu_view.xml',
         ],
     'demo': [],

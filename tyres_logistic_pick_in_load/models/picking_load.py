@@ -1151,23 +1151,17 @@ class StockPickingDeliveryQuant(models.Model):
     _description = 'Extra purchase line'
     _rec_name = 'product_id'
 
-    # -------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     # Columns:
-    # -------------------------------------------------------------------------
-    order_id = fields.Many2one(
-        'stock.picking.delivery', 'Order')
-    sale_order_id = fields.Many2one(
-        'sale.order', 'Origin order', help='Used for refund purposes')
-    create_date = fields.Datetime(
-        'Create date', default=fields.Datetime.now())
-    create_uid = fields.Many2one(
-        'res.users', 'Create user', default=lambda s: s.env.user)
-    product_id = fields.Many2one(
-        'product.product', 'Product', required=True)
+    # ------------------------------------------------------------------------------------------------------------------
+    order_id = fields.Many2one('stock.picking.delivery', 'Order')
+    sale_order_id = fields.Many2one('sale.order', 'Origin order', help='Used for refund purposes')
+    create_date = fields.Datetime('Create date', default=fields.Datetime.now())
+    create_uid = fields.Many2one('res.users', 'Create user', default=lambda s: s.env.user)
+    product_id = fields.Many2one('product.product', 'Product', required=True)
     product_qty = fields.Float('Q.', digits=(16, 2), required=True)
     price = fields.Float('Price', digits=(16, 2))
     account_sync = fields.Boolean('Account sync')
-
 
 class StockMove(models.Model):
     """ Model name: Stock Move
@@ -1177,13 +1171,9 @@ class StockMove(models.Model):
     # -------------------------------------------------------------------------
     #                                   COLUMNS:
     # -------------------------------------------------------------------------
-    delivery_id = fields.Many2one(
-        'stock.picking.delivery', 'Delivery',
-        ondelete='set null')
-    name_extended = fields.Char(
-        string='Extended name', related='product_id.name_extended')
-    default_code = fields.Char(
-        string='Default code', related='product_id.default_code')
+    delivery_id = fields.Many2one('stock.picking.delivery', 'Delivery', ondelete='set null')
+    name_extended = fields.Char(string='Extended name', related='product_id.name_extended')
+    default_code = fields.Char(string='Default code', related='product_id.default_code')
     force_hide = fields.Boolean('Force hide')
     internal_note = fields.Char('Note interne', size=160)
 
@@ -1728,7 +1718,6 @@ class PurchaseOrderLine(models.Model):
         store=True,
         )
 
-
 class StockPickingDelivery(models.Model):
     """ Model name: Stock picking import document: add relations
     """
@@ -1738,10 +1727,8 @@ class StockPickingDelivery(models.Model):
     # -------------------------------------------------------------------------
     _inherit = 'stock.picking.delivery'
 
-    move_line_ids = fields.One2many(
-        'stock.move', 'delivery_id', 'Load move')
-    quant_ids = fields.One2many(
-        'stock.picking.delivery.quant', 'order_id', 'Stock quant:')
+    move_line_ids = fields.One2many('stock.move', 'delivery_id', 'Load move')
+    quant_ids = fields.One2many('stock.picking.delivery.quant', 'order_id', 'Stock quant:')
     product_id = fields.Many2one(
         'product.product',
         related='move_line_ids.product_id',
