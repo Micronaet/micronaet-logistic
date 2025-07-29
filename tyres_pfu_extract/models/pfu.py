@@ -318,7 +318,6 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         quants_available = {}
         quants = sorted(quant_pool.search(domain), key=lambda x: x.date)
         _logger.info('Found # {} quants'.format(len(quants)))
-        pdb.set_trace()
         for quant in quants:  # Last in First out
             product = quant.product_id
             if product not in quants_available:
@@ -366,7 +365,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             'done': [],  # Yet covered all
         }
         supplier_category_move = {}
-        for move in move_pool.search(domain):
+        moves = move_pool.search(domain)
+        pdb.set_trace()
+        for move in moves:
             # Check quantity covered:
             move_id = move.id
             product = move.product_id
