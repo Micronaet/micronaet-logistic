@@ -25,6 +25,7 @@ import os
 import sys
 import logging
 import odoo
+import pdb
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -278,6 +279,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # --------------------------------------------------------------------------------------------------------------
         # Setup date range:
         # --------------------------------------------------------------------------------------------------------------
+        pdb.set_trace()
         now_dt = datetime.now()
         now_text = str(now_dt)
         now_filename = str(now_text).replace(':', '').replace('-', '').replace(' ', '_').replace('.', '_')
