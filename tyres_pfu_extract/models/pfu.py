@@ -360,6 +360,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
         # A. All stock move sale
         extra_data = {
+            'error': [],  # Error with PFU category
             'excluded': [],  # Not PFU move
             'uncovered': [],  # No quants to cover
             'pending': [],  # Not covered all
@@ -377,7 +378,12 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # Check quantity covered:
             move_id = move.id
             product = move.product_id
-            category = product.mmac_pfu.name or ''
+            try:
+                category = product.mmac_pfu.name or ''
+            except:
+                extra_data['error'].append(move_id)
+                continue
+
             if not category:  # Missed category product not in report
                 extra_data['excluded'].append(move_id)
                 continue
@@ -556,6 +562,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         #                                      Extra pages:
         # --------------------------------------------------------------------------------------------------------------
         pages = {
+            'error': u'[Errore Cat. PFU]',
             'excluded': u'[Movimenti esclusi da PFU]',  # Not PFU move
             'uncovered': u'[Non coperti]',  # No quants to cover
             'pending': u'[Partialmente coperti]',  # Not covered all
