@@ -53,12 +53,9 @@ class ResCompany(models.Model):
     api_token = fields.Text(
         string='Api token')
     api_management = fields.Boolean(
-        'Gestione API',
-        help='Attivazione gestione API gestionale per evitare passaggi CSV')
-    api_invoice_area = fields.Boolean(
-        'Fatturazione', help='Creazione fattura e recupero PDF stampa')
-    api_fees_area = fields.Boolean(
-        'Corrispettivi', help='Scarico corrispettivi fine giornata')
+        'Gestione API', help='Attivazione gestione API gestionale per evitare passaggi CSV')
+    api_invoice_area = fields.Boolean('Fatturazione', help='Creazione fattura e recupero PDF stampa')
+    api_fees_area = fields.Boolean('Corrispettivi', help='Scarico corrispettivi fine giornata')
     api_pick_internal_area = fields.Boolean(
         'Scarico interno',
         help='Scarico merce assegnata agli ordini da magazzino interno'

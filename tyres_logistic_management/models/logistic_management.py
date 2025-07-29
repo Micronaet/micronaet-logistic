@@ -107,9 +107,12 @@ class ResCompany(models.Model):
                 },
             'corrispettivi': {
                 'default': 'Corrispettivi',
-                }
+                },
+            'PFU': {
+                'default': ('default', 'PFU'),
+            },
 
-            # TODO label, picking out?, Invoice, DDT
+        # TODO label, picking out?, Invoice, DDT
             }
 
     # -------------------------------------------------------------------------
