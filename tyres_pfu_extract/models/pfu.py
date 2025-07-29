@@ -371,7 +371,6 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         if not moves:
             raise exceptions.Warning('Nessun movimento nel periodo -{} mesi'.format(period))
 
-        pdb.set_trace()
         _logger.info('Found # {} sale Extra from Interal stock lines'.format(len(moves)))
         for move in moves:
             # Check quantity covered:
