@@ -29,7 +29,7 @@ from odoo import api, fields, models, tools, exceptions, SUPERUSER_ID
 from odoo.addons import decimal_precision as dp
 from odoo.tools.translate import _
 
-from tyres_auto_confirm.cron.auto_print.print_auto_confirmed import company_pool
+# from tyres_auto_confirm.cron.auto_print.print_auto_confirmed import company_pool
 
 _logger = logging.getLogger(__name__)
 
