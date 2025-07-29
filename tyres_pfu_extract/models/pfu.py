@@ -355,7 +355,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             ('logistic_load_id.order_id.partner_invoice_id.property_account_position_id.is_pfu', '=', True),
 
             # Purchased with partner for internal stock:
-            ('order_id.partner_id.internal_stock', '=', True),  # Only partner that load internal Stock
+            ('logistic_purchase_id.order_id.partner_id.internal_stock', '=', True),  # Only partner that load internal Stock
         ]
 
         # A. All stock move sale
