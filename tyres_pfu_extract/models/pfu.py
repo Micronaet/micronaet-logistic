@@ -405,6 +405,10 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # Assign stock quant master loop:
             # ----------------------------------------------------------------------------------------------------------
             while True:
+                if not product_cover_list:
+                    extra_data['pending'].append(move_id)
+                    break
+
                 this_stock = product_cover_list[0]  # ID, supplier_id, q.
                 found_quant, found_supplier, found_qty = this_stock
                 if need_qty <= found_qty:  # More than needed
@@ -443,7 +447,8 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                     # Covered all:
                     move.pfu_done = True
                     break
-                elif not product_cover_list:
+
+                if not product_cover_list:
                     # Covered partial, no more available
                     extra_data['pending'].append(move_id)
                     break
