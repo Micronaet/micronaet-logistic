@@ -312,6 +312,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # Delivery order range:
             ('order_id.date', '>=', purchase_start),
             ('order_id.date', '<=', purchase_end),
+            ('sale_order_id.logistic_source', 'not in', ('refund',)),  # Not refund
         ]
 
         # Collected data for product quants available
