@@ -2724,7 +2724,7 @@ class SaleOrderLine(models.Model):
 
     # C. Deliver:
     delivered_line_ids = fields.One2many(
-        'stock.move', 'logistic_unload_id', 'Linked to deliveder',
+        'stock.move', 'logistic_unload_id', 'Linked to delivered',
         help='Deliver movement in pick out documents',
         )
 

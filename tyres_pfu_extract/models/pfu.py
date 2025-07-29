@@ -278,7 +278,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         now_dt = datetime.now()
         now_text = str(now_dt)
         now_filename = str(now_text).replace(':', '').replace('-', '').replace(' ', '_').replace('.', '_')
-        filename = f'PFU_{now_filename}.xlsx'
+        filename = 'PFU_{}.xlsx'.format(now_filename)
         companys = company_pool.search([])
         company = companys[0]
         pfu_folder = company._logistic_folder('PFU')
@@ -290,9 +290,11 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         sale_start = this_month_start - relativedelta(months=period - 1)  # -6 month
         purchase_start = sale_start # -6 month
         purchase_end = this_month_start - relativedelta(days=1)  # -1 month (not used last month purchase, need FT ref.)
-        title = f'Periodo stampa PFU: Vendite [{sale_start} - OGGI] Acquisti [{purchase_start} - {purchase_end}]'
+        title = 'Periodo stampa PFU: Vendite [{} - OGGI] Acquisti [{} - {}]'.format(
+            sale_start, purchase_start, purchase_end,
+        )
         _logger.info(title)
-        _logger.info(f'File PFU: {fullname}')
+        _logger.info('File PFU: {}'.format(fullname))
 
         # --------------------------------------------------------------------------------------------------------------
         #                           Collect data purchase stock load records:
@@ -329,15 +331,20 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # --------------------------------------------------------------------------------------------------------------
         _logger.info('Start searching open PFU lines from date {}'.format(sale_start))
         domain = [
-            # Header
-            ('pfu_done', '=', False),  # Not completed
+            # PFU not completed:
+            ('pfu_done', '=', False),
 
+            # Date Range:
             ('delivery_id.date', '>=', sale_start),
+            # <= today
 
+            # Order filter:
             ('logistic_load_id', '!=', False), # Linked to order
             ('logistic_load_id.order_id.logistic_source', 'not in', ('refund', )),  # Not refund
             ('logistic_load_id.order_id.partner_invoice_id.property_account_position_id.is_pfu', '=', True),
-            # todo sell to MARONE?
+
+            # Purchased with partner for internal stock:
+            ('order_id.partner_id.internal_stock', '=', True),  # Only partner that load internal Stock
         ]
 
         # A. All stock move sale
@@ -463,9 +470,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 supplier.name or '',
                 supplier.sql_supplier_code or '',
                 u'',
-                f'Venditi [{sale_start} - OGGI]',
+                u'Venditi [{} - OGGI]'.format(sale_start),
                 u'',
-                f'Acquisti [{purchase_start} - {purchase_end}]',
+                u'Acquisti [{} - {}]'.format(purchase_start, purchase_end),
                 ], default_format=format_text['title'])
 
             row += 2
