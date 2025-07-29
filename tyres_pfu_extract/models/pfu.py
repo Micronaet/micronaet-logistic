@@ -603,7 +603,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             row = 0
             excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
 
-            for move in move_pool.browse(extra_data[page]):
+            for move in move_pool.browse(extra_data[page]):  # Reload Move from IDs
                 # Readability:
                 product = move.product_id
                 category = product.mmac_pfu.name or ''
