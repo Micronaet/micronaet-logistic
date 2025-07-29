@@ -318,7 +318,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # Collected data for product quants available
         quants_available = {}
         quants = sorted(quant_pool.search(domain), key=lambda x: x.create_date)
-        _logger.info('Found # {} quants'.format(len(quants)))
+        _logger.warning('Found # {} quants'.format(len(quants)))
         for quant in quants:  # Last in First out
             product = quant.product_id
             if product not in quants_available:
@@ -372,7 +372,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         if not moves:
             raise exceptions.Warning('Nessun movimento nel periodo -{} mesi'.format(period))
 
-        _logger.info('Found # {} sale Extra from Interal stock lines'.format(len(moves)))
+        _logger.warning('Found # {} sale Extra from Interal stock lines'.format(len(moves)))
         for move in moves:
             # Check quantity covered:
             move_id = move.id
