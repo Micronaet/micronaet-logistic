@@ -9,16 +9,17 @@
               <form string="Extract excel status:">
                   <header>
                       <button string="Cancel" class="btn-default" special="cancel" />
-                      <button name="extract_excel_pfu_report" string="Excel report" type="object" class="btn-primary" />
-                      <button name="extract_excel_pfu_company_report" string="Excel company report" type="object"  />
-                      <button name="extract_fiscal_excel_pfu_report" string="Fiscal report" type="object"  />
+                      <button name="extract_excel_pfu_report" string="Excel report" type="object" class="btn-primary" attrs="{'invisible': [('mode', '!=', 'extra')]}"/>
+                      <button name="extract_excel_pfu_company_report" string="Excel company report" type="object" attrs="{'invisible': [('mode', '!=', 'extra')]}" />
+                      <button name="extract_fiscal_excel_pfu_report" string="Fiscal report" type="object" attrs="{'invisible': [('mode', '!=', 'internal')]}" />
                   </header>
                   <sheet>                  
                       <group colspan="4" col="4">
-                          <field name="partner_id" />
+                          <field name="mode" />
+                          <field name="partner_id" attrs="{'invisible': [('mode', '!=', 'extra')]}" />
                           <newline/>
-                          <field name="from_date" />
-                          <field name="to_date" />
+                          <field name="from_date" attrs="{'invisible': [('mode', '!=', 'extra')], 'required': [('mode', '=', 'extra')]}" />
+                          <field name="to_date" attrs="{'invisible': [('mode', '!=', 'extra')], 'required': [('mode', '=', 'extra')]}" />
                       </group>    
                   </sheet>
               </form>
