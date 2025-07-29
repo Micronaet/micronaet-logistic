@@ -11,7 +11,7 @@
                       <button string="Cancel" class="btn-default" special="cancel" />
                       <button name="extract_excel_pfu_report" string="Excel report" type="object" class="btn-primary" attrs="{'invisible': [('mode', '!=', 'extra')]}"/>
                       <button name="extract_excel_pfu_company_report" string="Excel company report" type="object" attrs="{'invisible': [('mode', '!=', 'extra')]}" />
-                      <button name="extract_fiscal_excel_pfu_report" string="Fiscal report" type="object" attrs="{'invisible': [('mode', '!=', 'internal')]}" />
+                      <button name="extract_fiscal_excel_pfu_report" string="Report PFU da Mag. interno" type="object" attrs="{'invisible': [('mode', '!=', 'internal')]}" />
                   </header>
                   <sheet>                  
                       <group colspan="4" col="4">
