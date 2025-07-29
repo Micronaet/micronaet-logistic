@@ -53,14 +53,9 @@ class StockPfuAssigned(models.Model):
     quant_id = fields.Many2one(
         'stock.picking.delivery.quant', 'Carico', required=True,
         help='Carico di magazzino collegato')
-    # delivery_id = fields.Many2one(
-    #    'stock.picking.delivery', 'Doc. di carico', related='order_id', store=True
-    #    )
-    supplier_id = fields.Many2one(
-        'res.partner', 'Fornitore', related='order_id.supplier_id', store=True)
-    move_id = fields.Many2one(
-        'stock.move', 'Riga di carico',
-        help='Riga ordine collegata al carico', required=True)
+    delivery_id = fields.Many2one('stock.picking.delivery', 'Doc. di carico', related='quant_id.order_id', store=True)
+    supplier_id = fields.Many2one('res.partner', 'Fornitore', related='delivery_id.supplier_id', store=True)
+    move_id = fields.Many2one('stock.move', 'Riga di carico', help='Riga ordine collegata al carico', required=True)
     product_qty = fields.Float('Quant.', digits=(16, 2), required=True)
     date = fields.Date('Data', required=True)
 
