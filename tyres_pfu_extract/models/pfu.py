@@ -316,7 +316,8 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
         # Collected data for product quants available
         quants_available = {}
-        quants = sorted(quant_pool.search(domain), key=lambda x: x.date)
+        quants = sorted(quant_pool.search(domain), key=lambda x: x.create_date)
+        pdb.set_trace()
         _logger.info('Found # {} quants'.format(len(quants)))
         for quant in quants:  # Last in First out
             product = quant.product_id
