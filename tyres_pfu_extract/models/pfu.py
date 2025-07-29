@@ -471,10 +471,10 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # ---------------------------------------------------------------------
         # Write detail:
         # ---------------------------------------------------------------------
+        ipcode_cache = {}
         format_text = {}  # For initial setup:
         page_created = {}
         for supplier in sorted(supplier_category_move, key=lambda x: x.name):
-            ipcode_cache = {}
             ws_name = supplier.name.strip()
 
             # -----------------------------------------------------------------
@@ -615,6 +615,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 category = product.mmac_pfu.name or ''
                 order = move.logistic_load_id.order_id
                 partner = order.partner_invoice_id
+                supplier = move.logistic_load_id.order_id.partner_id
 
                 # Get invoice reference:
                 invoice_date = ''
