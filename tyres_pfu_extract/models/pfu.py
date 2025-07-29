@@ -292,9 +292,12 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         period = company.pfu_month or 6
 
         this_month_start = now_dt.replace(day=1)
-        sale_start = this_month_start - relativedelta(months=period - 1)  # -6 month
+        sale_start = (this_month_start - relativedelta(months=period - 1)).strftime('%Y-%m-%d')  # -6 month
+
         purchase_start = sale_start # -6 month
-        purchase_end = this_month_start - relativedelta(days=1)  # -1 month (not used last month purchase, need FT ref.)
+        # -1 month (not used last month purchase, need FT ref.):
+        purchase_end = (this_month_start - relativedelta(days=1)).strftime('%Y-%m-%d')
+
         title = 'Periodo stampa PFU: Vendite [{} - OGGI] Acquisti [{} - {}]'.format(
             sale_start, purchase_start, purchase_end,
         )
