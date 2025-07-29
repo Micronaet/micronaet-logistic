@@ -119,6 +119,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         ('extra', 'Extra Italia'),
         ('internal', 'Da magazzino interno'),
         ], string='Modalità', default='extra', required=True)
+
     partner_id = fields.Many2one('res.partner', 'Fornitore', domain="[('supplier', '=', True)]")
     from_date = fields.Date('Dalla data >=', required=True)
     to_date = fields.Date('Alla data <', required=True)
