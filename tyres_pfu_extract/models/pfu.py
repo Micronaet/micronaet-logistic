@@ -323,7 +323,8 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             product = quant.product_id
             if product not in quants_available:
                 quants_available[product] = []
-            available_qty = quant.product_qty - quant.assigned_pfu_qty  # Really available
+            available_qty = quant.product_qty - sum([r.product_qty for r in quant.assigned_pfu_ids])
+            # quant.assigned_pfu_qty  # Really available
 
             # Exclude all used:
             if available_qty <= 0:
@@ -388,7 +389,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 continue
 
             move_qty = move.product_uom_qty
-            need_qty = move_qty - move.assigned_pfu_qty
+            need_qty = move_qty - sum([r.product_qty for r in move.assigned_pfu_ids])  # move.assigned_pfu_qty
 
             if need_qty <= 0:
                 move.pfu_done = True
@@ -607,7 +608,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 # ---------------------------------------------------------
                 row += 1
                 move_qty = move.product_uom_qty
-                remain_qty = move_qty - move.assigned_pfu_qty
+                remain_qty = move_qty - sum([r.product_qty for r in move.assigned_pfu_ids])  # move.assigned_pfu_qty
                 excel_pool.write_xls_line(ws_name, row, (
                     category,  # product.mmac_pfu.name,
                     '',
