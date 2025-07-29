@@ -346,7 +346,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             ('pfu_done', '=', False),
 
             # Date Range:
-            ('delivery_id.date', '>=', sale_start),
+            ('logistic_load_id.order_id.date_order', '>=', '{} 00:00:00'.format(sale_start)),
             # <= today
 
             # Order filter:
