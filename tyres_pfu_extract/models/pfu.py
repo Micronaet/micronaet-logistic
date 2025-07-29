@@ -88,7 +88,7 @@ class StockPickingDeliveryQuantInherit(models.Model):
         self.ensure_one()
         self.assigned_pfu_qty = sum([r.product_qty for r in self.assigned_pfu_ids])
 
-    assigned_pfu_ids = fields.Many2ome('stock.pfu.assigned', 'quant_id', 'Assegnazioni')
+    assigned_pfu_ids = fields.Many2one('stock.pfu.assigned', 'quant_id', 'Assegnazioni')
     assigned_pfu_qty = fields.Float('PFU totale assegnato', compute='get_assigned_pfu_qty')
     pfu_done = fields.Boolean(
         'PFU completo', help='Indica se la riga di carico ha ancora disponibilità o è stata usata tutta')
@@ -106,7 +106,7 @@ class StockMoveInherit(models.Model):
         self.ensure_one()
         self.assigned_pfu_qty = sum([r.product_qty for r in self.assigned_pfu_ids])
 
-    assigned_pfu_ids = fields.Many2ome('stock.pfu.assigned', 'move_id', 'Assegnazioni')
+    assigned_pfu_ids = fields.Many2one('stock.pfu.assigned', 'move_id', 'Assegnazioni')
     assigned_pfu_qty = fields.Float('PFU totale assegnato', compute='get_assigned_pfu_qty')
     pfu_done = fields.Boolean(
         'PFU completo', help='Indica se la riga ha ancora degli assegnamenti pendenti o è completa')
