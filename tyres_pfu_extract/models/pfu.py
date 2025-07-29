@@ -400,10 +400,11 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # Assign stock quant master loop:
             # ----------------------------------------------------------------------------------------------------------
             while True:
-                found_quant, found_supplier, found_qty = product_cover_list[0]  # ID, supplier_id, q.
+                this_stock = product_cover_list[0]  # ID, supplier_id, q.
+                found_quant, found_supplier, found_qty = this_stock
                 if need_qty <= found_qty:  # More than needed
                     used_qty = need_qty
-                    available_record[2] -= need_qty
+                    this_stock[2] -= need_qty
                     need_qty = 0
                 else:  # Use all found, less/equal than needed
                     used_qty = found_qty
