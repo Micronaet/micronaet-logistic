@@ -302,7 +302,6 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         )
         _logger.info(title)
         _logger.info('File PFU: {}'.format(fullname))
-        pdb.set_trace()
 
         # --------------------------------------------------------------------------------------------------------------
         #                           Collect data purchase stock load records:
@@ -317,7 +316,10 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
         # Collected data for product quants available
         quants_available = {}
-        for quant in sorted(quant_pool.search(domain), key=lambda x: x.date):  # Last in First out
+        quants = sorted(quant_pool.search(domain), key=lambda x: x.date)
+        _logger.info('Found # {} quants'.format(len(quants)))
+        pdb.set_trace()
+        for quant in quants:  # Last in First out
             product = quant.product_id
             if product not in quants_available:
                 quants_available[product] = []
