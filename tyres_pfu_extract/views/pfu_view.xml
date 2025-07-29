@@ -34,6 +34,18 @@
             <field name="target">new</field>
         </record>
 
+        <!--res.company-->
+        <record model="ir.ui.view" id="view_res_company_logistic_parameter_form">
+            <field name="name">res.company.pfu.form</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="tyres_logistic_management.view_res_company_logistic_parameter_form"/>
+            <field name="arch" type="xml">
+                <field name="cups_sale_ddt" position="after">
+                    <separator string="PFU Setup:" colspn="4"/>
+                    <field name="pfu_mmonth" />
+                </field>
+            </field>
+        </record>
         <!--account.fiscal.position-->
         <record model="ir.ui.view" id="view_pfu_account_fiscal_position_form">
             <field name="name">account.fiscal.position.need.invoice.pfu.form</field>

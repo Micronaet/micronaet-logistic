@@ -65,6 +65,17 @@ class StockPfuAssigned(models.Model):
     date = fields.Date('Data', required=True)
 
 
+class ResCompanyInherit(models.Model):
+    """ Parameter
+    """
+    _inherit = 'res.company'
+
+    pfu_month = fields.Integer(
+        'Mesi PFU', default=6,
+        help='Mesi per prendere in considerazione i carichi da magazzino interno, il report parte da -X mesi per '
+             'le vendite e -X mesi fino a -1 mese per gli acquisti')
+
+
 class StockPickingDeliveryQuantInherit(models.Model):
     """ Add relations to PFU
     """
@@ -264,15 +275,16 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # --------------------------------------------------------------------------------------------------------------
         # Setup date range:
         # --------------------------------------------------------------------------------------------------------------
-        period = 6
-
         now_dt = datetime.now()
         now_text = str(now_dt)
         now_filename = str(now_text).replace(':', '').replace('-', '').replace(' ', '_').replace('.', '_')
         filename = f'PFU_{now_filename}.xlsx'
         companys = company_pool.search([])
-        pfu_folder = companys[0]._logistic_folder('PFU')
+        company = companys[0]
+        pfu_folder = company._logistic_folder('PFU')
         fullname = os.path.join(pfu_folder, filename)
+
+        period = company.pfu_mmonth or 6
 
         this_month_start = now_dt.replace(day=1)
         sale_start = this_month_start - relativedelta(months=period - 1)  # -6 month
