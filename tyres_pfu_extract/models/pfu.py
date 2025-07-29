@@ -317,7 +317,6 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # Collected data for product quants available
         quants_available = {}
         quants = sorted(quant_pool.search(domain), key=lambda x: x.create_date)
-        pdb.set_trace()
         _logger.info('Found # {} quants'.format(len(quants)))
         for quant in quants:  # Last in First out
             product = quant.product_id
@@ -368,6 +367,8 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         }
         supplier_category_move = {}
         moves = move_pool.search(domain)
+        _logger(quants_available)
+        pdb.set_trace()
         if not moves:
             raise exceptions.Warning('Nessun movimento nel periodo -{} mesi'.format(period))
 
