@@ -85,9 +85,8 @@ class StockPickingDeliveryQuantInherit(models.Model):
     def get_assigned_pfu_qty(self):
         """ Total PFU assigned to line
         """
-        self.ensure_one()
-        record = self[0]
-        record.assigned_pfu_qty = sum([r.product_qty for r in record.assigned_pfu_ids])
+        for record in self:
+            record.assigned_pfu_qty = sum([r.product_qty for r in record.assigned_pfu_ids])
 
     assigned_pfu_ids = fields.One2many('stock.pfu.assigned', 'quant_id', 'Assegnazioni')
     assigned_pfu_qty = fields.Float('PFU totale assegnato', compute='get_assigned_pfu_qty')
@@ -104,9 +103,8 @@ class StockMoveInherit(models.Model):
     def get_assigned_pfu_qty(self):
         """ Total PFU assigned to line
         """
-        self.ensure_one()
-        record = self[0]
-        record.assigned_pfu_qty = sum([r.product_qty for r in record.assigned_pfu_ids])
+        for record in self:
+            record.assigned_pfu_qty = sum([r.product_qty for r in record.assigned_pfu_ids])
 
     assigned_pfu_ids = fields.One2many('stock.pfu.assigned', 'move_id', 'Assegnazioni')
     assigned_pfu_qty = fields.Float('PFU totale assegnato', compute='get_assigned_pfu_qty')
