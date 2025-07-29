@@ -9,7 +9,7 @@
               <form string="Extract excel status:">
                   <header>
                       <button string="Cancel" class="btn-default" special="cancel" />
-                      <button name="extract_excel_pfu_report" string="Report Exce" type="object" class="btn-primary" attrs="{'invisible': [('mode', '!=', 'extra')]}"/>
+                      <button name="extract_excel_pfu_report" string="Report Excel" type="object" class="btn-primary" attrs="{'invisible': [('mode', '!=', 'extra')]}"/>
                       <button name="extract_fiscal_excel_pfu_report" string="Report Fiscale" type="object" attrs="{'invisible': [('mode', '!=', 'extra')]}" />
 
                       <button name="extract_excel_pfu_company_report" string="Report PFU da Mag. interno" type="object" attrs="{'invisible': [('mode', '!=', 'internal')]}" />
