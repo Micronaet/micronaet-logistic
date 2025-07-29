@@ -25,6 +25,10 @@ import os
 import sys
 import logging
 import odoo
+
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
 from odoo import api, fields, models, tools, exceptions, SUPERUSER_ID
 from odoo.addons import decimal_precision as dp
 from odoo.tools.translate import _
