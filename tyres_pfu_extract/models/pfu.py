@@ -310,8 +310,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         domain = [
             ('pfu_done', '=', False),  # Not completed
 
-            ('delivery_id.date', '>=', purchase_start),
-            ('delivery_id.date', '<=', purchase_end),
+            # Delivery order range:
+            ('order_id.date', '>=', purchase_start),
+            ('order_id.date', '<=', purchase_end),
         ]
 
         # Collected data for product quants available
@@ -330,7 +331,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # Collect available quants:
             quants_available[product].append([
                 quant,
-                quant.delivery_id.supplier_id,
+                quant.order_id.supplier_id,
                 available_qty,  # Dispo available
             ])
 
