@@ -501,14 +501,11 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # Header write:
             row = 0
             excel_pool.write_xls_line(ws_name, row, [
-                u'Fornitore:',
-                u'',
-                supplier.name or '',
-                supplier.sql_supplier_code or '',
-                u'',
-                u'Venditi [{} - OGGI]'.format(sale_start),
-                u'',
-                u'Acquisti [{} - {}]'.format(purchase_start, purchase_end),
+                u'Venduti [{} - OGGI] Acquisti [{} - {}]'.format(
+                    sale_start,
+                    purchase_start,
+                    purchase_end
+                ),
                 ], default_format=format_text['title'])
 
             row += 2
