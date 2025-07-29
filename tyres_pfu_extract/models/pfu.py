@@ -366,6 +366,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         }
         supplier_category_move = {}
         moves = move_pool.search(domain)
+        if not moves:
+            raise exceptions.Warning('Nessun movimento nel periodo -{} mesi'.format(period))
+
         pdb.set_trace()
         _logger.info('Found # {} sale Extra from Interal stock lines'.format(len(moves)))
         for move in moves:
