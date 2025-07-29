@@ -283,7 +283,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         pfu_folder = company._logistic_folder('PFU')
         fullname = os.path.join(pfu_folder, filename)
 
-        period = company.pfu_mmonth or 6
+        period = company.pfu_month or 6
 
         this_month_start = now_dt.replace(day=1)
         sale_start = this_month_start - relativedelta(months=period - 1)  # -6 month

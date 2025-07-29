@@ -43,7 +43,7 @@
             <field name="arch" type="xml">
                 <field name="cups_sale_ddt" position="after">
                     <separator string="PFU Setup:" colspn="4"/>
-                    <field name="pfu_mmonth" />
+                    <field name="pfu_month" />
                 </field>
             </field>
         </record>
