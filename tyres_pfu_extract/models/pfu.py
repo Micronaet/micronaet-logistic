@@ -471,6 +471,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # Write detail:
         # ---------------------------------------------------------------------
         setup_complete = False  # For initial setup:
+        page_created = {}
         for supplier in sorted(supplier_category_move, key=lambda x: x.name):
             ipcode_cache = {}
             ws_name = supplier.name.strip()
@@ -478,6 +479,12 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # -----------------------------------------------------------------
             # Excel sheet creation:
             # -----------------------------------------------------------------
+            if ws_name in page_created:
+                page_created[ws_name] += 1
+                ws_name = '{} ({})'.format(ws_name, page_created[ws_name])
+            else:
+                page_created[ws_name] = 0
+
             excel_pool.create_worksheet(ws_name)
             excel_pool.column_width(ws_name, column_width)
             if not setup_complete:  # First page only:
