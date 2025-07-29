@@ -279,7 +279,6 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # --------------------------------------------------------------------------------------------------------------
         # Setup date range:
         # --------------------------------------------------------------------------------------------------------------
-        pdb.set_trace()
         now_dt = datetime.now()
         now_text = str(now_dt)
         now_filename = str(now_text).replace(':', '').replace('-', '').replace(' ', '_').replace('.', '_')
@@ -303,6 +302,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         )
         _logger.info(title)
         _logger.info('File PFU: {}'.format(fullname))
+        pdb.set_trace()
 
         # --------------------------------------------------------------------------------------------------------------
         #                           Collect data purchase stock load records:
