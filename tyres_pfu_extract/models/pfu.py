@@ -743,10 +743,11 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             return {
                 'type': 'ir.actions.act_url',
                 'url': download_url,
-                'target': 'self',  # O 'new' per aprire in una nuova scheda
+                'target': 'self',  # 'new'
             }
         except:
             _logger.error('Error opening Download file URL: {}'.format(download_url))
+
         return True
 
     @api.multi
