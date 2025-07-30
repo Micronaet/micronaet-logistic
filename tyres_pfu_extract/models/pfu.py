@@ -667,7 +667,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                         if invoice_number:
                             break  # Stop when find one invoice!
                         else:
-                            invoice_number = 'No fatt.: %s' % order.name
+                            invoice_number = u'No fatt.: %s' % order.name
 
                     # ---------------------------------------------------------
                     # Write data line:
