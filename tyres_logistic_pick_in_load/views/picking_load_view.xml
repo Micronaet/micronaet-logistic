@@ -88,13 +88,14 @@
             <field name="arch" type="xml">
                 <search string="String">
                     <field name="order_id" readonly="1"/>
+                    <field name="supplier_id" readonly="1"/>
                     <field name="sale_order_id" readonly="1" />
                     <field name="product_id" readonly="1" />
                     <field name="product_qty" readonly="1" />
                     <field name="create_uid" readonly="1" />
                     <field name="create_date" readonly="1" />
 
-                    <filter name="refund_excluded" string="Resi esclusi" domain="[('sale_order_id.logistic_source','!=', 'refund')]"/>
+                    <filter name="refund_excluded" string="Resi esclusi" domain="[('sale_order_id.logistic_source', '!=', 'refund')]"/>
 
                     <group expand="0" string="Group By...">
                         <filter name="group_order" string="Consegna" context="{'group_by': 'order_id'}"/>

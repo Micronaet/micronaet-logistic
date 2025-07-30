@@ -1155,6 +1155,7 @@ class StockPickingDeliveryQuant(models.Model):
     # Columns:
     # ------------------------------------------------------------------------------------------------------------------
     order_id = fields.Many2one('stock.picking.delivery', 'Order')
+    supplier_id = fields.Many2one('res.partner', 'Fornitore', related='order_id.supplier_id')
     sale_order_id = fields.Many2one('sale.order', 'Origin order', help='Used for refund purposes')
     create_date = fields.Datetime('Create date', default=fields.Datetime.now())
     create_uid = fields.Many2one('res.users', 'Create user', default=lambda s: s.env.user)
