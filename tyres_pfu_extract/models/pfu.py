@@ -361,7 +361,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         quants = sorted(quant_pool.search(domain), key=lambda x: x.create_date)
         _logger.warning('Found # {} quants'.format(len(quants)))
         for quant in quants:  # Last in First out
-            if quant.sale_order_id and sale_order_id.logistic_source == 'refund':
+            if quant.sale_order_id and quant.sale_order_id.logistic_source == 'refund':
                 # Jump refund
                 continue
 
