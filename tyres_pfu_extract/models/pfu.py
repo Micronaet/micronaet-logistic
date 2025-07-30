@@ -610,6 +610,51 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         #                                      Extra pages:
         # --------------------------------------------------------------------------------------------------------------
         if debug_mode:
+            # ----------------------------------------------------------------------------------------------------------
+            # 1. Available from stock
+            # ----------------------------------------------------------------------------------------------------------
+            # Excel file configuration:
+            header = (
+                'Prodotto', 'Descrizione', 'Fornitore', 'Bolla Fornitore', 'Data', 'Q. disponibile')
+
+            column_width = (
+                20, 30, 30, 20, 12 10
+                )
+
+            ws_name = u'Disponibili da Mag. int.'
+            excel_pool.create_worksheet(ws_name)
+            excel_pool.column_width(ws_name, column_width)
+
+            if not format_text:  # First page only:
+                excel_pool.set_format()
+                format_text = {
+                    'title': excel_pool.get_format('title'),
+                    'header': excel_pool.get_format('header'),
+                    'text': excel_pool.get_format('text'),
+                    'number': excel_pool.get_format('number'),
+                }
+
+            row = 0
+            excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
+
+            for product in quants_available:
+                quant, supplier, available = quants_available[product]
+                delivery = quant.order_id
+
+                row += 1
+                excel_pool.write_xls_line(ws_name, row, (
+                    product.default_code,
+                    self.get_ipcode(supplier, product, ipcode_cache),  # ipcode
+                    # product.name_extended,  # name,
+                    delivery.name,  # Delivery ref.
+                    delivery.date,
+                    (available, format_text['number']),
+                    '',  # Number supplier invoice
+                ), default_format=format_text['text'])
+
+            # ----------------------------------------------------------------------------------------------------------
+            # 2 and after: Log data pages:
+            # ----------------------------------------------------------------------------------------------------------
             pages = {
                 'error': u'[Errore Cat. PFU]',
                 'excluded': u'[Movimenti esclusi da PFU]',  # Not PFU move
@@ -637,15 +682,6 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 ws_name = pages[page]
                 excel_pool.create_worksheet(ws_name)
                 excel_pool.column_width(ws_name, column_width)
-
-                if not format_text:  # First page only:
-                    excel_pool.set_format()
-                    format_text = {
-                        'title': excel_pool.get_format('title'),
-                        'header': excel_pool.get_format('header'),
-                        'text': excel_pool.get_format('text'),
-                        'number': excel_pool.get_format('number'),
-                        }
 
                 # Header write:
                 row = 0
@@ -692,7 +728,6 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                         partner.country_id.code or '??',  # ISO country
                         ), default_format=format_text['text'])
 
-
         # ---------------------------------------------------------------------
         # Save file:
         # ---------------------------------------------------------------------
@@ -701,7 +736,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
         try:
             # Return filename:
-            download_url = '/tyres_pfu_extract/download/download/{}'.format(urllib.parse.quote_plus(filename))
+            download_url = '/tyres_pfu_extract/download/{}'.format(urllib.parse.quote_plus(filename))
 
             return {
                 'type': 'ir.actions.act_url',
