@@ -70,6 +70,7 @@ class ResCompanyInherit(models.Model):
     """
     _inherit = 'res.company'
 
+    pfu_debug = fields.Boolean('Schede Debug', help='Aggiunte delle schede extra al file per informazioni di debug')
     pfu_month = fields.Integer(
         'Mesi PFU', default=6,
         help='Mesi per prendere in considerazione i carichi da magazzino interno, il report parte da -X mesi per '
@@ -289,6 +290,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         fullname = os.path.join(pfu_folder, filename)
 
         period = company.pfu_month or 6
+        debug_mode = company.pfu_debug
 
         this_month_start = now_dt.replace(day=1)
         sale_start = (this_month_start - relativedelta(months=period - 1)).strftime('%Y-%m-%d')  # -6 month
@@ -568,97 +570,97 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # --------------------------------------------------------------------------------------------------------------
         #                                      Extra pages:
         # --------------------------------------------------------------------------------------------------------------
-        pages = {
-            'error': u'[Errore Cat. PFU]',
-            'excluded': u'[Movimenti esclusi da PFU]',  # Not PFU move
-            'uncovered': u'[Non coperti]',  # No quants to cover
-            'pending': u'[Partialmente coperti]',  # Not covered all
-            'done': u'[Coperti in precedenza]',  # Yet covered all
-        }
+        if debug_mode:
+            pages = {
+                'error': u'[Errore Cat. PFU]',
+                'excluded': u'[Movimenti esclusi da PFU]',  # Not PFU move
+                'uncovered': u'[Non coperti]',  # No quants to cover
+                'pending': u'[Partialmente coperti]',  # Not covered all
+                'done': u'[Coperti in precedenza]',  # Yet covered all
+            }
 
-        # Excel file configuration:
-        header = (
-            'RAEE', 'Fornitore', 'Cod. Articolo', 'Cod. Forn.', 'Descrizione', u'Q.tà', u'Residuo',
-            'Doc Fornitore', 'Data Doc.', 'N. Fattura', 'N. Nostra fattura',
-            'Data Doc.', 'ISO stato')
+            # Excel file configuration:
+            header = (
+                'RAEE', 'Fornitore', 'Cod. Articolo', 'Cod. Forn.', 'Descrizione', u'Q.tà', u'Residuo',
+                'Doc Fornitore', 'Data Doc.', 'N. Fattura', 'N. Nostra fattura',
+                'Data Doc.', 'ISO stato')
 
-        column_width = (
-            5, 30, 15, 15, 45, 5, 5,
-            15, 12, 12, 15,
-            10, 8,
-            )
+            column_width = (
+                5, 30, 15, 15, 45, 5, 5,
+                15, 12, 12, 15,
+                10, 8,
+                )
 
-        for page in pages:
-            # ----------------------------------------------------------------------------------------------------------
-            # Excel sheet creation:
-            # ----------------------------------------------------------------------------------------------------------
-            ws_name = pages[page]
-            excel_pool.create_worksheet(ws_name)
-            excel_pool.column_width(ws_name, column_width)
+            for page in pages:
+                # ------------------------------------------------------------------------------------------------------
+                # Excel sheet creation:
+                # ------------------------------------------------------------------------------------------------------
+                ws_name = pages[page]
+                excel_pool.create_worksheet(ws_name)
+                excel_pool.column_width(ws_name, column_width)
 
-            if not format_text:  # First page only:
-                excel_pool.set_format()
-                format_text = {
-                    'title': excel_pool.get_format('title'),
-                    'header': excel_pool.get_format('header'),
-                    'text': excel_pool.get_format('text'),
-                    'number': excel_pool.get_format('number'),
-                    }
+                if not format_text:  # First page only:
+                    excel_pool.set_format()
+                    format_text = {
+                        'title': excel_pool.get_format('title'),
+                        'header': excel_pool.get_format('header'),
+                        'text': excel_pool.get_format('text'),
+                        'number': excel_pool.get_format('number'),
+                        }
 
-            # Header write:
-            row = 0
-            excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
+                # Header write:
+                row = 0
+                excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
 
-            for move in move_pool.browse(extra_data[page]):  # Reload Move from IDs
-                # Readability:
-                product = move.product_id
-                category = product.mmac_pfu.name or ''
-                order = move.logistic_load_id.order_id
-                partner = order.partner_invoice_id
-                supplier = move.logistic_load_id.order_id.partner_id
+                for move in move_pool.browse(extra_data[page]):  # Reload Move from IDs
+                    # Readability:
+                    product = move.product_id
+                    category = product.mmac_pfu.name or ''
+                    order = move.logistic_load_id.order_id
+                    partner = order.partner_invoice_id
+                    supplier = move.logistic_load_id.order_id.partner_id
 
-                # Get invoice reference:
-                invoice_date = ''
-                invoice_number = ''
-                for invoice in order.logistic_picking_ids:
-                    invoice_date = invoice.invoice_date or ''
-                    invoice_number = invoice.invoice_number or ''
-                    if invoice_number:
-                        break  # Stop when find one invoice!
-                    else:
-                        invoice_number = 'No fatt.: %s' % order.name
+                    # Get invoice reference:
+                    invoice_date = ''
+                    invoice_number = ''
+                    for invoice in order.logistic_picking_ids:
+                        invoice_date = invoice.invoice_date or ''
+                        invoice_number = invoice.invoice_number or ''
+                        if invoice_number:
+                            break  # Stop when find one invoice!
+                        else:
+                            invoice_number = 'No fatt.: %s' % order.name
 
-                # ---------------------------------------------------------
-                # Write data line:
-                # ---------------------------------------------------------
-                row += 1
-                move_qty = move.product_uom_qty
-                remain_qty = move_qty - sum([r.product_qty for r in move.assigned_pfu_ids])  # move.assigned_pfu_qty
-                excel_pool.write_xls_line(ws_name, row, (
-                    category,  # product.mmac_pfu.name,
-                    '',
-                    product.default_code,
-                    self.get_ipcode(supplier, product, ipcode_cache),  # ipcode
-                    product.name_extended,  # name,
-                    (move_qty, format_text['number']),
-                    (remain_qty, format_text['number']),
-                    move.delivery_id.name,  # Delivery ref.
-                    move.delivery_id.date,
-                    '',  # Number supplier invoice
-                    invoice_number,  # Our invoice
-                    invoice_date[:10],  # Date doc,
-                    partner.country_id.code or '??',  # ISO country
-                    ), default_format=format_text['text'])
+                    # ---------------------------------------------------------
+                    # Write data line:
+                    # ---------------------------------------------------------
+                    row += 1
+                    move_qty = move.product_uom_qty
+                    remain_qty = move_qty - sum([r.product_qty for r in move.assigned_pfu_ids])  # move.assigned_pfu_qty
+                    excel_pool.write_xls_line(ws_name, row, (
+                        category,  # product.mmac_pfu.name,
+                        '',
+                        product.default_code,
+                        self.get_ipcode(supplier, product, ipcode_cache),  # ipcode
+                        product.name_extended,  # name,
+                        (move_qty, format_text['number']),
+                        (remain_qty, format_text['number']),
+                        move.delivery_id.name,  # Delivery ref.
+                        move.delivery_id.date,
+                        '',  # Number supplier invoice
+                        invoice_number,  # Our invoice
+                        invoice_date[:10],  # Date doc,
+                        partner.country_id.code or '??',  # ISO country
+                        ), default_format=format_text['text'])
 
 
         # ---------------------------------------------------------------------
         # Save file:
         # ---------------------------------------------------------------------
         _logger.info('Exporting Excel: {}'.format(fullname))
-        excel_pool.save_file_as(fullname)
-        # return excel_pool.return_attachment('Report_PFU')
-        return True
+        excel_pool.save_file_as(fullname)   # return excel_pool.return_attachment('Report_PFU')
 
+        '''
         try:
             # Return filename:
             import urllib.parse
@@ -670,7 +672,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 'target': 'self',  # O 'new' per aprire in una nuova scheda
             }
         except:
-            pass
+            pass'''
         return True
 
     @api.multi

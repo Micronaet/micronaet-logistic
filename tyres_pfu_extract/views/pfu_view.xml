@@ -43,8 +43,9 @@
             <field name="inherit_id" ref="tyres_logistic_management.view_res_company_logistic_parameter_form"/>
             <field name="arch" type="xml">
                 <field name="cups_sale_ddt" position="after">
-                    <separator string="PFU Setup:" colspn="4"/>
+                    <separator string="PFU Setup:" colspan="4"/>
                     <field name="pfu_month" />
+                    <field name="pfu_debug" />
                 </field>
             </field>
         </record>
