@@ -618,7 +618,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 'Prodotto', 'Descrizione', 'Fornitore', 'Bolla Fornitore', 'Data', 'Q. disponibile')
 
             column_width = (
-                20, 30, 30, 20, 12 10
+                20, 30, 30, 20, 12, 10
                 )
 
             ws_name = u'Disponibili da Mag. int.'
