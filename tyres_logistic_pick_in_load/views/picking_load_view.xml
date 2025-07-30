@@ -102,7 +102,7 @@
 
                         <filter name="group_user" string="Utente" context="{'group_by': 'create_uid'}"/>
                         <filter name="group_date" string="Date" context="{'group_by': 'create_date'}"/>
-                        <filter name="group_date_week" string="Week" context="{'group_by': 'create_date:week'}"/>
+                        <filter name="group_date_year" string="Anno" context="{'group_by': 'create_date:year'}"/>
                     </group>
                 </search>
             </field>
