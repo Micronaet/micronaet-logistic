@@ -343,7 +343,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             sale_start, purchase_start, purchase_end,
         )
         _logger.warning(title)
-        _logger.info('\n\n\n\nFile PFU: {}'.format(fullname))
+        _logger.info('File PFU: {}'.format(fullname))
 
         # --------------------------------------------------------------------------------------------------------------
         #                           Collect data purchase stock load records:
