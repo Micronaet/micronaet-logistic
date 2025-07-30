@@ -25,19 +25,57 @@ import os
 import sys
 import logging
 import odoo
+import mimetypes
 import pdb
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-from odoo import api, fields, models, tools, exceptions, SUPERUSER_ID
+from odoo import http, api, fields, models, tools, exceptions, SUPERUSER_ID
 from odoo.addons import decimal_precision as dp
 from odoo.tools.translate import _
+from odoo.http import request
+import urllib.parse
 
 # from tyres_auto_confirm.cron.auto_print.print_auto_confirmed import company_pool
 
 _logger = logging.getLogger(__name__)
 
+
+class StockPFUDownload(http.Controller):
+    """ Add End point to download created document
+    """
+    @http.route('/tyres_pfu_extract/download/<path:filename>', type='http', auth="user")
+    def download_pdf_file(self, filename, **kw):
+        """ Download generated PFU file from Filesystem
+        """
+        # Decode filename:
+        decoded_filename = urllib.parse.unquote_plus(filename)
+
+        company_pool = request.env['res.company']
+        companys = company_pool.sudo().search([])
+        company = companys[0]
+        pfu_folder = company._logistic_folder('PFU')
+        fullname = os.path.join(pfu_folder, decoded_filename)
+        if not os.path.exists(fullname):
+            return request.not_found()
+
+        try:
+            mimetype, _ = mimetypes.guess_type(file_path)
+            if not mimetype:
+                mimetype = 'application/octet-stream'  # Generic MIME Type
+
+            with open(file_path, 'rb') as f:
+                file_content = f.read()
+
+            headers = [
+                ('Content-Type', mimetype),
+                ('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(file_path)),
+                ('Content-Length', len(file_content)),
+            ]
+            return request.make_response(file_content, headers)
+        except Exception as e:
+            return request.not_found(description='Errore nel download del file: {}'.format(e))
 
 class AccountFiscalPosition(models.Model):
     """ Model name: AccountFiscalPosition
@@ -660,11 +698,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         _logger.info('Exporting Excel: {}'.format(fullname))
         excel_pool.save_file_as(fullname)   # return excel_pool.return_attachment('Report_PFU')
 
-        '''
         try:
             # Return filename:
-            import urllib.parse
-            download_url = '/pfu_internal_report/download_file/{}'.format(urllib.parse.quote_plus(fullname))
+            download_url = '/tyres_pfu_extract/download/download/{}'.format(urllib.parse.quote_plus(filename))
 
             return {
                 'type': 'ir.actions.act_url',
@@ -672,7 +708,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 'target': 'self',  # O 'new' per aprire in una nuova scheda
             }
         except:
-            pass'''
+            _logger.error('Error opening Download file URL: {}'.format(download_url))
         return True
 
     @api.multi
