@@ -658,6 +658,18 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         excel_pool.save_file_as(fullname)
         # todo return filename?
         # return excel_pool.return_attachment('Report_PFU')
+
+        try:
+            import urllib.parse
+            download_url = '/pfu_internal_report/download_file/{}'.format(urllib.parse.quote_plus(fullname))
+
+            return {
+                'type': 'ir.actions.act_url',
+                'url': download_url,
+                'target': 'self',  # O 'new' per aprire in una nuova scheda
+            }
+        except:
+            pass
         return True
 
     @api.multi
