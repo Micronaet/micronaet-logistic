@@ -739,6 +739,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         try:
             # Return filename:
             download_url = '/tyres_pfu_extract/download/{}'.format(urllib.parse.quote_plus(filename))
+            _logger.info('Generating return URL: {}'.format(download_url))
 
             return {
                 'type': 'ir.actions.act_url',
