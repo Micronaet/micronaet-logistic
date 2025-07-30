@@ -401,7 +401,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             ('logistic_load_id.order_id.partner_invoice_id.property_account_position_id.is_pfu', '=', True),
 
             # Purchased with partner for internal stock:
-            ('logistic_purchase_id.order_id.partner_id.internal_stock', '=', True),  # Only partner that load internal Stock
+            ('logistic_purchase_id.order_id.partner_id.internal_stock', '=', True),  # Only partner that load int. Stock
         ]
 
         # A. All stock move sale
@@ -456,7 +456,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
                 this_stock = product_cover_list[0]  # ID, supplier_id, q.
                 found_quant, found_supplier, found_qty = this_stock
-                if need_qty <= found_qty:  # More than needed
+                if need_qty < found_qty:  # More than needed
                     used_qty = need_qty
                     this_stock[2] -= need_qty
                     need_qty = 0
