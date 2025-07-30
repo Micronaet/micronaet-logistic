@@ -410,7 +410,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             'error': [],  # Error with PFU category
             'excluded': [],  # Not PFU move
             'uncovered': [],  # No quants to cover
-            'pending': [],  # Not covered all
+            # 'pending': [],  # Not covered all
             'done': [],  # Yet covered all
         }
         supplier_category_move = {}
@@ -452,7 +452,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # ----------------------------------------------------------------------------------------------------------
             while True:
                 if not product_cover_list:
-                    extra_data['pending'].append(move_id)
+                    extra_data['uncovered'].append(move_id)
                     break
 
                 this_stock = product_cover_list[0]  # ID, supplier_id, q.
@@ -496,7 +496,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
                 if not product_cover_list:
                     # Covered partial, no more available
-                    extra_data['pending'].append(move_id)
+                    extra_data['uncovered'].append(move_id)
                     break
 
         # --------------------------------------------------------------------------------------------------------------
@@ -626,7 +626,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 20, 30, 30, 20, 12, 10
                 )
 
-            ws_name = u'Disponibili da Mag. int.'
+            ws_name = u'Dispo tot. da Mag. int.'
             excel_pool.create_worksheet(ws_name)
 
             if not format_text:  # First page only:
@@ -663,10 +663,10 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # 2 and after: Log data pages:
             # ----------------------------------------------------------------------------------------------------------
             pages = {
-                'error': u'[Errore Cat. PFU]',
+                # 'error': u'[Errore Cat. PFU]',
                 'excluded': u'[Movimenti esclusi da PFU]',  # Not PFU move
-                'uncovered': u'[Non coperti]',  # No quants to cover
-                'pending': u'[Partialmente coperti]',  # Not covered all
+                'uncovered': u'[Vendite non coperte]',  # No quants to cover
+                # 'pending': u'[Partialmente coperti]',  # Not covered all
                 'done': u'[Coperti in precedenza]',  # Yet covered all
             }
 
