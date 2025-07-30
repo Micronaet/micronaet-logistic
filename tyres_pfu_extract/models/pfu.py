@@ -333,8 +333,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
         this_month_start = now_dt.replace(day=1)
         sale_start = (this_month_start - relativedelta(months=period - 1)).strftime('%Y-%m-%d')  # -6 month
+        purchase_start = (this_month_start - relativedelta(months=period - 2)).strftime('%Y-%m-%d')  # -7 month
 
-        purchase_start = sale_start # -6 month
+        # purchase_start = sale_start # -6 month
         # -1 month (not used last month purchase, need FT ref.):
         purchase_end = (this_month_start - relativedelta(days=1)).strftime('%Y-%m-%d')
 
