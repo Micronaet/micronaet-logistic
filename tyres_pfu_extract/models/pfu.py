@@ -108,7 +108,8 @@ class ResCompanyInherit(models.Model):
     """
     _inherit = 'res.company'
 
-    pfu_debug = fields.Boolean('Schede Debug', help='Aggiunte delle schede extra al file per informazioni di debug')
+    pfu_debug = fields.Boolean(
+        'Schede Debug', default=True, help='Aggiunte delle schede extra al file per informazioni di debug')
     pfu_month = fields.Integer(
         'Mesi PFU', default=6,
         help='Mesi per prendere in considerazione i carichi da magazzino interno, il report parte da -X mesi per '
