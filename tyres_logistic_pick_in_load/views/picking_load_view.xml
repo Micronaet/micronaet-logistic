@@ -90,7 +90,7 @@
             <field name="arch" type="xml">
                 <search string="String">
                     <field name="order_id" readonly="1"/>
-                    <field name="order_id.partner_id.name" string="Fornitore" />
+                    <field name="order_id.partner_id.name" string="Fornitore" filter_domain="[('order_id.partner_id.name', 'ilike', self)]" />
                     <field name="sale_order_id" readonly="1" />
                     <field name="product_id" readonly="1" />
                     <field name="product_qty" readonly="1" />
