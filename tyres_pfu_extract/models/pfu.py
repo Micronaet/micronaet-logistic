@@ -353,7 +353,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # Delivery order range:
             ('order_id.date', '>=', purchase_start),
             ('order_id.date', '<=', purchase_end),
-            ('sale_order_id.logistic_source', 'not in', ('refund',)),  # Not refund
+            # ('sale_order_id.logistic_source', 'not in', ('refund',)),  # Not refund
         ]
 
         # Collected data for product quants available
@@ -361,6 +361,10 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         quants = sorted(quant_pool.search(domain), key=lambda x: x.create_date)
         _logger.warning('Found # {} quants'.format(len(quants)))
         for quant in quants:  # Last in First out
+            if quant.sale_order_id and sale_order_id.logistic_source == 'refund':
+                # Jump refund
+                continue
+
             product = quant.product_id
             if product not in quants_available:
                 quants_available[product] = []
