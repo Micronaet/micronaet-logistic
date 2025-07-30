@@ -657,6 +657,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         _logger.info('Exporting Excel: {}'.format(fullname))
         excel_pool.save_file_as(fullname)
         # return excel_pool.return_attachment('Report_PFU')
+        return True
 
         try:
             # Return filename:
