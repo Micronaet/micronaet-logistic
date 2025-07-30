@@ -623,7 +623,6 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
             ws_name = u'Disponibili da Mag. int.'
             excel_pool.create_worksheet(ws_name)
-            excel_pool.column_width(ws_name, column_width)
 
             if not format_text:  # First page only:
                 excel_pool.set_format()
@@ -636,21 +635,23 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
             row = 0
             excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
+            excel_pool.column_width(ws_name, column_width)
+            excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
 
             for product in quants_available:
-                quant, supplier, available = quants_available[product]
-                delivery = quant.order_id
+                for quant, supplier, available in quants_available[product]:
+                    delivery = quant.order_id
 
-                row += 1
-                excel_pool.write_xls_line(ws_name, row, (
-                    product.default_code,
-                    self.get_ipcode(supplier, product, ipcode_cache),  # ipcode
-                    # product.name_extended,  # name,
-                    delivery.name,  # Delivery ref.
-                    delivery.date,
-                    (available, format_text['number']),
-                    '',  # Number supplier invoice
-                ), default_format=format_text['text'])
+                    row += 1
+                    excel_pool.write_xls_line(ws_name, row, (
+                        product.default_code,
+                        self.get_ipcode(supplier, product, ipcode_cache),  # ipcode
+                        # product.name_extended,  # name,
+                        delivery.name,  # Delivery ref.
+                        delivery.date,
+                        (available, format_text['number']),
+                        '',  # Number supplier invoice
+                    ), default_format=format_text['text'])
 
             # ----------------------------------------------------------------------------------------------------------
             # 2 and after: Log data pages:
