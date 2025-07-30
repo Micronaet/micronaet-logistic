@@ -647,6 +647,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                         product.default_code,
                         self.get_ipcode(supplier, product, ipcode_cache),  # ipcode
                         # product.name_extended,  # name,
+                        supplier.name or '',
                         delivery.name,  # Delivery ref.
                         delivery.date,
                         (available, format_text['number']),
