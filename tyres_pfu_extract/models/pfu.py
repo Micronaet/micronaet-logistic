@@ -440,7 +440,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 if category not in supplier_category_move[found_supplier]:
                     supplier_category_move[found_supplier][category] = []
 
-                supplier_category_move[found_supplier][category].append((move, used_qty))
+                supplier_category_move[found_supplier][category].append((move, used_qty, found_quant))
 
                 # Exit check:
                 if need_qty <= 0:
@@ -513,7 +513,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             total = 0
             for category in sorted(supplier_category_move[supplier]):
                 subtotal = 0
-                for move, qty in sorted(supplier_category_move[supplier][category], key=lambda x: x[0].date):
+                for move, qty, quant in sorted(supplier_category_move[supplier][category], key=lambda x: x[0].date):
                     row += 1
 
                     # Readability:
@@ -548,8 +548,8 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                         self.get_ipcode(supplier, product, ipcode_cache),  # ipcode
                         product.name_extended,  # name,
                         (qty, format_text['number']),  # todo check if it's all
-                        move.delivery_id.name,  # Delivery ref.
-                        move.delivery_id.date,
+                        quant.order_id.name,  # Delivery ref.
+                        quant.order_id.date,
                         '',  # Number supplier invoice
                         invoice_number,  # Our invoice
                         invoice_date[:10],  # Date doc,
