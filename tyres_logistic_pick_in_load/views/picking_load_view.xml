@@ -51,6 +51,7 @@
             <field name="arch" type="xml">
                 <tree string="Carichi extra su forniture">
                     <field name="order_id" />
+                    <field name="supplier_id" />
                     <field name="sale_order_id" />
                     <field name="product_id" />
                     <field name="product_qty" />
@@ -89,7 +90,7 @@
             <field name="arch" type="xml">
                 <search string="String">
                     <field name="order_id" readonly="1"/>
-                    <field name="supplier_id" readonly="1"/>
+                    <field name="order_id.partner_id.name" string="Fornitore" />
                     <field name="sale_order_id" readonly="1" />
                     <field name="product_id" readonly="1" />
                     <field name="product_qty" readonly="1" />
