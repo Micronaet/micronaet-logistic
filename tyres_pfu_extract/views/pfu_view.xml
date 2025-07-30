@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
-        
         <record id="view_stock_picking_pfu_extract_wizard" model="ir.ui.view">
             <field name="name">PFU Report</field>
             <field name="model">stock.picking.pfu.extract.wizard</field>
@@ -71,7 +70,6 @@
             </field>
         </record>
 
-        
         <menuitem 
             parent="tyres_logistic_management.menu_logistic_left_report_root"
             sequence="30"
