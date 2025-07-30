@@ -67,15 +67,44 @@
             <field name="priority" eval="40" />
             <field name="arch" type="xml">
                 <form string="Carichi extra su forniture">
+                    <sheet>
+                        <group colspan="4" col="4">
+                            <field name="order_id" readonly="1"/>
+                            <field name="sale_order_id" readonly="1" />
+                            <field name="product_id" readonly="1" />
+                            <field name="product_qty" readonly="1" />
+                            <field name="create_uid" readonly="1" />
+                            <field name="create_date" readonly="1" />
+                            <field name="price" readonly="1" />
+                            <field name="account_sync" readonly="1" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_stock_picking_delivery_quant_search">
+            <field name="name">stock.picking.delivery.quant.search</field>
+            <field name="model">stock.picking.delivery.quant</field>
+            <field name="arch" type="xml">
+                <search string="String">
                     <field name="order_id" readonly="1"/>
                     <field name="sale_order_id" readonly="1" />
                     <field name="product_id" readonly="1" />
                     <field name="product_qty" readonly="1" />
                     <field name="create_uid" readonly="1" />
                     <field name="create_date" readonly="1" />
-                    <field name="price" readonly="1" />
-                    <field name="account_sync" readonly="1" />
-                </form>
+
+                    <!--<filter name="my_order" string="My" domain="[('create_uid','=',user.id)]"/>-->
+                    <group expand="0" string="Group By...">
+                        <filter name="group_order" string="Consegna" context="{'group_by': 'order_id'}"/>
+                        <filter name="group_product" string="Prodotto" context="{'group_by': 'product_id'}"/>
+                        <filter name="group_order" string="Ordine cliente" context="{'group_by': 'sale_order_id'}"/>
+
+                        <filter name="group_user" string="Utente" context="{'group_by': 'create_uid'}"/>
+                        <filter name="group_date" string="Date" context="{'group_by': 'create_date'}"/>
+                        <filter name="group_date_week" string="Week" context="{'group_by': 'create_date:week'}"/>
+                    </group>
+                </search>
             </field>
         </record>
         <record model="ir.actions.act_window" id="action_view_stock_picking_delivery_quant">
