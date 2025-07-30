@@ -65,12 +65,12 @@ class StockPFUDownload(http.Controller):
             if not mimetype:
                 mimetype = 'application/octet-stream'  # Generic MIME Type
 
-            with open(file_path, 'rb') as f:
+            with open(fullname, 'rb') as f:
                 file_content = f.read()
 
             headers = [
                 ('Content-Type', mimetype),
-                ('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(file_path)),
+                ('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(fullname)),
                 ('Content-Length', len(file_content)),
             ]
             return request.make_response(file_content, headers)
