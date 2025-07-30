@@ -61,7 +61,7 @@ class StockPFUDownload(http.Controller):
             return request.not_found()
 
         try:
-            mimetype, _ = mimetypes.guess_type(file_path)
+            mimetype, _ = mimetypes.guess_type(fullname)
             if not mimetype:
                 mimetype = 'application/octet-stream'  # Generic MIME Type
 
