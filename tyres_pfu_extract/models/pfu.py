@@ -656,10 +656,10 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # ---------------------------------------------------------------------
         _logger.info('Exporting Excel: {}'.format(fullname))
         excel_pool.save_file_as(fullname)
-        # todo return filename?
         # return excel_pool.return_attachment('Report_PFU')
 
         try:
+            # Return filename:
             import urllib.parse
             download_url = '/pfu_internal_report/download_file/{}'.format(urllib.parse.quote_plus(fullname))
 
