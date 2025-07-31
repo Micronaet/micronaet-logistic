@@ -433,6 +433,20 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 extra_data['excluded'].append(move_id)
                 continue
 
+            # ----------------------------------------------------------------------------------------------------------
+            # X00 management:
+            # ----------------------------------------------------------------------------------------------------------
+            '''
+            default_code = (product.default_code or '').upper()
+            if default_code[-3:-2] == 'X' and default_code[-2:].isdigit():
+                # X00 Managed
+                linked_code = default_code[:-3]
+                product_linked = product_pool.search([
+                    ('default_code', '=', linked_code)
+                ])
+                if product_linked:
+            '''
+
             if product in quants_available:
                 product_cover_list = quants_available[product]
             else:
