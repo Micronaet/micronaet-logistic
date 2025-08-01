@@ -44,35 +44,10 @@
                 <field name="cups_sale_ddt" position="after">
                     <separator string="PFU Setup:" colspan="4"/>
                     <field name="pfu_month" />
-                    <field name="pfu_remove_days" />
-                    <!--<field name="pfu_use_filter" widget="boolean_toggle" />-->
-                    <field name="pfu_debug" widget="boolean_toggle" />
+                    <field name="pfu_debug" />
                 </field>
             </field>
         </record>
-
-        <!--stock.pfu.document-->
-        <record model="ir.ui.view" id="view_stock_pfu_document_tree">
-            <field name="name">stock.pfu.document.tree</field>
-            <field name="model">stock.pfu.document</field>
-            <field name="arch" type="xml">
-                <tree string="Documenti PFU" editable="bottom">
-                    <field name="date" readonly="1"/>
-                    <field name="filename" readonly="1"/>
-                    <field name="user_id" readonly="1"/>
-                    <!-- button -->
-                </tree>
-            </field>
-        </record>
-        <record id="action_view_stock_pfu_document" model="ir.actions.act_window">
-            <field name="name">PFU Files</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">stock.pfu.document</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="view_stock_pfu_document_tree"/>
-        </record>
-
         <!--account.fiscal.position-->
         <record model="ir.ui.view" id="view_pfu_account_fiscal_position_form">
             <field name="name">account.fiscal.position.need.invoice.pfu.form</field>
@@ -100,12 +75,6 @@
             sequence="30"
             id="menu_stock_picking_pfu_extract_wizard" 
             action="action_stock_picking_pfu_extract_wizard"
-            />
-        <menuitem
-            parent="tyres_logistic_management.menu_logistic_left_report_root"
-            sequence="30"
-            id="menu_view_stock_pfu_document"
-            action="action_view_stock_pfu_document"
             />
     </data>
 </openerp>
