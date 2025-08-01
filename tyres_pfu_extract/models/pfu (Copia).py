@@ -466,13 +466,15 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         quants = sorted(quant_pool.search(domain), key=lambda x: x.create_date)
         _logger.warning('Found # {} quants'.format(len(quants)))
         for quant in quants:  # Last in First out
-            if quant.sale_order_id and quant.sale_order_id.logistic_source == 'refund':
-                # Jump refund
+            if quant.sale_order_id and quant.sale_order_id.logistic_source == 'refund':  # Jump refund
                 continue
 
             product = quant.product_id
-            if product not in quants_available:
-                quants_available[product] = []
+            default_code = product.default_code or ''
+            # todo if empty code jump?
+
+            if default_code not in quants_available:
+                quants_available[default_code] = []
             available_qty = quant.product_qty - sum([r.product_qty for r in quant.assigned_pfu_ids])
             # quant.assigned_pfu_qty  # Really available
 
@@ -482,10 +484,13 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 continue
 
             # Collect available quants:
-            quants_available[product].append([
+            quants_available[default_code].append([
                 quant,
                 quant.order_id.supplier_id,
                 available_qty,  # Dispo available
+                # Header reference:
+                product,
+                quant.create_date,
             ])
 
         # --------------------------------------------------------------------------------------------------------------
@@ -541,7 +546,6 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # X00 management:
             # ----------------------------------------------------------------------------------------------------------
             '''
-            default_code = (product.default_code or '').upper()
             if default_code[-3:-2] == 'X' and default_code[-2:].isdigit():
                 # X00 Managed
                 linked_code = default_code[:-3]
@@ -551,8 +555,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 if product_linked:
             '''
 
-            if product in quants_available:
-                product_cover_list = quants_available[product]
+            default_code = product.default_code or ''
+            if default_code in quants_available:
+                product_cover_list = quants_available[default_code]
             else:
                 extra_data['uncovered'].append(move_id)
                 continue
@@ -574,7 +579,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                     break
 
                 this_stock = product_cover_list[0]  # ID, supplier_id, q.
-                found_quant, found_supplier, found_qty = this_stock
+                found_quant, found_supplier, found_qty, product, quant_date = this_stock
                 if need_qty < found_qty:  # More than needed (not equal)
                     used_qty = need_qty
                     this_stock[2] -= need_qty
@@ -762,8 +767,8 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             excel_pool.column_width(ws_name, column_width)
             excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
 
-            for product in quants_available:
-                for quant, supplier, available in quants_available[product]:
+            for default_code in quants_available:
+                for quant, supplier, available, product, quant_date in quants_available[default_code]:
                     delivery = quant.order_id
 
                     row += 1
