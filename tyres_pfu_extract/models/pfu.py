@@ -861,7 +861,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         excel_pool.save_file_as(fullname)   # return excel_pool.return_attachment('Report_PFU')
 
         # Return file generated:
-        return True  # file_object.return_filename_excel()
+        return file_object.return_filename_excel()
 
     @api.multi
     def extract_excel_pfu_report(self, ):
