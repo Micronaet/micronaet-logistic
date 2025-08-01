@@ -119,7 +119,7 @@ class StockPfuDocument(models.Model):
             assigned_obj = assigned_pool.search([('file_id', '=', file_id)])
 
             for assigned in assigned_obj:
-                quant_ids.append(assigned.quant.id)
+                quant_ids.append(assigned.quant_id.id)
                 move_ids.append(assigned.move_id.id)
 
             # Delete assigned records:
@@ -132,16 +132,12 @@ class StockPfuDocument(models.Model):
         # --------------------------------------------------------------------------------------------------------------
         # Restore flag for not done full assigned:
         # --------------------------------------------------------------------------------------------------------------
-        _logger.info('Mark as undone # {} quants credit'.format(
-            len(quant_ids),
-        ))
+        _logger.info('Mark as undone # {} quants credit'.format(len(quant_ids)))
         quant_pool.write(quant_ids, {
             'pfu_done': False,
         })
 
-        _logger.info('Mark as undone # {} sale debit'.format(
-            len(move_ids),
-        ))
+        _logger.info('Mark as undone # {} sale debit'.format(len(move_ids)))
         move_pool.write(move_ids, {
             'pfu_done': False,
         })
