@@ -635,7 +635,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         header = (
             'RAEE', 'Cod. Articolo', 'Cod. Forn.', 'Descrizione', u'Q.tà',
             'Doc Fornitore', 'Data Doc.', 'N. Fattura', 'N. Nostra fattura',
-            'Data Doc.', 'ISO stato' 'Alt.',)
+            'Data Doc.', 'ISO stato', 'Alt.',)
 
         column_width = (
             5, 15, 15, 45, 5,
