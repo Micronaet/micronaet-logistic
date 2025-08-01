@@ -101,7 +101,6 @@ class StockPfuDocument(models.Model):
         """ Pre operation during delete file (assigned, restore undone quants and moves)
             File not removed for now
         """
-        pdb.set_trace()
         assigned_pool = self.env['stock.pfu.assigned']
         quant_pool = self.env['stock.picking.delivery.quant']
         move_pool = self.env['stock.move']
@@ -133,14 +132,10 @@ class StockPfuDocument(models.Model):
         # Restore flag for not done full assigned:
         # --------------------------------------------------------------------------------------------------------------
         _logger.info('Mark as undone # {} quants credit'.format(len(quant_ids)))
-        quant_pool.write(quant_ids, {
-            'pfu_done': False,
-        })
+        quant_pool.browse(quant_ids).write({'pfu_done': False})
 
         _logger.info('Mark as undone # {} sale debit'.format(len(move_ids)))
-        move_pool.write(move_ids, {
-            'pfu_done': False,
-        })
+        move_pool.browse(move_ids).write({'pfu_done': False})
 
         _logger.info('Delete real record')
         return super(StockPfuDocument, self).unlink()
