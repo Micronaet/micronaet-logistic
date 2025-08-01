@@ -125,13 +125,13 @@ class StockPfuAssigned(models.Model):
     _description = 'PFU Assigned'
     _order = 'date'
 
-    filename = fields.Char('Filename', size=100)
+    # filename = fields.Char('Filename', size=100)
     quant_id = fields.Many2one(
         'stock.picking.delivery.quant', 'Carico', required=True,
         help='Carico di magazzino collegato')
     delivery_id = fields.Many2one('stock.picking.delivery', 'Doc. di carico', related='quant_id.order_id', store=True)
     supplier_id = fields.Many2one('res.partner', 'Fornitore', related='delivery_id.supplier_id', store=True)
-    excel_id = fields.Many2one('stock.pfu.document', 'File Excel')
+    file_id = fields.Many2one('stock.pfu.document', 'File Excel')
     move_id = fields.Many2one('stock.move', 'Riga di carico', help='Riga ordine collegata al carico', required=True)
     product_qty = fields.Float('Quant.', digits=(16, 2), required=True)
     date = fields.Date('Data', required=True)
