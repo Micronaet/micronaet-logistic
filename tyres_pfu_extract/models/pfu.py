@@ -545,12 +545,12 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # ----------------------------------------------------------------------------------------------------------
             sku_real = product.default_code or ''
 
-            if default_code[-3:-2].upper() == 'X' and default_code[-2:].isdigit():  # X00 Managed
-                sku_alternative = default_code[:-3]
+            if sku_real[-3:-2].upper() == 'X' and sku_real[-2:].isdigit():  # X00 Managed
+                sku_alternative = sku_real[:-3]
                 if sku_real not in quants_available and sku_alternative not in quants_available:
                     extra_data['uncovered'].append(move_id)
                     continue
-                sku_loop =[(sku_real, False), (sku_alternative, False)]
+                sku_loop = [(sku_real, False), (sku_alternative, False)]
 
             else:
                 if sku_real not in quants_available:
