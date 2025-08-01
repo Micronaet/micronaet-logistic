@@ -689,6 +689,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             total = 0
             for category in sorted(supplier_category_move[supplier]):
                 subtotal = 0
+
                 for move, qty, quant, alternative in sorted(
                         supplier_category_move[supplier][category], key=lambda x: x[0].date):
                     row += 1
