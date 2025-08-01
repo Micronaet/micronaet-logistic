@@ -9,12 +9,14 @@
             <field name="arch" type="xml">
                 <field name="account_sync" readonly="1" position="after">
                     <separator string="Assegnazioni PFU" colspan="4"/>
-                    <field name="assigned_pfu_ids" readonly="1" colspan="4">
-                        <field name="date" />
-                        <field name="move_id" />
-                        <field name="product_qty" />
-                        <field name="file_id" />
-                        <field name="quant_id" invisible="1" />
+                    <field name="assigned_pfu_ids" readonly="1" colspan="4" nolabel="1">
+                        <tree string="Assegnazioni">
+                            <field name="date" />
+                            <field name="move_id" />
+                            <field name="product_qty" />
+                            <field name="file_id" />
+                            <field name="quant_id" invisible="1" />
+                        </tree>
                     </field>
                 </field>
             </field>
