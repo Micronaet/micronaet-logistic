@@ -182,6 +182,7 @@ class StockPfuAssigned(models.Model):
     move_id = fields.Many2one('stock.move', 'Riga di carico', help='Riga ordine collegata al carico', required=True)
     product_qty = fields.Float('Quant.', digits=(16, 2), required=True)
     date = fields.Datetime('Data', required=True)
+    alternative = fields.Boolean('Prod. alternativo')
 
 
 class ResCompanyInherit(models.Model):
@@ -476,7 +477,6 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             if sku not in quants_available:
                 quants_available[sku] = []
             available_qty = quant.product_qty - sum([r.product_qty for r in quant.assigned_pfu_ids])
-            # quant.assigned_pfu_qty  # Really available
 
             # Exclude all used:
             if available_qty <= 0:
@@ -543,84 +543,86 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # ----------------------------------------------------------------------------------------------------------
             # X00 management:
             # ----------------------------------------------------------------------------------------------------------
-            '''
-            default_code = (product.default_code or '').upper()
-            if default_code[-3:-2] == 'X' and default_code[-2:].isdigit():
-                # X00 Managed
-                linked_code = default_code[:-3]
-                product_linked = product_pool.search([
-                    ('default_code', '=', linked_code)
-                ])
-                if product_linked:
-            '''
+            sku_real = product.default_code or ''
 
-            sku = product.default_code or ''
-            if sku in quants_available:
-                product_cover_list = quants_available[sku]
+            if default_code[-3:-2].upper() == 'X' and default_code[-2:].isdigit():  # X00 Managed
+                sku_alternative = default_code[:-3]
+                if sku_real not in quants_available and sku_alternative not in quants_available:
+                    extra_data['uncovered'].append(move_id)
+                    continue
+                sku_loop =[(sku_real, False), (sku_alternative, False)]
+
             else:
-                extra_data['uncovered'].append(move_id)
-                continue
+                if sku_real not in quants_available:
+                    extra_data['uncovered'].append(move_id)
+                    continue
+                sku_loop = [(sku_real, False)]
 
+            # Loop for original product but also for alternative product if present:
             move_qty = move.product_uom_qty
             need_qty = move_qty - sum([r.product_qty for r in move.assigned_pfu_ids])
 
+            # Check if yet covered:
             if need_qty <= 0:
                 move.pfu_done = True
                 extra_data['done'].append(move_id)
-                continue
+                continue  # Next product
 
             # ----------------------------------------------------------------------------------------------------------
-            # Assign stock quant master loop:
+            # Loop for check product and alternative product:
             # ----------------------------------------------------------------------------------------------------------
-            while True:
-                if not product_cover_list:
-                    extra_data['uncovered'].append(move_id)
-                    break
-
-                this_stock = product_cover_list[0]  # ID, supplier_id, q.
-                found_quant, found_supplier, found_qty, quant_product = this_stock
-                if need_qty < found_qty:  # More than needed (not equal)
-                    used_qty = need_qty
-                    this_stock[2] -= need_qty
-                    need_qty = 0
-                else:  # Use all found, less/equal than needed
-                    used_qty = found_qty
-                    need_qty -= found_qty
-                    found_quant.pfu_done = True  # No mode used
-                    product_cover_list.pop(0)  # Remove first element
-
-                # Create assign record:
-                assign_pool.create({
-                    'file_id': file_id,
-                    # 'filename': filename,  # todo remove
-                    'quant_id': found_quant.id,
-                    # 'supplier_id'
-                    'move_id': move_id,
-                    'product_qty': used_qty,
-                    'date': now_text,
-                })
+            status = 'uncovered'  # Nothing was assigned (default)
+            for sku, alternative in sku_loop:
+                product_cover_list = quants_available[sku]
 
                 # ------------------------------------------------------------------------------------------------------
-                # Prepare record for Excel:
+                # Assign stock quant master loop:
                 # ------------------------------------------------------------------------------------------------------
-                if found_supplier not in supplier_category_move:
-                    supplier_category_move[found_supplier] = {}
+                while need_qty > 0:  # Loop when need qty present
+                    if not product_cover_list:   # Covered all in previous loop (or empty)
+                        break
 
-                if category not in supplier_category_move[found_supplier]:
-                    supplier_category_move[found_supplier][category] = []
+                    this_stock = product_cover_list[0]  # ID, supplier_id, q. (take the first of the stack)
+                    found_quant, found_supplier, found_qty, quant_product = this_stock
+                    if need_qty < found_qty:  # More than needed (not equal)
+                        used_qty = need_qty
+                        this_stock[2] -= need_qty
+                        need_qty = 0
+                    else:  # Use all found, less/equal than needed
+                        used_qty = found_qty
+                        need_qty -= found_qty
+                        found_quant.pfu_done = True  # No mode used
+                        product_cover_list.pop(0)  # Remove first element
 
-                supplier_category_move[found_supplier][category].append((move, used_qty, found_quant))
+                    # Create assign record:
+                    assign_pool.create({
+                        'file_id': file_id,
+                        # 'filename': filename,  # todo remove
+                        'quant_id': found_quant.id,
+                        # 'supplier_id'
+                        'move_id': move_id,
+                        'product_qty': used_qty,
+                        'date': now_text,
+                        'alternative': alternative,
+                    })
+                    status = 'partial'  # Not uncovered (something was assigned)
 
-                # Exit check:
-                if need_qty <= 0:
-                    # Covered all:
-                    move.pfu_done = True
-                    break
+                    # --------------------------------------------------------------------------------------------------
+                    #                             Prepare record for Excel:
+                    # --------------------------------------------------------------------------------------------------
+                    if found_supplier not in supplier_category_move:
+                        supplier_category_move[found_supplier] = {}
+                    if category not in supplier_category_move[found_supplier]:
+                        supplier_category_move[found_supplier][category] = []
+                    supplier_category_move[found_supplier][category].append((move, used_qty, found_quant))
 
-                if not product_cover_list:
-                    # Covered partial, no more available
-                    extra_data['uncovered'].append(move_id)
-                    break
+                    # Exit check:
+                    if need_qty <= 0:
+                        move.pfu_done = True  # Mark as covered all
+                        status = 'all'
+
+            if status == 'uncovered':
+                extra_data['uncovered'].append(move_id)  # continue on next move
 
         # --------------------------------------------------------------------------------------------------------------
         #                                              EXTRACT EXCEL:

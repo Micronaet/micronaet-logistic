@@ -15,6 +15,7 @@
                             <field name="move_id" />
                             <field name="product_qty" />
                             <field name="file_id" />
+                            <field name="alternative" />
                             <field name="quant_id" invisible="1" />
                         </tree>
                     </field>
