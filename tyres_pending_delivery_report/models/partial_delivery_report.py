@@ -163,7 +163,7 @@ class SaleOrder(models.AbstractModel):
     def b2c_pending_order_status_report(self):
         """ B2C Pending order in differnt team status
         """
-        line_pool = self.env['sale.order.line']
+        order_pool = self.env['sale.order']
         excel_pool = self.env['excel.writer']
 
         # Domain generation:
