@@ -377,7 +377,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # Create reference file:
         file_object = file_pool.create({
             'filename': filename,
-            'date': now_text[19],
+            'date': now_text[:19],
             'user_id': self.env.user.id
         })
         file_id = file_object.id
