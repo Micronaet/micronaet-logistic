@@ -268,11 +268,11 @@ class SaleOrder(models.AbstractModel):
             subtotal = sum(data_block)
             total += subtotal
             excel_pool.write_xls_line(ws_name, row, [team], default_format=f_white_text)
-            excel_pool.write_xls_line(ws_name, row, data_block, default_format=f_white_text, cols=1)
-            excel_pool.write_xls_line(ws_name, row, [subtotal], default_format=f_white_text, cols=1+cols)
+            excel_pool.write_xls_line(ws_name, row, data_block, default_format=f_white_text, col=1)
+            excel_pool.write_xls_line(ws_name, row, [subtotal], default_format=f_white_text, col=1+cols)
         # Total line:
         row += 1
-        excel_pool.write_xls_line(ws_name, row, [total], default_format=f_white_text, cols=1+cols)
+        excel_pool.write_xls_line(ws_name, row, [total], default_format=f_white_text, col=1+cols)
 
         # ---------------------------------------------------------------------
         # Save file:
