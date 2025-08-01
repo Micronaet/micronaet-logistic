@@ -27,7 +27,7 @@
              <field name="model">sale.order.line</field>
              <field name="inherit_id" ref="tyres_logistic_management.view_sale_order_line_logistic_form" />
              <field name="arch" type="xml">
-                <xpath expr="//field[@name='load_line_ids/form//field[@name='origin']" position="after">
+                <xpath expr="//field[@name='load_line_ids']/form//field[@name='origin']" position="after">
                     <separator string="Assegnazioni PFU:" colspan="4" />
                     <field name="assigned_pfu_ids" readonly="1" colspan="4" nolabel="1">
                         <tree string="Assegnazioni">
