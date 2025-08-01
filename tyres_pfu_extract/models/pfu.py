@@ -471,8 +471,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 continue
 
             product = quant.product_id
-            if product not in quants_available:
-                quants_available[product] = []
+            sku = product.default_code or ''
+            if sku not in quants_available:
+                quants_available[sku] = []
             available_qty = quant.product_qty - sum([r.product_qty for r in quant.assigned_pfu_ids])
             # quant.assigned_pfu_qty  # Really available
 
@@ -482,10 +483,11 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 continue
 
             # Collect available quants:
-            quants_available[product].append([
+            quants_available[sku].append([
                 quant,
                 quant.order_id.supplier_id,
                 available_qty,  # Dispo available
+                product,
             ])
 
         # --------------------------------------------------------------------------------------------------------------
@@ -551,8 +553,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 if product_linked:
             '''
 
-            if product in quants_available:
-                product_cover_list = quants_available[product]
+            sku = product.default_code or ''
+            if sku in quants_available:
+                product_cover_list = quants_available[sku]
             else:
                 extra_data['uncovered'].append(move_id)
                 continue
@@ -574,7 +577,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                     break
 
                 this_stock = product_cover_list[0]  # ID, supplier_id, q.
-                found_quant, found_supplier, found_qty = this_stock
+                found_quant, found_supplier, found_qty, quant_product = this_stock
                 if need_qty < found_qty:  # More than needed (not equal)
                     used_qty = need_qty
                     this_stock[2] -= need_qty
@@ -762,8 +765,8 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             excel_pool.column_width(ws_name, column_width)
             excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
 
-            for product in quants_available:
-                for quant, supplier, available in quants_available[product]:
+            for sku in quants_available:
+                for quant, supplier, available, product in quants_available[sku]:
                     delivery = quant.order_id
 
                     row += 1
