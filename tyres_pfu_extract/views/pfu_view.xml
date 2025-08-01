@@ -121,8 +121,8 @@
             action="action_stock_picking_pfu_extract_wizard"
             />
         <menuitem
-            parent="tyres_logistic_management.menu_logistic_left_report_root"
-            sequence="30"
+            parent="menu_stock_picking_pfu_extract_wizard"
+            sequence="10"
             id="menu_view_stock_pfu_document"
             action="action_view_stock_pfu_document"
             />
