@@ -262,17 +262,17 @@ class SaleOrder(models.AbstractModel):
             master_data[team][column_header[logistic_state]] += amount_total
 
         total = 0.0
-        for team in master_data:
+        for team in sorted(master_data):
             data_block = master_data[team]
             row += 1
             subtotal = sum(data_block)
             total += subtotal
             excel_pool.write_xls_line(ws_name, row, [team], default_format=f_white_text)
-            excel_pool.write_xls_line(ws_name, row, data_block, default_format=f_white_text, col=1)
-            excel_pool.write_xls_line(ws_name, row, [subtotal], default_format=f_white_text, col=1+cols)
+            excel_pool.write_xls_line(ws_name, row, data_block, default_format=f_white_number, col=1)
+            excel_pool.write_xls_line(ws_name, row, [subtotal], default_format=f_white_number, col=1+cols)
         # Total line:
         row += 1
-        excel_pool.write_xls_line(ws_name, row, [total], default_format=f_white_text, col=1+cols)
+        excel_pool.write_xls_line(ws_name, row, [total], default_format=f_white_number, col=1+cols)
 
         # ---------------------------------------------------------------------
         # Save file:
