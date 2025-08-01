@@ -93,7 +93,7 @@ class StockPfuDocument(models.Model):
     """
     _name = 'stock.pfu.document'
     _description = 'PFU Document'
-    _order = 'date'
+    _order = 'date desc'
     _rec_name = 'filename'
 
     # todo remove action that remove also linked movement and remove also pfu_done information!
