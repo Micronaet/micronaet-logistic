@@ -79,7 +79,7 @@
                     <field name="date" readonly="1"/>
                     <field name="filename" readonly="1"/>
                     <field name="user_id" readonly="1"/>
-                    <!-- button -->
+                    <button name="return_filename_excel" type="object" string="Scarica file"/>
                 </tree>
             </field>
         </record>
