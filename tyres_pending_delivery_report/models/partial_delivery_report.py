@@ -237,7 +237,7 @@ class SaleOrder(models.AbstractModel):
             'Totale',
         ]
         excel_pool.write_xls_line(ws_name, row, header, default_format=f_header)
-        excel_pool.autofilter(ws_name, row, 0, row, len(title) - 1)
+        excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
         excel_pool.freeze_panes(ws_name, 1, 1)
 
         # --------------------------------------------------------------------------------------------------------------
