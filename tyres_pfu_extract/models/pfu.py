@@ -180,7 +180,7 @@ class StockPfuAssigned(models.Model):
     file_id = fields.Many2one('stock.pfu.document', 'File Excel')
     move_id = fields.Many2one('stock.move', 'Riga di carico', help='Riga ordine collegata al carico', required=True)
     product_qty = fields.Float('Quant.', digits=(16, 2), required=True)
-    date = fields.Date('Data', required=True)
+    date = fields.Datetime('Data', required=True)
 
 
 class ResCompanyInherit(models.Model):
