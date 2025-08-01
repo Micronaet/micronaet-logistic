@@ -618,7 +618,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                         supplier_category_move[found_supplier] = {}
                     if category not in supplier_category_move[found_supplier]:
                         supplier_category_move[found_supplier][category] = []
-                    supplier_category_move[found_supplier][category].append((move, used_qty, found_quant))
+                    supplier_category_move[found_supplier][category].append((move, used_qty, found_quant, alternative))
 
                     # Exit check:
                     if need_qty <= 0:
@@ -635,12 +635,12 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         header = (
             'RAEE', 'Cod. Articolo', 'Cod. Forn.', 'Descrizione', u'Q.tà',
             'Doc Fornitore', 'Data Doc.', 'N. Fattura', 'N. Nostra fattura',
-            'Data Doc.', 'ISO stato')
+            'Data Doc.', 'ISO stato' 'Alt.',)
 
         column_width = (
             5, 15, 15, 45, 5,
             15, 12, 12, 15,
-            10, 8,
+            10, 8, 8
             )
 
         # ---------------------------------------------------------------------
@@ -688,7 +688,8 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             total = 0
             for category in sorted(supplier_category_move[supplier]):
                 subtotal = 0
-                for move, qty, quant in sorted(supplier_category_move[supplier][category], key=lambda x: x[0].date):
+                for move, qty, quant, alternative in sorted(
+                        supplier_category_move[supplier][category], key=lambda x: x[0].date):
                     row += 1
 
                     # Readability:
@@ -729,6 +730,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                         invoice_number,  # Our invoice
                         invoice_date[:10],  # Date doc,
                         partner.country_id.code or '??',  # ISO country
+                        'X' if alternative else '',
                         ), default_format=format_text['text'])
                 row += 1
                 excel_pool.write_xls_line(ws_name, row, (subtotal, ), default_format=format_text['number'], col=3)
