@@ -659,6 +659,7 @@
                 </form>
             </field>
         </record>
+
         <record model="ir.actions.act_window" id="action_my_stock_picking_delivery_tree">
             <field name="name">My delivery pending</field>
             <field name="res_model">stock.picking.delivery</field>

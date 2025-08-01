@@ -41,7 +41,9 @@ import urllib.parse
 
 _logger = logging.getLogger(__name__)
 
-
+# ======================================================================================================================
+#                                                 END POINT
+# ======================================================================================================================
 class StockPFUDownload(http.Controller):
     """ Add End point to download created document
     """
@@ -76,6 +78,7 @@ class StockPFUDownload(http.Controller):
             return request.make_response(file_content, headers)
         except Exception as e:
             return request.not_found(description='Errore nel download del file: {}'.format(e))
+
 
 class AccountFiscalPosition(models.Model):
     """ Model name: AccountFiscalPosition
