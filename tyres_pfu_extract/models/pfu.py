@@ -95,7 +95,59 @@ class StockPfuDocument(models.Model):
     _description = 'PFU Document'
     _order = 'date'
 
-    # todo remove action that remove also linked movement andd remove also pfu_done informration!
+    # todo remove action that remove also linked movement and remove also pfu_done information!
+    @api.multi
+    def unlink(self):
+        """ Pre operation during delete file (assigned, restore undone quants and moves)
+            File not removed for now
+        """
+        pdb.set_trace()
+        assigned_pool = self.env['stock.pfu.assigned']
+        quant_pool = self.env['stock.picking.delivery.quant']
+        move_pool = self.env['stock.move']
+
+        quant_ids = []
+        move_ids = []
+
+        # For all file passed:
+        _logger.info('Remove Excel files: # {}'.format(
+            len(self)))
+
+        for file in self:
+            file_id = file.id
+            # Search assigned linked to that file and collect:
+            assigned_obj = assigned_pool.search([('file_id', '=', file_id)])
+
+            for assigned in assigned_obj:
+                quant_ids.append(assigned.quant.id)
+                move_ids.append(assigned.move_id.id)
+
+            # Delete assigned records:
+            _logger.info('Remove assigned record linked to file {}: # {}'.format(
+                file.filename,
+                len(assigned_obj),
+            ))
+            assigned_obj.unlink()
+
+        # --------------------------------------------------------------------------------------------------------------
+        # Restore flag for not done full assigned:
+        # --------------------------------------------------------------------------------------------------------------
+        _logger.info('Mark as undone # {} quants credit'.format(
+            len(quant_ids),
+        ))
+        quant_pool.write(quant_ids, {
+            'pfu_done': False,
+        })
+
+        _logger.info('Mark as undone # {} sale debit'.format(
+            len(move_ids),
+        ))
+        move_pool.write(move_ids, {
+            'pfu_done': False,
+        })
+
+        _logger.info('Delete real record')
+        return super(StockPfuDocument, self).unlink()
 
     @api.multi
     def return_filename_excel(self):
