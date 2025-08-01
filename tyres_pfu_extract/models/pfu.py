@@ -85,6 +85,39 @@ class AccountFiscalPosition(models.Model):
     is_pfu = fields.Boolean('PFU refund',
         help='If checked all sale with this position go in report')
 
+class StockPfuDocument(models.Model):
+    """ Model name: Stock.PFU.document
+    """
+    _name = 'stock.pfu.document'
+    _description = 'PFU Document'
+    _order = 'date'
+
+    # todo remove action that remove also linked movement andd remove also pfu_done informration!
+
+    @api.multi
+    def return_filename_excel(self):
+        """ Return file Excel generated
+        """
+        filename = self.filename
+        download_url = '/tyres_pfu_extract/download/{}'.format(urllib.parse.quote_plus(filename))
+        _logger.info('Generating return URL: {}'.format(download_url))
+
+        try:
+            # Return filename:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': download_url,
+                'target': 'self',  # 'new'
+            }
+        except:
+            _logger.error('Error opening Download file URL: {}'.format(download_url))
+        return True
+
+    date = fields.Date('Data', required=True)
+    filename = fields.Char('Filename', size=180)
+    user_id = fields.Many2one('res.users', 'Utente')
+
+
 class StockPfuAssigned(models.Model):
     """ Model name: Stock.PFU.Assigned
     """
@@ -98,6 +131,7 @@ class StockPfuAssigned(models.Model):
         help='Carico di magazzino collegato')
     delivery_id = fields.Many2one('stock.picking.delivery', 'Doc. di carico', related='quant_id.order_id', store=True)
     supplier_id = fields.Many2one('res.partner', 'Fornitore', related='delivery_id.supplier_id', store=True)
+    excel_id = fields.Many2one('stock.pfu.document', 'File Excel')
     move_id = fields.Many2one('stock.move', 'Riga di carico', help='Riga ordine collegata al carico', required=True)
     product_qty = fields.Float('Quant.', digits=(16, 2), required=True)
     date = fields.Date('Data', required=True)
@@ -108,13 +142,24 @@ class ResCompanyInherit(models.Model):
     """
     _inherit = 'res.company'
 
-    pfu_debug = fields.Boolean(
-        'Schede Debug', default=True, help='Aggiunte delle schede extra al file per informazioni di debug')
     pfu_month = fields.Integer(
         'Mesi PFU', default=6,
         help='Mesi per prendere in considerazione i carichi da magazzino interno, il report parte da -X mesi per '
              'le vendite e -X mesi fino a -1 mese per gli acquisti')
+    pfu_remove_days = fields.Integer(
+        'Rimuovi giorni', default=5,
+        help='Molti fornitori per i documenti oltre una data, es. 25 del mese,  rimandano la fatturazione al mese '
+             'successivo, questo margine (in giorni) permette di non considerare gli acquisti del mese '
+             'corrente togliendo ancora N giorni alla data risultante.')
 
+    pfu_use_filter = fields.Boolean(
+        'Considera filtro', default=True,
+        help='Le disponibilità terminate o i movimenti di magazzino utilizzano un flag per indicare che sono '
+             'stati coperti, questo facilita la ricerca di quelli aperti. Nel caso si vada a cancellare qualche '
+             'file di Excel generato serve per escluderli e rifare la valutazione'
+             )
+    pfu_debug = fields.Boolean(
+        'Schede Debug', default=True, help='Aggiunte delle schede extra al file per informazioni di debug')
 
 class StockPickingDeliveryQuantInherit(models.Model):
     """ Add relations to PFU
@@ -314,6 +359,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         move_pool = self.env['stock.move']
         excel_pool = self.env['excel.writer']
         assign_pool = self.env['stock.pfu.assigned']
+        file_pool = self.env['stock.pfu.document']
         company_pool = self.env['res.company']
 
         # --------------------------------------------------------------------------------------------------------------
@@ -328,16 +374,28 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         pfu_folder = company._logistic_folder('PFU')
         fullname = os.path.join(pfu_folder, filename)
 
+        # Create reference file:
+        file_object = file_pool.create({
+            'filename': filename,
+            'date': now_text[19],
+            'user_id': self.env.user.id
+        })
+        file_id = file_object.id
+
+        # Parameter from setup in Company
         period = company.pfu_month or 6
+        remove_days = company.pfu_remove_days
+        # use_filter = company.pfu_use_filter
         debug_mode = company.pfu_debug
 
         this_month_start = now_dt.replace(day=1)
-        sale_start = (this_month_start - relativedelta(months=period - 1)).strftime('%Y-%m-%d')  # -6 month
-        # purchase_start = (this_month_start - relativedelta(months=period - 2)).strftime('%Y-%m-%d')  # -7 month
+        sale_start_dt = this_month_start - relativedelta(months=period - 1)
+        sale_start = sale_start_dt.strftime('%Y-%m-%d')  # -6 month
 
         purchase_start = sale_start # -6 month
         # -1 month (not used last month purchase, need FT ref.):
-        purchase_end = (this_month_start - relativedelta(days=1)).strftime('%Y-%m-%d')
+        purchase_end_dt = this_month_start - relativedelta(days=1) - relativedelta(days=remove_days)
+        purchase_end = purchase_end_dt.strftime('%Y-%m-%d')
 
         title = 'Periodo stampa PFU: Vendite [{} - OGGI] Acquisti [{} - {}]'.format(
             sale_start, purchase_start, purchase_end,
@@ -483,7 +541,8 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
                 # Create assign record:
                 assign_pool.create({
-                    'filename': filename,
+                    'file_id': file_id,
+                    # 'filename': filename,  # todo remove
                     'quant_id': found_quant.id,
                     # 'supplier_id'
                     'move_id': move_id,
@@ -755,20 +814,8 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         _logger.info('Exporting Excel: {}'.format(fullname))
         excel_pool.save_file_as(fullname)   # return excel_pool.return_attachment('Report_PFU')
 
-        try:
-            # Return filename:
-            download_url = '/tyres_pfu_extract/download/{}'.format(urllib.parse.quote_plus(filename))
-            _logger.info('Generating return URL: {}'.format(download_url))
-
-            return {
-                'type': 'ir.actions.act_url',
-                'url': download_url,
-                'target': 'self',  # 'new'
-            }
-        except:
-            _logger.error('Error opening Download file URL: {}'.format(download_url))
-
-        return True
+        # Return file generated:
+        return file_object.return_filename_excel()
 
     @api.multi
     def extract_excel_pfu_report(self, ):
