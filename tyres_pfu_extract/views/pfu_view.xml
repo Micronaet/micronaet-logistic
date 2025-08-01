@@ -5,7 +5,7 @@
         <record model="ir.ui.view" id="view_stock_picking_delivery_quant_form">
             <field name="name">stock.picking.delivery.quant.form</field>
             <field name="model">stock.picking.delivery.quant</field>
-            <field name="inherit_id" ref="view_stock_picking_delivery_quant_form" />
+            <field name="inherit_id" ref="tyres_logistic_pick_in_load.view_stock_picking_delivery_quant_form" />
             <field name="arch" type="xml">
                 <field name="account_sync" readonly="1" position="after">
                     <separator string="Assegnazioni PFU" colspan="4"/>
