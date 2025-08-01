@@ -684,6 +684,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
             row += 2
             excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
+            excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
 
             total = 0
             for category in sorted(supplier_category_move[supplier]):
