@@ -252,22 +252,23 @@ class SaleOrder(models.AbstractModel):
             if logistic_state not in column_header:
                 continue
 
-            team = order.team_id.name or ''
+            # team = order.team_id.name or ''
+            payment = order.payment_term_id.name or 'Non presente'
             amount = order.amount_untaxed
             amount_total = order.amount_total  # todo EUR
 
-            if team not in master_data:
-                master_data[team] = empty[:]  # Copy empty record
+            if payment not in master_data:
+                master_data[payment] = empty[:]  # Copy empty record
 
-            master_data[team][column_header[logistic_state]] += amount_total
+            master_data[payment][column_header[logistic_state]] += amount_total
 
         total = 0.0
-        for team in sorted(master_data):
-            data_block = master_data[team]
+        for payment in sorted(master_data):
+            data_block = master_data[payment]
             row += 1
             subtotal = sum(data_block)
             total += subtotal
-            excel_pool.write_xls_line(ws_name, row, [team], default_format=f_white_text)
+            excel_pool.write_xls_line(ws_name, row, [payment], default_format=f_white_text)
             excel_pool.write_xls_line(ws_name, row, data_block, default_format=f_white_number, col=1)
             excel_pool.write_xls_line(ws_name, row, [subtotal], default_format=f_white_number, col=1+cols)
         # Total line:
