@@ -158,3 +158,123 @@ class SaleOrder(models.AbstractModel):
         # Save file:
         # ---------------------------------------------------------------------
         return excel_pool.return_attachment('Ordini_pendenti')
+
+    @api.multi
+    def b2c_pending_order_status_report(self):
+        """ B2C Pending order in differnt team status
+        """
+        line_pool = self.env['sale.order.line']
+        excel_pool = self.env['excel.writer']
+
+        # Domain generation:
+        used_state = [
+            # 'draft', # 'Order draft' Draft, new order received
+            # 'payment', # 'Payment confirmed'  Payment confirmed
+
+            # Start automation:
+            'order', # 'Order confirmed' Quotation transformed in order
+            'pending', # 'Pending delivery' Waiting for delivery
+            'ready', # 'Ready' Ready for transfer
+            'delivering', # 'Delivering' In delivering phase
+
+            # 'done', # , 'Done' # Delivered or closed XXX manage partial delivery
+
+            # 'dropshipped', # 'Dropshipped' Order dropshipped
+            # 'unificated', # 'Unificated' Unificated with another
+
+            # 'error', #  'Error order'  Order without line
+            # 'cancel', # 'Cancel'  Removed order
+        ]
+        column_header = {
+            'order': 0,
+            'pending': 1,
+            'ready': 2,
+            'delivering': 3,
+        }
+        cols = len(column_header)
+        empty = [0.0 for i in range(cols)]
+
+        domain = [
+            ('logistic_source', 'not in', ('internal', 'refund')),
+            ('logistic_state', 'in', used_state),
+            ('fiscal_position_id.name', '=', 'B2C')
+        ]
+
+        # --------------------------------------------------------------------------------------------------------------
+        #                       Excel Extract:
+        # --------------------------------------------------------------------------------------------------------------
+        ws_name = 'Attivi B2C'
+        excel_pool.create_worksheet(ws_name)
+
+        # --------------------------------------------------------------------------------------------------------------
+        # Format:
+        # --------------------------------------------------------------------------------------------------------------
+        excel_pool.set_format()
+        f_title = excel_pool.get_format('title')
+        f_header = excel_pool.get_format('header')
+
+        f_white_text = excel_pool.get_format('text_top')
+        # f_green_text = excel_pool.get_format('bg_green')
+        # f_yellow_text = excel_pool.get_format('bg_yellow')
+
+        f_white_number = excel_pool.get_format('text_top_center')
+        # f_green_number = excel_pool.get_format('bg_green_number')
+        # f_yellow_number = excel_pool.get_format('bg_yellow_number')
+
+        # --------------------------------------------------------------------------------------------------------------
+        # Setup page:
+        # --------------------------------------------------------------------------------------------------------------
+        excel_pool.column_width(ws_name, [
+            30,
+            15, 15, 15, 15,
+            20,
+        ])
+
+        row = 0
+        header = [
+            'Pagamento',
+            'Confermato', 'Pendenti', 'Pronti', 'In Consegna',
+            'Totale',
+        ]
+        excel_pool.write_xls_line(ws_name, row, header, default_format=f_header)
+        excel_pool.autofilter(ws_name, row, 0, row, len(title) - 1)
+        excel_pool.freeze_panes(ws_name, 1, 1)
+
+        # --------------------------------------------------------------------------------------------------------------
+        # Read data
+        # --------------------------------------------------------------------------------------------------------------
+        order = order_pool.search(domain)
+        _logger.warning('Report Order B2C status filter with: %s [Tot. %s]' % (domain, len(order)))
+
+        master_data = {}
+        for order in order:
+            logistic_state = order.logistic_state
+            if logistic_state not in column_header:
+                continue
+
+            team = order.team_id.name or ''
+            amount = order.amount_untaxed
+            amount_total = order.amount_total  # todo EUR
+
+            if team not in master_data:
+                master_data[team] = empty[:]  # Copy empty record
+
+            master_data[team][column_header[logistic_state]] += amount_total
+
+        total = 0.0
+        for team in master_data:
+            data_block = master_data[team]
+            row += 1
+            subtotal = sum(data_block)
+            total += subtotal
+            excel_pool.write_xls_line(ws_name, row, [team], default_format=f_white_text)
+            excel_pool.write_xls_line(ws_name, row, data_block, default_format=f_white_text, cols=1)
+            excel_pool.write_xls_line(ws_name, row, [subtotal], default_format=f_white_text, cols=1+cols)
+        # Total line:
+        row += 1
+        excel_pool.write_xls_line(ws_name, row, [total], default_format=f_white_text, cols=1+cols)
+
+        # ---------------------------------------------------------------------
+        # Save file:
+        # ---------------------------------------------------------------------
+        return excel_pool.return_attachment('B2C_distribuzione_ordini')
