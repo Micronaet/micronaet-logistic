@@ -573,6 +573,10 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # ----------------------------------------------------------------------------------------------------------
             status = 'uncovered'  # Nothing was assigned (default)
             for sku, alternative in sku_loop:
+                if sku not in quants_available:
+                    # Case X22 not present but without X22 is present
+                    continue
+
                 product_cover_list = quants_available[sku]
 
                 # ------------------------------------------------------------------------------------------------------
