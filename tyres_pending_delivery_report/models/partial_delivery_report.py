@@ -197,13 +197,13 @@ class SaleOrder(models.AbstractModel):
         domain = [
             ('logistic_source', 'not in', ('internal', 'refund')),
             ('logistic_state', 'in', used_state),
-            ('fiscal_position_id.name', '=', 'B2C')
+            # ('fiscal_position_id.name', '=', 'B2C')
         ]
 
         # --------------------------------------------------------------------------------------------------------------
         #                       Excel Extract:
         # --------------------------------------------------------------------------------------------------------------
-        ws_name = 'Attivi B2C'
+        ws_name = 'Ordini attivi'
         excel_pool.create_worksheet(ws_name)
 
         # --------------------------------------------------------------------------------------------------------------
@@ -278,4 +278,4 @@ class SaleOrder(models.AbstractModel):
         # ---------------------------------------------------------------------
         # Save file:
         # ---------------------------------------------------------------------
-        return excel_pool.return_attachment('B2C_distribuzione_ordini')
+        return excel_pool.return_attachment('distribuzione_ordini_attivi')
