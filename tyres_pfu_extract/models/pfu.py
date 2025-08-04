@@ -427,7 +427,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             'filename': filename,
             'date': now_text[:19],
             'user_id': self.env.user.id
-        })
+            })
         file_id = file_object.id
 
         # Parameter from setup in Company
@@ -447,7 +447,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
         title = 'Periodo stampa PFU: Vendite [{} - OGGI] Acquisti [{} - {}]'.format(
             sale_start, purchase_start, purchase_end,
-        )
+            )
         _logger.warning(title)
         _logger.info('File PFU: {}'.format(fullname))
 
@@ -468,8 +468,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         quants = sorted(quant_pool.search(domain), key=lambda x: x.create_date)
         _logger.warning('Found # {} quants'.format(len(quants)))
         for quant in quants:  # Last in First out
-            if quant.sale_order_id and quant.sale_order_id.logistic_source == 'refund':
-                # Jump refund
+            if quant.sale_order_id and quant.sale_order_id.logistic_source == 'refund':  # Jump refund
                 continue
 
             product = quant.product_id
