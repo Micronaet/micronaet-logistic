@@ -87,12 +87,12 @@
                 <field name="cups_sale_ddt" position="after">
                     <separator string="PFU Setup:" colspan="4"/>
                     <field name="pfu_month" />
-                    <field name="pfu_remove_days" />
-                    <!--<field name="pfu_use_filter" widget="boolean_toggle" />-->
-                    <field name="pfu_debug" widget="boolean_toggle" />
+                    <field name="pfu_debug" />
                 </field>
             </field>
         </record>
+<<<<<<< HEAD
+=======
 
         <!--stock.pfu.document-->
         <record model="ir.ui.view" id="view_stock_pfu_document_tree">
@@ -116,6 +116,7 @@
             <field name="view_id" ref="view_stock_pfu_document_tree"/>
         </record>
 
+>>>>>>> pfu_internal_report
         <!--account.fiscal.position-->
         <record model="ir.ui.view" id="view_pfu_account_fiscal_position_form">
             <field name="name">account.fiscal.position.need.invoice.pfu.form</field>
@@ -144,11 +145,14 @@
             id="menu_stock_picking_pfu_extract_wizard" 
             action="action_stock_picking_pfu_extract_wizard"
             />
+<<<<<<< HEAD
+=======
         <menuitem
             parent="menu_stock_picking_pfu_extract_wizard"
             sequence="10"
             id="menu_view_stock_pfu_document"
             action="action_view_stock_pfu_document"
             />
+>>>>>>> pfu_internal_report
     </data>
 </openerp>
