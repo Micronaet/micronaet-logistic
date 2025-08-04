@@ -190,24 +190,13 @@ class ResCompanyInherit(models.Model):
     """
     _inherit = 'res.company'
 
+    pfu_debug = fields.Boolean(
+        'Schede Debug', default=True, help='Aggiunte delle schede extra al file per informazioni di debug')
     pfu_month = fields.Integer(
         'Mesi PFU', default=6,
         help='Mesi per prendere in considerazione i carichi da magazzino interno, il report parte da -X mesi per '
              'le vendite e -X mesi fino a -1 mese per gli acquisti')
-    pfu_remove_days = fields.Integer(
-        'Rimuovi giorni', default=5,
-        help='Molti fornitori per i documenti oltre una data, es. 25 del mese,  rimandano la fatturazione al mese '
-             'successivo, questo margine (in giorni) permette di non considerare gli acquisti del mese '
-             'corrente togliendo ancora N giorni alla data risultante.')
 
-    pfu_use_filter = fields.Boolean(
-        'Considera filtro', default=True,
-        help='Le disponibilità terminate o i movimenti di magazzino utilizzano un flag per indicare che sono '
-             'stati coperti, questo facilita la ricerca di quelli aperti. Nel caso si vada a cancellare qualche '
-             'file di Excel generato serve per escluderli e rifare la valutazione'
-             )
-    pfu_debug = fields.Boolean(
-        'Schede Debug', default=True, help='Aggiunte delle schede extra al file per informazioni di debug')
 
 class StockPickingDeliveryQuantInherit(models.Model):
     """ Add relations to PFU
@@ -407,7 +396,6 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         move_pool = self.env['stock.move']
         excel_pool = self.env['excel.writer']
         assign_pool = self.env['stock.pfu.assigned']
-        file_pool = self.env['stock.pfu.document']
         company_pool = self.env['res.company']
 
         # --------------------------------------------------------------------------------------------------------------
@@ -432,18 +420,15 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
         # Parameter from setup in Company
         period = company.pfu_month or 6
-        remove_days = company.pfu_remove_days
-        # use_filter = company.pfu_use_filter
         debug_mode = company.pfu_debug
 
         this_month_start = now_dt.replace(day=1)
-        sale_start_dt = this_month_start - relativedelta(months=period - 1)
-        sale_start = sale_start_dt.strftime('%Y-%m-%d')  # -6 month
+        sale_start = (this_month_start - relativedelta(months=period - 1)).strftime('%Y-%m-%d')  # -6 month
+        # purchase_start = (this_month_start - relativedelta(months=period - 2)).strftime('%Y-%m-%d')  # -7 month
 
         purchase_start = sale_start # -6 month
         # -1 month (not used last month purchase, need FT ref.):
-        purchase_end_dt = this_month_start - relativedelta(days=1) - relativedelta(days=remove_days)
-        purchase_end = purchase_end_dt.strftime('%Y-%m-%d')
+        purchase_end = (this_month_start - relativedelta(days=1)).strftime('%Y-%m-%d')
 
         title = 'Periodo stampa PFU: Vendite [{} - OGGI] Acquisti [{} - {}]'.format(
             sale_start, purchase_start, purchase_end,
@@ -576,7 +561,31 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                     # Case X22 not present but without X22 is present
                     continue
 
+<<<<<<< HEAD
+                this_stock = product_cover_list[0]  # ID, supplier_id, q.
+                found_quant, found_supplier, found_qty = this_stock
+                if need_qty < found_qty:  # More than needed (not equal)
+                    used_qty = need_qty
+                    this_stock[2] -= need_qty
+                    need_qty = 0
+                else:  # Use all found, less/equal than needed
+                    used_qty = found_qty
+                    need_qty -= found_qty
+                    found_quant.pfu_done = True  # No mode used
+                    product_cover_list.pop(0)  # Remove first element
+
+                # Create assign record:
+                assign_pool.create({
+                    'filename': filename,
+                    'quant_id': found_quant.id,
+                    # 'supplier_id'
+                    'move_id': move_id,
+                    'product_qty': used_qty,
+                    'date': now_text,
+                })
+=======
                 product_cover_list = quants_available[sku]
+>>>>>>> pfu_internal_report
 
                 # ------------------------------------------------------------------------------------------------------
                 # Assign stock quant master loop:
@@ -873,9 +882,20 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         _logger.info('Exporting Excel: {}'.format(fullname))
         excel_pool.save_file_as(fullname)   # return excel_pool.return_attachment('Report_PFU')
 
-        # Return file generated:
-        _logger.info('Return Excel File: {}'.format(fullname))
-        return file_object.return_filename_excel()
+        try:
+            # Return filename:
+            download_url = '/tyres_pfu_extract/download/{}'.format(urllib.parse.quote_plus(filename))
+            _logger.info('Generating return URL: {}'.format(download_url))
+
+            return {
+                'type': 'ir.actions.act_url',
+                'url': download_url,
+                'target': 'self',  # 'new'
+            }
+        except:
+            # Return file generated:
+            _logger.info('Return Excel File: {}'.format(fullname))
+            return file_object.return_filename_excel()
 
     @api.multi
     def extract_excel_pfu_report(self, ):
