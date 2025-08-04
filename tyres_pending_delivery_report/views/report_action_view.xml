@@ -10,11 +10,26 @@
              <field name="code">action = env['sale.order'].partial_delivery_status_report()</field>
          </record>
 
+        <record id="ir_all_pending_order_status_server_action" model="ir.actions.server">
+             <field name="name">B2C divisi per Pagamento</field>
+             <field name="type">ir.actions.server</field>
+             <field name="model_id" ref="model_sale_order" />
+             <field name="binding_model_id" ref="model_sale_order" />
+             <field name="state">code</field>
+             <field name="code">action = env['sale.order'].b2c_pending_order_status_report()</field>
+         </record>
+
         <menuitem
             parent="tyres_logistic_management.menu_logistic_left_report_root"
             sequence="60"
             id="menu_ir_all_partial_delivery_status"
             action="ir_all_partial_delivery_status_server_action"
+            />
+        <menuitem
+            parent="tyres_logistic_management.menu_logistic_left_report_root"
+            sequence="70"
+            id="menu_ir_all_pending_order_status_server"
+            action="ir_all_pending_order_status_server_action"
             />
     </data>
 </openerp>

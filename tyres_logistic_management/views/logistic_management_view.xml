@@ -946,7 +946,7 @@
                              <page string="Load move">
                                  <group colspan="4" col="4">
                                      <separator string="Supplier loaded:" colspan="4"/>
-                                     <field name="load_line_ids" nolabel="1" colspan="4">
+                                     <field name="load_line_ids" nolabel="1" colspan="4" readonly="1">
                                          <tree string="Load line:">
                                               <field name="reference" />
                                               <field name="date" />
@@ -955,6 +955,25 @@
                                               <field name="location_dest_id" />
                                               <field name="state" />
                                          </tree>
+                                         <form string="Load line:">
+                                             <header>
+                                                 <field name="state" widget="statusbar" />
+                                             </header>
+                                             <sheet>
+                                                 <group col="4" colspan="4">
+                                                      <field name="reference" readonly="1" />
+                                                      <field name="product_id" />
+
+                                                      <field name="location_id" />
+                                                      <field name="product_uom_qty" />
+
+                                                      <field name="location_dest_id" />
+                                                      <field name="date" />
+
+                                                      <field name="origin" />
+                                                 </group>
+                                             </sheet>
+                                         </form>
                                      </field>
                                  </group>
                              </page>

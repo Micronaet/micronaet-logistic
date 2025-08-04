@@ -41,7 +41,9 @@ import urllib.parse
 
 _logger = logging.getLogger(__name__)
 
-
+# ======================================================================================================================
+#                                                 END POINT
+# ======================================================================================================================
 class StockPFUDownload(http.Controller):
     """ Add End point to download created document
     """
@@ -77,6 +79,7 @@ class StockPFUDownload(http.Controller):
         except Exception as e:
             return request.not_found(description='Errore nel download del file: {}'.format(e))
 
+
 class AccountFiscalPosition(models.Model):
     """ Model name: AccountFiscalPosition
     """
@@ -85,6 +88,86 @@ class AccountFiscalPosition(models.Model):
     is_pfu = fields.Boolean('PFU refund',
         help='If checked all sale with this position go in report')
 
+<<<<<<< HEAD
+=======
+class StockPfuDocument(models.Model):
+    """ Model name: Stock.PFU.document
+    """
+    _name = 'stock.pfu.document'
+    _description = 'PFU Document'
+    _order = 'date desc'
+    _rec_name = 'filename'
+
+    # todo remove action that remove also linked movement and remove also pfu_done information!
+    @api.multi
+    def unlink(self):
+        """ Pre operation during delete file (assigned, restore undone quants and moves)
+            File not removed for now
+        """
+        assigned_pool = self.env['stock.pfu.assigned']
+        quant_pool = self.env['stock.picking.delivery.quant']
+        move_pool = self.env['stock.move']
+
+        quant_ids = []
+        move_ids = []
+
+        # For all file passed:
+        _logger.info('Remove Excel files: # {}'.format(
+            len(self)))
+
+        for file in self:
+            file_id = file.id
+            # Search assigned linked to that file and collect:
+            assigned_obj = assigned_pool.search([('file_id', '=', file_id)])
+
+            for assigned in assigned_obj:
+                quant_ids.append(assigned.quant_id.id)
+                move_ids.append(assigned.move_id.id)
+
+            # Delete assigned records:
+            _logger.info('Remove assigned record linked to file {}: # {}'.format(
+                file.filename,
+                len(assigned_obj),
+            ))
+            assigned_obj.unlink()
+
+        # --------------------------------------------------------------------------------------------------------------
+        # Restore flag for not done full assigned:
+        # --------------------------------------------------------------------------------------------------------------
+        _logger.info('Mark as undone # {} quants credit'.format(len(quant_ids)))
+        quant_pool.browse(quant_ids).write({'pfu_done': False})
+
+        _logger.info('Mark as undone # {} sale debit'.format(len(move_ids)))
+        move_pool.browse(move_ids).write({'pfu_done': False})
+
+        _logger.info('Delete real record')
+        return super(StockPfuDocument, self).unlink()
+
+    @api.multi
+    def return_filename_excel(self):
+        """ Return file Excel generated
+        """
+        filename = self.filename
+        download_url = '/tyres_pfu_extract/download/{}'.format(urllib.parse.quote_plus(filename))
+        _logger.info('Generating return URL: {}'.format(download_url))
+
+        try:
+            # Return filename:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': download_url,
+                'target': 'self',  # 'new'
+            }
+        except:
+            _logger.error('Error opening Download file URL: {}'.format(download_url))
+        return True
+
+    date = fields.Date('Data', required=True)
+    filename = fields.Char('Filename', size=180)
+    user_id = fields.Many2one('res.users', 'Utente')
+
+
+>>>>>>> pfu_internal_report
 class StockPfuAssigned(models.Model):
     """ Model name: Stock.PFU.Assigned
     """
@@ -92,15 +175,20 @@ class StockPfuAssigned(models.Model):
     _description = 'PFU Assigned'
     _order = 'date'
 
-    filename = fields.Char('Filename', size=100)
+    # filename = fields.Char('Filename', size=100)
     quant_id = fields.Many2one(
         'stock.picking.delivery.quant', 'Carico', required=True,
         help='Carico di magazzino collegato')
     delivery_id = fields.Many2one('stock.picking.delivery', 'Doc. di carico', related='quant_id.order_id', store=True)
     supplier_id = fields.Many2one('res.partner', 'Fornitore', related='delivery_id.supplier_id', store=True)
+<<<<<<< HEAD
+=======
+    file_id = fields.Many2one('stock.pfu.document', 'File Excel')
+>>>>>>> pfu_internal_report
     move_id = fields.Many2one('stock.move', 'Riga di carico', help='Riga ordine collegata al carico', required=True)
     product_qty = fields.Float('Quant.', digits=(16, 2), required=True)
-    date = fields.Date('Data', required=True)
+    date = fields.Datetime('Data', required=True)
+    alternative = fields.Boolean('Prod. alternativo')
 
 
 class ResCompanyInherit(models.Model):
@@ -328,6 +416,18 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         pfu_folder = company._logistic_folder('PFU')
         fullname = os.path.join(pfu_folder, filename)
 
+<<<<<<< HEAD
+=======
+        # Create reference file:
+        file_object = file_pool.create({
+            'filename': filename,
+            'date': now_text[:19],
+            'user_id': self.env.user.id
+            })
+        file_id = file_object.id
+
+        # Parameter from setup in Company
+>>>>>>> pfu_internal_report
         period = company.pfu_month or 6
         debug_mode = company.pfu_debug
 
@@ -341,7 +441,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
         title = 'Periodo stampa PFU: Vendite [{} - OGGI] Acquisti [{} - {}]'.format(
             sale_start, purchase_start, purchase_end,
-        )
+            )
         _logger.warning(title)
         _logger.info('File PFU: {}'.format(fullname))
 
@@ -362,15 +462,14 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         quants = sorted(quant_pool.search(domain), key=lambda x: x.create_date)
         _logger.warning('Found # {} quants'.format(len(quants)))
         for quant in quants:  # Last in First out
-            if quant.sale_order_id and quant.sale_order_id.logistic_source == 'refund':
-                # Jump refund
+            if quant.sale_order_id and quant.sale_order_id.logistic_source == 'refund':  # Jump refund
                 continue
 
             product = quant.product_id
-            if product not in quants_available:
-                quants_available[product] = []
+            sku = product.default_code or ''
+            if sku not in quants_available:
+                quants_available[sku] = []
             available_qty = quant.product_qty - sum([r.product_qty for r in quant.assigned_pfu_ids])
-            # quant.assigned_pfu_qty  # Really available
 
             # Exclude all used:
             if available_qty <= 0:
@@ -378,10 +477,11 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 continue
 
             # Collect available quants:
-            quants_available[product].append([
+            quants_available[sku].append([
                 quant,
                 quant.order_id.supplier_id,
                 available_qty,  # Dispo available
+                product,
             ])
 
         # --------------------------------------------------------------------------------------------------------------
@@ -436,39 +536,41 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # ----------------------------------------------------------------------------------------------------------
             # X00 management:
             # ----------------------------------------------------------------------------------------------------------
-            '''
-            default_code = (product.default_code or '').upper()
-            if default_code[-3:-2] == 'X' and default_code[-2:].isdigit():
-                # X00 Managed
-                linked_code = default_code[:-3]
-                product_linked = product_pool.search([
-                    ('default_code', '=', linked_code)
-                ])
-                if product_linked:
-            '''
+            sku_real = product.default_code or ''
 
-            if product in quants_available:
-                product_cover_list = quants_available[product]
+            if sku_real[-3:-2].upper() == 'X' and sku_real[-2:].isdigit():  # X00 Managed
+                sku_alternative = sku_real[:-3]
+                if sku_real not in quants_available and sku_alternative not in quants_available:
+                    extra_data['uncovered'].append(move_id)
+                    continue
+                sku_loop = [(sku_real, False), (sku_alternative, False)]
+
             else:
-                extra_data['uncovered'].append(move_id)
-                continue
+                if sku_real not in quants_available:
+                    extra_data['uncovered'].append(move_id)
+                    continue
+                sku_loop = [(sku_real, False)]
 
+            # Loop for original product but also for alternative product if present:
             move_qty = move.product_uom_qty
             need_qty = move_qty - sum([r.product_qty for r in move.assigned_pfu_ids])
 
+            # Check if yet covered:
             if need_qty <= 0:
                 move.pfu_done = True
                 extra_data['done'].append(move_id)
-                continue
+                continue  # Next product
 
             # ----------------------------------------------------------------------------------------------------------
-            # Assign stock quant master loop:
+            # Loop for check product and alternative product:
             # ----------------------------------------------------------------------------------------------------------
-            while True:
-                if not product_cover_list:
-                    extra_data['uncovered'].append(move_id)
-                    break
+            status = 'uncovered'  # Nothing was assigned (default)
+            for sku, alternative in sku_loop:
+                if sku not in quants_available:
+                    # Case X22 not present but without X22 is present
+                    continue
 
+<<<<<<< HEAD
                 this_stock = product_cover_list[0]  # ID, supplier_id, q.
                 found_quant, found_supplier, found_qty = this_stock
                 if need_qty < found_qty:  # More than needed (not equal)
@@ -490,28 +592,58 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                     'product_qty': used_qty,
                     'date': now_text,
                 })
+=======
+                product_cover_list = quants_available[sku]
+>>>>>>> pfu_internal_report
 
                 # ------------------------------------------------------------------------------------------------------
-                # Prepare record for Excel:
+                # Assign stock quant master loop:
                 # ------------------------------------------------------------------------------------------------------
-                if found_supplier not in supplier_category_move:
-                    supplier_category_move[found_supplier] = {}
+                while need_qty > 0:  # Loop when need qty present
+                    if not product_cover_list:   # Covered all in previous loop (or empty)
+                        break
 
-                if category not in supplier_category_move[found_supplier]:
-                    supplier_category_move[found_supplier][category] = []
+                    this_stock = product_cover_list[0]  # ID, supplier_id, q. (take the first of the stack)
+                    found_quant, found_supplier, found_qty, quant_product = this_stock
+                    if need_qty < found_qty:  # More than needed (not equal)
+                        used_qty = need_qty
+                        this_stock[2] -= need_qty
+                        need_qty = 0
+                    else:  # Use all found, less/equal than needed
+                        used_qty = found_qty
+                        need_qty -= found_qty
+                        found_quant.pfu_done = True  # No mode used
+                        product_cover_list.pop(0)  # Remove first element
 
-                supplier_category_move[found_supplier][category].append((move, used_qty, found_quant))
+                    # Create assign record:
+                    assign_pool.create({
+                        'file_id': file_id,
+                        # 'filename': filename,  # todo remove
+                        'quant_id': found_quant.id,
+                        # 'supplier_id'
+                        'move_id': move_id,
+                        'product_qty': used_qty,
+                        'date': now_text,
+                        'alternative': alternative,
+                    })
+                    status = 'partial'  # Not uncovered (something was assigned)
 
-                # Exit check:
-                if need_qty <= 0:
-                    # Covered all:
-                    move.pfu_done = True
-                    break
+                    # --------------------------------------------------------------------------------------------------
+                    #                             Prepare record for Excel:
+                    # --------------------------------------------------------------------------------------------------
+                    if found_supplier not in supplier_category_move:
+                        supplier_category_move[found_supplier] = {}
+                    if category not in supplier_category_move[found_supplier]:
+                        supplier_category_move[found_supplier][category] = []
+                    supplier_category_move[found_supplier][category].append((move, used_qty, found_quant, alternative))
 
-                if not product_cover_list:
-                    # Covered partial, no more available
-                    extra_data['uncovered'].append(move_id)
-                    break
+                    # Exit check:
+                    if need_qty <= 0:
+                        move.pfu_done = True  # Mark as covered all
+                        status = 'all'
+
+            if status == 'uncovered':
+                extra_data['uncovered'].append(move_id)  # continue on next move
 
         # --------------------------------------------------------------------------------------------------------------
         #                                              EXTRACT EXCEL:
@@ -520,12 +652,12 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         header = (
             'RAEE', 'Cod. Articolo', 'Cod. Forn.', 'Descrizione', u'Q.tà',
             'Doc Fornitore', 'Data Doc.', 'N. Fattura', 'N. Nostra fattura',
-            'Data Doc.', 'ISO stato')
+            'Data Doc.', 'ISO stato', 'Alt.',)
 
         column_width = (
             5, 15, 15, 45, 5,
             15, 12, 12, 15,
-            10, 8,
+            10, 8, 8
             )
 
         # ---------------------------------------------------------------------
@@ -569,11 +701,14 @@ class StockPickingPfuExtractWizard(models.TransientModel):
 
             row += 2
             excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
+            excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
 
             total = 0
             for category in sorted(supplier_category_move[supplier]):
                 subtotal = 0
-                for move, qty, quant in sorted(supplier_category_move[supplier][category], key=lambda x: x[0].date):
+
+                for move, qty, quant, alternative in sorted(
+                        supplier_category_move[supplier][category], key=lambda x: x[0].date):
                     row += 1
 
                     # Readability:
@@ -614,6 +749,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                         invoice_number,  # Our invoice
                         invoice_date[:10],  # Date doc,
                         partner.country_id.code or '??',  # ISO country
+                        'X' if alternative else '',
                         ), default_format=format_text['text'])
                 row += 1
                 excel_pool.write_xls_line(ws_name, row, (subtotal, ), default_format=format_text['number'], col=3)
@@ -657,8 +793,8 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             excel_pool.column_width(ws_name, column_width)
             excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
 
-            for product in quants_available:
-                for quant, supplier, available in quants_available[product]:
+            for sku in quants_available:
+                for quant, supplier, available, product in quants_available[sku]:
                     delivery = quant.order_id
 
                     row += 1
@@ -755,6 +891,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         _logger.info('Exporting Excel: {}'.format(fullname))
         excel_pool.save_file_as(fullname)   # return excel_pool.return_attachment('Report_PFU')
 
+<<<<<<< HEAD
         try:
             # Return filename:
             download_url = '/tyres_pfu_extract/download/{}'.format(urllib.parse.quote_plus(filename))
@@ -769,6 +906,11 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             _logger.error('Error opening Download file URL: {}'.format(download_url))
 
         return True
+=======
+        # Return file generated:
+        _logger.info('Return Excel File: {}'.format(fullname))
+        return file_object.return_filename_excel()
+>>>>>>> pfu_internal_report
 
     @api.multi
     def extract_excel_pfu_report(self, ):

@@ -1,6 +1,49 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
+        <!-- stock.picking.delivery.quant -->
+        <record model="ir.ui.view" id="view_stock_picking_delivery_quant_form">
+            <field name="name">stock.picking.delivery.quant.form</field>
+            <field name="model">stock.picking.delivery.quant</field>
+            <field name="inherit_id" ref="tyres_logistic_pick_in_load.view_stock_picking_delivery_quant_form" />
+            <field name="arch" type="xml">
+                <field name="account_sync" readonly="1" position="after">
+                    <separator string="Assegnazioni PFU" colspan="4"/>
+                    <field name="assigned_pfu_ids" readonly="1" colspan="4" nolabel="1">
+                        <tree string="Assegnazioni">
+                            <field name="date" />
+                            <field name="move_id" />
+                            <field name="product_qty" />
+                            <field name="file_id" />
+                            <field name="alternative" />
+                            <field name="quant_id" invisible="1" />
+                        </tree>
+                    </field>
+                </field>
+            </field>
+        </record>
+         <record model="ir.ui.view" id="view_sale_order_line_logistic_form">
+             <field name="name">sale.order.line.logistic.form</field>
+             <field name="model">sale.order.line</field>
+             <field name="inherit_id" ref="tyres_logistic_management.view_sale_order_line_logistic_form" />
+             <field name="arch" type="xml">
+                <xpath expr="//field[@name='load_line_ids']/form//field[@name='origin']" position="after">
+                    <separator string="Assegnazioni PFU:" colspan="4" />
+                    <field name="assigned_pfu_ids" readonly="1" colspan="4" nolabel="1">
+                        <tree string="Assegnazioni">
+                            <field name="date" />
+                            <field name="move_id" />
+                            <field name="product_qty" />
+                            <field name="file_id" />
+                            <field name="alternative" />
+                            <field name="quant_id" invisible="1" />
+                        </tree>
+                    </field>
+                </xpath>
+             </field>
+         </record>
+
+
         <record id="view_stock_picking_pfu_extract_wizard" model="ir.ui.view">
             <field name="name">PFU Report</field>
             <field name="model">stock.picking.pfu.extract.wizard</field>
@@ -48,6 +91,32 @@
                 </field>
             </field>
         </record>
+<<<<<<< HEAD
+=======
+
+        <!--stock.pfu.document-->
+        <record model="ir.ui.view" id="view_stock_pfu_document_tree">
+            <field name="name">stock.pfu.document.tree</field>
+            <field name="model">stock.pfu.document</field>
+            <field name="arch" type="xml">
+                <tree string="Documenti PFU" editable="bottom">
+                    <field name="date" readonly="1"/>
+                    <field name="filename" readonly="1"/>
+                    <field name="user_id" readonly="1"/>
+                    <button name="return_filename_excel" type="object" string="Scarica file" icon="fa-file-text fa-x2"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_view_stock_pfu_document" model="ir.actions.act_window">
+            <field name="name">PFU Files</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.pfu.document</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_stock_pfu_document_tree"/>
+        </record>
+
+>>>>>>> pfu_internal_report
         <!--account.fiscal.position-->
         <record model="ir.ui.view" id="view_pfu_account_fiscal_position_form">
             <field name="name">account.fiscal.position.need.invoice.pfu.form</field>
@@ -76,5 +145,14 @@
             id="menu_stock_picking_pfu_extract_wizard" 
             action="action_stock_picking_pfu_extract_wizard"
             />
+<<<<<<< HEAD
+=======
+        <menuitem
+            parent="menu_stock_picking_pfu_extract_wizard"
+            sequence="10"
+            id="menu_view_stock_pfu_document"
+            action="action_view_stock_pfu_document"
+            />
+>>>>>>> pfu_internal_report
     </data>
 </openerp>
