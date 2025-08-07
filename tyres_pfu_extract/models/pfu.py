@@ -549,7 +549,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 if sku_real not in quants_available and sku_alternative not in quants_available:
                     extra_data['uncovered'].append(move_id)
                     continue
-                sku_loop = [(sku_real, False), (sku_alternative, False)]
+                sku_loop = [(sku_real, False), (sku_alternative, True)]
 
             else:
                 if sku_real not in quants_available:
