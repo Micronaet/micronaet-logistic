@@ -2141,11 +2141,9 @@ class StockPicking(models.Model):
             ])
         # todo NC or other document not included?
         #  invoice_number is empty?
-        _logger.info('Found {} picking/DDT to be invoiced!'.format(
-            len(pickings)))
+        _logger.info('Found {} picking/DDT to be invoiced!'.format(len(pickings)))
         if pickings:
-            _logger.info('Found {} picking/DDT to be invoiced!'.format(
-                len(pickings)))
+            _logger.info('Found {} picking/DDT to be invoiced!'.format(len(pickings)))
         else:
             _logger.error('Found 0 picking/DDT, nothing todo')
             return False
@@ -2154,9 +2152,7 @@ class StockPicking(models.Model):
         for picking in pickings:
             order_id = picking.sale_order_id.id
             if order_id in done_ids:
-                _logger.warning('Picking order ID {} yet consider!'.format(
-                    order_id
-                ))
+                _logger.warning('Picking order ID {} yet consider!'.format(order_id))
                 continue
 
             # Prepare parameters:
@@ -2179,13 +2175,12 @@ class StockPicking(models.Model):
                     reply = requests.get(location, headers=header)
                     if reply.ok:
                         reply_json = reply.json()
-                        invoice_number, invoice_date, invoice_filename = \
-                            self.extract_invoice_data_from_account(reply_json)
+                        invoice_number, invoice_date, invoice_filename = self.extract_invoice_data_from_account(
+                            reply_json)
 
                         if not invoice_number:  # Not found invoice:
                             _logger.warning(
-                                'Not found invoice number for order {}'.format(
-                                    order_id))
+                                'Not found invoice number for order {}'.format(order_id))
                             break
 
                         # -----------------------------------------------------
@@ -2197,19 +2192,16 @@ class StockPicking(models.Model):
                                 if not linked_id:
                                     _logger.warning('Empty order ID, jump')
                                     continue
+
                                 # JSON string ODOO int
                                 linked_id = int(linked_id)
 
-                                error = 'Order ID {} not found'.format(
-                                    linked_id)
-                                linked_order = order_pool.browse(
-                                    linked_id)
+                                error = 'Order ID {} not found'.format(linked_id)
+                                linked_order = order_pool.browse(linked_id)
 
                                 # Update picking if present:
-                                error = 'Picking not found, order {}'.format(
-                                    linked_id)
-                                linked_picking = \
-                                    linked_order.logistic_picking_ids[0]
+                                error = 'Picking not found, order {}'.format(linked_id)
+                                linked_picking = linked_order.logistic_picking_ids[0]
 
                                 # Update Invoice reference in picking:
                                 linked_picking.write({
@@ -2226,29 +2218,25 @@ class StockPicking(models.Model):
                                 _logger.error(error)
                                 continue
 
-                        # -----------------------------------------------------
+                        # ----------------------------------------------------------------------------------------------
                         # Print Invoice PDF:
-                        # -----------------------------------------------------
+                        # ----------------------------------------------------------------------------------------------
                         if invoice_number:
                             # Reload data for update invoice information
                             reloaded_picking = self.browse(picking.id)
                             # Print in deferred mode:
-                            reloaded_picking.with_context(
-                                mode='deferred_invoice').api_save_invoice_pdf()
+                            reloaded_picking.with_context(mode='deferred_invoice').api_save_invoice_pdf()
                         else:
-                            _logger.error(
-                                'Not printed, not found Invoice number')
+                            _logger.error('Not printed, not found Invoice number')
 
                     elif reply.status_code == 401:
                         token = company.api_get_token()
                     else:
-                        _logger.error(
-                            'Cannot get deferred invoice by ID %s' % order_id)
+                        _logger.error('Cannot get deferred invoice by ID %s' % order_id)
                         continue
             except:
                 # In case of error continue with next:
-                _logger.error('Generic error calling Account Program!'
-                              'Go ahead with other picking-DDT!')
+                _logger.error('Generic error calling Account Program! Go ahead with other picking-DDT!')
                 continue
 
     @api.model
