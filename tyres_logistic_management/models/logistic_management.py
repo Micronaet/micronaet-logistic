@@ -2047,8 +2047,7 @@ class StockPicking(models.Model):
             if not invoice_year or not invoice_number:
                 # Reload data form Account:
                 reply_json = company.api_get_invoice_by_reference(picking)
-                invoice_number, invoice_date, invoice_filename = \
-                    self.extract_invoice_data_from_account(reply_json)
+                invoice_number, invoice_date, invoice_filename = self.extract_invoice_data_from_account(reply_json)
 
                 # Update picking reference data:
                 picking.write({

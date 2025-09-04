@@ -28,7 +28,7 @@ import odoo
 import mimetypes
 import pdb
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 from odoo import http, api, fields, models, tools, exceptions, SUPERUSER_ID
@@ -402,6 +402,22 @@ class StockPickingPfuExtractWizard(models.TransientModel):
     def extract_excel_pfu_company_report(self, ):
         """ Button event: Extract fiscal report from internal Stock
         """
+        # --------------------------------------------------------------------------------------------------------------
+        # Internal utility:
+        # --------------------------------------------------------------------------------------------------------------
+        def get_this_quant_position(product_cover_list, move_date, last_pos):
+            """ Return correct position to use from cover list
+            """
+            for pos in range(last_pos, len(product_cover_list)):
+                try:
+                    if move_date >= product_cover_list[pos][0]:
+                        return pos
+                except:
+                    # If remove last record and need more items, raise error here:
+                    return -1
+
+            return -1  # raise error, end of list
+
         # Pool used:
         quant_pool = self.env['stock.picking.delivery.quant']
         move_pool = self.env['stock.move']
@@ -433,6 +449,8 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # Parameter from setup in Company
         period = company.pfu_month or 6
         remove_days = company.pfu_remove_days
+        pfu_buy_sell_days = 7  # todo company.pfu_buy_sell_days # sell x days before buy reference
+
         # use_filter = company.pfu_use_filter
         debug_mode = company.pfu_debug
 
@@ -482,8 +500,13 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 quant.pfu_done = True
                 continue
 
+            # ----------------------------------------------------------------------------------------------------------
             # Collect available quants:
+            # ----------------------------------------------------------------------------------------------------------
+            quant_dt = datetime.strptime(quant.create_date[:10], '%Y-%m-%d') - timedelta(days=pfu_buy_sell_days)
             quants_available[sku].append([
+                quant_dt.strftime('%Y-%m-%d'),  # Used for reference (sorted by create_date natively!)
+
                 quant,
                 quant.order_id.supplier_id,
                 available_qty,  # Dispo available
@@ -524,11 +547,13 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         if not moves:
             raise exceptions.Warning('Nessun movimento nel periodo -{} mesi'.format(period))
 
-        _logger.warning('Found # {} sale Extra from Interal stock lines'.format(len(moves)))
+        _logger.warning('Found # {} sale Extra from Internal stock lines'.format(len(moves)))
         for move in moves:
             # Check quantity covered:
             move_id = move.id
             product = move.product_id
+            move_date = move.date[:10]  # Date used to compare with quant # todo always present?
+
             try:
                 category = product.mmac_pfu.name or ''
             except:
@@ -581,21 +606,29 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 # ------------------------------------------------------------------------------------------------------
                 # Assign stock quant master loop:
                 # ------------------------------------------------------------------------------------------------------
+                start_pos = 0  # Start from 0 for every movement
                 while need_qty > 0:  # Loop when need qty present
                     if not product_cover_list:   # Covered all in previous loop (or empty)
                         break
 
-                    this_stock = product_cover_list[0]  # ID, supplier_id, q. (take the first of the stack)
-                    found_quant, found_supplier, found_qty, quant_product = this_stock
+                    # Find correct quants depend on stock date:
+                    start_pos = get_this_quant_position(product_cover_list, move_date, start_pos)
+                    try:
+                        this_stock = product_cover_list[start_pos]  # ID, supplier_id, q. (take the first of the stack)
+                    except:
+                        break  # returned -1 so raise error end of list
+
+                    quant_date, found_quant, found_supplier, found_qty, quant_product = this_stock
                     if need_qty < found_qty:  # More than needed (not equal)
                         used_qty = need_qty
-                        this_stock[2] -= need_qty
+                        this_stock[3] -= need_qty  # update found_qty
                         need_qty = 0
                     else:  # Use all found, less/equal than needed
                         used_qty = found_qty
                         need_qty -= found_qty
                         found_quant.pfu_done = True  # No mode used
-                        product_cover_list.pop(0)  # Remove first element
+                        product_cover_list.pop(this_stock)  # Remove selected element
+                        # Note: next element start with same pos
 
                     # Create assign record:
                     assign_pool.create({
