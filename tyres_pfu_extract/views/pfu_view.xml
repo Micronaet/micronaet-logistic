@@ -88,6 +88,7 @@
                     <separator string="PFU Setup:" colspan="4"/>
                     <field name="pfu_month" />
                     <field name="pfu_remove_days" />
+                    <field name="pfu_buy_sell_days" />
                     <!--<field name="pfu_use_filter" widget="boolean_toggle" />-->
                     <field name="pfu_debug" widget="boolean_toggle" />
                 </field>

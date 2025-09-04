@@ -199,6 +199,10 @@ class ResCompanyInherit(models.Model):
         help='Molti fornitori per i documenti oltre una data, es. 25 del mese,  rimandano la fatturazione al mese '
              'successivo, questo margine (in giorni) permette di non considerare gli acquisti del mese '
              'corrente togliendo ancora N giorni alla data risultante.')
+    pfu_buy_sell_days = fields.Integer(
+        'Differenza gg. acquisto / vendita', default=7,
+        help='Ammesso la differenza tra data vendita e data di acquisto, la prima può essere prima della seconda '
+             'massimo per i giorni indicatio qui.')
 
     pfu_use_filter = fields.Boolean(
         'Considera filtro', default=True,
@@ -412,8 +416,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                 try:
                     if move_date >= product_cover_list[pos][0]:
                         return pos
-                except:
-                    # If remove last record and need more items, raise error here:
+                except:  # If remove last record and need more items, raise error here:
                     return -1
 
             return -1  # raise error, end of list
@@ -449,7 +452,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         # Parameter from setup in Company
         period = company.pfu_month or 6
         remove_days = company.pfu_remove_days
-        pfu_buy_sell_days = 7  # todo company.pfu_buy_sell_days # sell x days before buy reference
+        pfu_buy_sell_days = company.pfu_buy_sell_days or 0
 
         # use_filter = company.pfu_use_filter
         debug_mode = company.pfu_debug
@@ -463,9 +466,10 @@ class StockPickingPfuExtractWizard(models.TransientModel):
         purchase_end_dt = this_month_start - relativedelta(days=1) - relativedelta(days=remove_days)
         purchase_end = purchase_end_dt.strftime('%Y-%m-%d')
 
-        title = 'Periodo stampa PFU: Vendite [{} - OGGI] Acquisti [{} - {}]'.format(
-            sale_start, purchase_start, purchase_end,
-            )
+        title = 'Periodo stampa PFU: Vendite [{} - OGGI] Acquisti [{} - {}], ' \
+            '(ammesso diff. {} gg. tra vend. e acq.)'.format(
+                sale_start, purchase_start, purchase_end, pfu_buy_sell_days)
+
         _logger.warning(title)
         _logger.info('File PFU: {}'.format(fullname))
 
@@ -503,10 +507,14 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # ----------------------------------------------------------------------------------------------------------
             # Collect available quants:
             # ----------------------------------------------------------------------------------------------------------
-            quant_dt = datetime.strptime(quant.create_date[:10], '%Y-%m-%d') - timedelta(days=pfu_buy_sell_days)
-            quants_available[sku].append([
-                quant_dt.strftime('%Y-%m-%d'),  # Used for reference (sorted by create_date natively!)
+            quant_date = quant.create_date[:10]
+            if pfu_buy_sell_days:
+                # Change reference of quant date:
+                quant_dt = datetime.strptime(quant_date, '%Y-%m-%d') - timedelta(days=pfu_buy_sell_days)
+                quant_date = quant_dt.strftime('%Y-%m-%d')
 
+            quants_available[sku].append([
+                quant_date,  # Used for reference (sorted by create_date natively!)
                 quant,
                 quant.order_id.supplier_id,
                 available_qty,  # Dispo available
