@@ -635,7 +635,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                         used_qty = found_qty
                         need_qty -= found_qty
                         found_quant.pfu_done = True  # No mode used
-                        product_cover_list.pop(this_stock)  # Remove selected element
+                        product_cover_list.pop(start_pos)  # Remove selected element
                         # Note: next element start with same pos
 
                     # Create assign record:
