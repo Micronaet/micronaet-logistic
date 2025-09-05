@@ -27,13 +27,13 @@ from datetime import datetime, timedelta
 try:
     import ConfigParser
 except:
-    import configarser as ConfigParser
+    import configparser as ConfigParser
 
 
 # -----------------------------------------------------------------------------
 # Read configuration parameter:
 # -----------------------------------------------------------------------------
-cfg_file = os.path.expanduser('../openerp.cfg')
+cfg_file = os.path.expanduser('../odoo.cfg')
 
 config = ConfigParser.ConfigParser()
 config.read([cfg_file])
