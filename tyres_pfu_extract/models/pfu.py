@@ -817,7 +817,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
 
             for sku in quants_available:
-                for quant, supplier, available, product in quants_available[sku]:
+                for quant_date, quant, supplier, available, product in quants_available[sku]:
                     delivery = quant.order_id
 
                     row += 1
