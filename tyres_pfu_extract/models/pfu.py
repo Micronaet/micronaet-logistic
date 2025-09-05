@@ -417,9 +417,9 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                     if move_date >= product_cover_list[pos][0]:
                         return pos
                 except:  # If remove last record and need more items, raise error here:
-                    return -1
+                    return ''  # Raise error
 
-            return -1  # raise error, end of list
+            return ''  # raise error, end of list
 
         # Pool used:
         quant_pool = self.env['stock.picking.delivery.quant']
@@ -624,7 +624,7 @@ class StockPickingPfuExtractWizard(models.TransientModel):
                     try:
                         this_stock = product_cover_list[start_pos]  # ID, supplier_id, q. (take the first of the stack)
                     except:
-                        break  # returned -1 so raise error end of list
+                        break  # returned '' so raise error end of list (no more credit quants)
 
                     quant_date, found_quant, found_supplier, found_qty, quant_product = this_stock
                     if need_qty < found_qty:  # More than needed (not equal)
