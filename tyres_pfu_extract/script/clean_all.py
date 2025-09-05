@@ -71,11 +71,10 @@ move_pool.write(checked_ids, {
     'pfu_done': False,
 })
 
-# Clean Check in Qant
+# Clean Check in Quant
 checked_ids = quant_pool.search([
     ('pfu_done', '=', True),
 ])
 quant_pool.write(checked_ids, {
     'pfu_done': False,
 })
-
