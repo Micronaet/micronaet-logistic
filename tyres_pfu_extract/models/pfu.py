@@ -793,10 +793,10 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # ----------------------------------------------------------------------------------------------------------
             # Excel file configuration:
             header = (
-                'Prodotto', 'Descrizione', 'Fornitore', 'Bolla Fornitore', 'Data', 'Q. disponibile')
+                'Prodotto', 'Descrizione', 'Fornitore', 'Bolla Fornitore', 'Data', 'Q. disponibile', 'Num. Fatt.')
 
             column_width = (
-                20, 30, 30, 20, 12, 10
+                20, 30, 30, 20, 12, 10, 20,
                 )
 
             ws_name = u'Dispo tot. da Mag. int.'
