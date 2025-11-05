@@ -376,16 +376,18 @@ class SaleOrder(models.Model):
         log_print = {}
         for order in sorted(self, key=lambda x: x.name):
             log_print[order] = []
-            if order.locked_delivery or order.logistic_source == 'internal' or\
-                    order.logistic_state not in ('ready', 'done'):
+            if order.locked_delivery or order.logistic_source == 'internal' or order.logistic_state not in (
+                    'ready', 'done'):
                 log_print[order].append(_('Not print order: %s') % order.name)
                 continue
 
+            # ----------------------------------------------------------------------------------------------------------
             # Setup loop print:
+            # ----------------------------------------------------------------------------------------------------------
             # 31/03/2021 Integrazione parte di Alessandro Conti:
             # modifica per gestire pos. fiscale UK come parametri di stampa
-            if order.partner_shipping_id.country_id.code == 'GB' and \
-                    not order.fiscal_position_id.external_invoice_management:
+            if (order.partner_shipping_id.country_id.code == 'GB' and
+                    not order.fiscal_position_id.external_invoice_management):
                 fisc_obj = self.env['account.fiscal.position'].search(
                     [('name', '=', 'United Kingdom')]
                 )
@@ -399,93 +401,92 @@ class SaleOrder(models.Model):
             market = order.team_id.market_type
             try:
                 # Read parameter line:
-                parameter = [item for item in fiscal.print_ids
-                             if item.market == market][0]
+                parameter = [item for item in fiscal.print_ids if item.market == market][0]
 
                 # Invoice sequential print only:
                 sequential_print = parameter.position_id.sequential_print
 
                 loop_picking = parameter.report_picking
                 loop_ddt = parameter.report_ddt
-                loop_invoice = \
-                    0 if sequential_print else parameter.report_invoice
+                loop_invoice = 0 if sequential_print else parameter.report_invoice
                 loop_extra = parameter.report_extra
                 loop_label = parameter.report_label
             except:
                 # Default print 1
-                loop_picking = loop_ddt = loop_invoice = loop_extra = \
-                    loop_label = 1
-            _logger.info(
-                'Printall: pick %s, ddt %s, invoice %s, extra %s, label %s' %
-                (loop_picking, loop_ddt, loop_invoice, loop_extra, loop_label))
+                loop_picking = loop_ddt = loop_invoice = loop_extra = loop_label = 1
+
+            _logger.info('Printall: pick {}, ddt {}, invoice {}, extra {}, label {}'.format(
+                loop_picking, loop_ddt, loop_invoice, loop_extra, loop_label))
 
             log_print[order].append(_('Start print order: %s') % order.name)
-            # -----------------------------------------------------------------
+
+            # ----------------------------------------------------------------------------------------------------------
             # Picking
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             for time in range(0, loop_picking):
                 order.workflow_ready_print_picking()
             log_print[order].append(_('Print #%s Picking') % loop_picking)
 
-            # =================================================================
+            # ==========================================================================================================
             # 31/03/2021 Integrazione parte gestione GB di Conti:
             if order.partner_shipping_id.country_id.code == 'GB':
-                # -------------------------------------------------------------
+                # ------------------------------------------------------------------------------------------------------
                 # Invoice
-                # -------------------------------------------------------------
+                # ------------------------------------------------------------------------------------------------------
                 for time in range(0, loop_invoice):
                     order.workflow_ready_print_invoice()
                 log_print[order].append('Print #%s Invoice' % loop_invoice)
 
-                # -------------------------------------------------------------
+                # ------------------------------------------------------------------------------------------------------
                 # DDT
-                # -------------------------------------------------------------
+                # ------------------------------------------------------------------------------------------------------
                 for time in range(0, loop_ddt):
                     order.workflow_ready_print_ddt()
                 log_print[order].append('Print #%s DDT' % loop_ddt)
 
             else:  # Normal part:
-                # -------------------------------------------------------------
+                # ------------------------------------------------------------------------------------------------------
                 # Invoice
-                # -------------------------------------------------------------
+                # ------------------------------------------------------------------------------------------------------
                 if order.check_need_invoice:
                     for time in range(0, loop_invoice):
                         order.workflow_ready_print_invoice()
-                    log_print[order].append(
-                        'Print #%s Invoice' % loop_invoice)
+                    log_print[order].append('Print #%s Invoice' % loop_invoice)
 
-                # -------------------------------------------------------------
+                # ------------------------------------------------------------------------------------------------------
                 # DDT
-                # -------------------------------------------------------------
+                # ------------------------------------------------------------------------------------------------------
                 else:
                     for time in range(0, loop_ddt):
                         order.workflow_ready_print_ddt()
                     log_print[order].append('Print #%s DDT' % loop_ddt)
             # End Alessandro Conti, [31.03.21 13:16]
-            # =================================================================
+            # ==========================================================================================================
 
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             # Extra document
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             if order.has_extra_document:
                 for time in range(0, loop_extra):
                     order.workflow_ready_print_extra()
                 log_print[order].append(_('Print #%s Extra doc') % loop_extra)
 
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             # Label
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             if order.has_label_to_print:
                 for time in range(0, loop_label):
                     order.workflow_ready_print_label()
                 log_print[order].append(_('Print #%s label') % loop_label)
             order.mmac_print_status = 'all'  # print_status = 'all'
+
         if len(self) <= 1:
+            _logger.warning('One record passed, no Form result view')
             return True
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Generate log (for many orders):
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         note = ''
         for order in sorted(log_print, key=lambda x: x.name):
             note += _('Order: <b>%s<b/><br/>Messages:<br/>')
@@ -498,8 +499,8 @@ class SaleOrder(models.Model):
             'note': note,
             }).id
 
-        form_id = self.env.ref(
-            'tyres_logistic_pick_in_load.view_sale_order_print_result_form').id
+        form_id = self.env.sudo().ref('tyres_logistic_pick_in_load.view_sale_order_print_result_form').id
+        _logger.warning('Multi record passed, return Form result view')
         return {
             'type': 'ir.actions.act_window',
             'name': _('Result for view_name'),
