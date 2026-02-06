@@ -239,6 +239,13 @@ class SaleOrder(models.Model):
             else:
                 order.real_parcel_total = order.carrier_manual_parcel
 
+    @api.onchange('carrier_shippy')
+    def _onchange_carrier_shippy(self):
+        """ Only if removed
+        """
+        if not self.carrier_shippy:
+            self.report_supplier_hide = True
+
     # -------------------------------------------------------------------------
     #                                   COLUMNS:
     # -------------------------------------------------------------------------
