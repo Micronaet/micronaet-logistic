@@ -115,9 +115,7 @@ try:
         order = order_pool.browse(order_id)
 
         if order.locked_delivery:
-            write_log(
-                'Order %s in locked delivery' % order.name,
-                log_file=log_exec_f)
+            write_log('Order %s in locked delivery' % order.name, log_file=log_exec_f)
             continue  # Leave in automatic order
 
         if not order.carrier_ok:
@@ -131,8 +129,7 @@ try:
             #    'Order %s not in ready status' % order.name,
             #    log_file=log_exec_f)
             order.write_log_chatter_message(
-                'Rimosso dagli automatici dato che non si trova in stato '
-                '"Pronto"')
+                'Rimosso dagli automatici dato che non si trova in stato "Pronto"')
             order_pool.write([order.id], {
                 'auto_print_order': False,
             })

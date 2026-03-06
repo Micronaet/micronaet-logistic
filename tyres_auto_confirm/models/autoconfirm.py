@@ -262,7 +262,7 @@ class ResCompany(models.Model):
 
     @api.multi
     def check_exclude_now_period(self):
-        """ Check if now can enabled the auto button
+        """ Check if now can enable the auto button
         """
         return self.write({'auto_enabled': False})
 
