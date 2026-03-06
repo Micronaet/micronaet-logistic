@@ -129,11 +129,13 @@ try:
             # write_log(
             #    'Order %s not in ready status' % order.name,
             #    log_file=log_exec_f)
-            order.write_log_chatter_message(
-                'Rimosso dagli automatici dato che non si trova in stato "Pronto"')
-            order_pool.write([order.id], {
-                'auto_print_order': False,
-            })
+
+            # Micronaet remove:
+            # order.write_log_chatter_message(
+            #    'Rimosso dagli automatici dato che non si trova in stato "Pronto"')
+            #order_pool.write([order.id], {
+            #    'auto_print_order': False,
+            #})
             continue
 
         counter += 1  # Counter really printed record!
