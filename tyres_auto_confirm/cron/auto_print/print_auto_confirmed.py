@@ -110,7 +110,6 @@ try:
         ('auto_print_order', '=', True)
     ])
     counter = 0
-    import pdb; pdb.set_trace()
     for order_id in auto_order_ids:
         # Read order internally (maybe yet printed from ODOO)
         order = order_pool.browse(order_id)
@@ -130,7 +129,7 @@ try:
             #    'Order %s not in ready status' % order.name,
             #    log_file=log_exec_f)
 
-            # Micronaet remove:
+            # 6 mar. 2026: Micronaet remove raise error:
             # order.write_log_chatter_message(
             #    'Rimosso dagli automatici dato che non si trova in stato "Pronto"')
             #order_pool.write([order.id], {
