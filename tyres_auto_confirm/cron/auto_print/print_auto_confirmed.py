@@ -110,6 +110,7 @@ try:
         ('auto_print_order', '=', True)
     ])
     counter = 0
+    import pdb; pdb.set_trace()
     for order_id in auto_order_ids:
         # Read order internally (maybe yet printed from ODOO)
         order = order_pool.browse(order_id)
