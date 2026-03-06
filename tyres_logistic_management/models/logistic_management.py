@@ -3554,7 +3554,8 @@ class SaleOrder(models.Model):
 
         return self.write({
             'logistic_state': 'draft',
-            'payment_done': False  # Remove OK for payment
+            'payment_done': False, # Remove OK for payment
+            'auto_print_order': False,
             })
 
     # -------------------------------------------------------------------------
