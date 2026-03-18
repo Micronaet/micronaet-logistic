@@ -143,20 +143,3 @@ class ResCountryInherit(models.Model):
              'I possibili valori sono: country, check, cin, abi, cab, account')
     iban_check = fields.Char('Controllo dati', compute=get_iban_check)
 
-class AccountFiscalPosition(models.Model):
-    """ Model name: Extend
-    """
-    _inherit = 'account.fiscal.position'
-
-    iban_management = fields.Boolean('Gestione IBAN')
-    iban_format = fields.Char(
-        'Formato IBAN', size=100,
-        # default='2|2|1|5|5|12',
-        help='Indicare le parti con lunghezza blocco separati con |, es.: 2|2|1|5|5|12')
-    iban_field = fields.Char(
-        'Campi IBAN', size=180,
-        # default='country|check|cin|abi|cab|account',
-        help='Indicare i campi delle parti del formato sempre separati con |, '
-             'es.: country|check|abi|cab|account'
-             'I possibili valori sono: country, check, cin, abi, cab, account')
-    iban_check = fields.Char('Controllo dati')
