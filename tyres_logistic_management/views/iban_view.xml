@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+         <record model="ir.ui.view" id="view_account_fiscal_position_iban_management_dropship_form">
+             <field name="name">account.fiscal.position.iban.management.form</field>
+             <field name="model">account.fiscal.position</field>
+             <field name="inherit_id" ref="account.view_account_position_form"/>
+             <field name="arch" type="xml">
+                 <page name="tax_mapping" string="Tax Mapping">
+                     <page name="IBAN" string="iban_page">
+                         <group col="4">
+                             <field name="iban_management" />
+                             <field name="iban_format" attrs="{'invisibile': [('iban_management', '=', False)]}" colspan="4" />
+                             <field name="iban_field" attrs="{'invisibile': [('iban_management', '=', False)]}" colspan="4" />
+                             <field name="iban_check" attrs="{'invisibile': [('iban_management', '=', False)]}" colspan="4" />
+                         </group>
+                     </page>
+                 </page>
+             </field>
+         </record>
+    </data>
+</openerp>
+

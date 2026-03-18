@@ -24,3 +24,4 @@
 from . import logistic_management
 from . import dropshipping  # Dropship management
 from . import api_management
+from . import iban  # IBAN Management

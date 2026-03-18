@@ -1750,7 +1750,9 @@ class StockPicking(models.Model):
         def get_partner_block(partner):
             """ Prepare partner block for partner
             """
+            # ----------------------------------------------------------------------------------------------------------
             # Private management:
+            # ----------------------------------------------------------------------------------------------------------
             account_position = partner.property_account_position_id
             b2b = False
             if account_position.partner_private:
@@ -1759,32 +1761,82 @@ class StockPicking(models.Model):
             else:
                 b2b = True
 
+            # VAT:
             if partner.vat and not partner.vat[:2].isdigit():
                 vat = partner.vat[2:]
             else:
                 vat = partner.vat or ''
 
-            return {
+            partner_data = {
                 'odooCode': str(partner.id),  # Originally not passed
                 'b2B': b2b,  # Type: Private or Business
+                'naturalPerson': partner.company_type == 'person',
                 'companyName': partner.name or '',
-                'address': '%s %s' % (
-                    partner.street or '', partner.street2 or ''),
+                'address': '%s %s' % (partner.street or '', partner.street2 or ''),
                 'zipCode': partner.zip or '',
                 'city': partner.city or '',
                 'county': partner.state_id.code or '',  # Province
                 'country': partner.country_id.name or '',
                 'isoCountryCode': partner.country_id.code or '',
                 'taxIdNumber': vat or '',  # todo corretto?
-                'fiscalCode':
-                    partner.fatturapa_fiscalcode or
-                    partner.mmac_fiscalid or '',
+                'fiscalCode': partner.fatturapa_fiscalcode or partner.mmac_fiscalid or '',
                 'telephone': partner.phone or '',
                 'email': partner.email or '',
                 'certifiedMail': partner.fatturapa_pec or '',
                 'ipaCode': partner.fatturapa_unique_code or '',  # SDI code
-                'NaturalPerson': partner.company_type == 'person',
                 }
+
+            # ----------------------------------------------------------------------------------------------------------
+            #                                        IBAN Split operations:
+            # ----------------------------------------------------------------------------------------------------------
+            # 0. Empty extra IBAN block:
+            iban_data = {  # Empty block
+                # Bank account data:
+                'isoiban': '',
+                'iban': '',
+                'swift': '',
+                'bankName': '',
+
+                # Split IBAN part:
+                'abi': '',
+                'cab': '',
+                'bankAccount': '',
+            }
+
+            # 1. Integrate Bank part:
+            bank = partner.bank_account_cont
+            integrate_on = False
+            if bank and bank.acc_type == 'iban' and bank.acc_number:
+                integrate_on = True
+                iban_data.update({
+                    'isoiban': iban,
+                    'iban': iban,
+                    'swift': bank.bank_bic or '',
+                    'bankName': bank.bank_name or '',  # Bank name
+                })
+            else:
+                _logger.warning('No Bank integration')
+
+            # 2. Integrate with IBAN split:
+            fiscal_position = partner.property_account_position_id
+            if fiscal_position.iban_management:
+                if integrate_on:  # Bank is correct:
+                    split_iban = bank.iban_breakdown(fiscal_position)
+                    # If splitted:
+                    if split_iban:
+                        iban_data.update(split_iban)
+
+            # 3. Add extra data from partner:
+            # todo payment
+            iban_data.update({
+                'payment': '',
+                # 'codMandato': '', # Code
+                # 'dataMandato': '2026-03-07T09:29:18.669Z',
+            })
+
+            # END: Integrate all parts:
+            partner_data.update(iban_data)
+            return partner_data
 
         def get_address_block(partner):
             """ Prepare partner block for destination
@@ -1844,10 +1896,8 @@ class StockPicking(models.Model):
             parcel = order.carrier_manual_parcel
 
         try:
-            vat_included = picking.move_lines[0].\
-                logistic_unload_id.tax_id[0].price_include
-            agent_code = picking.move_lines[0].logistic_unload_id.order_id.\
-                team_id.channel_ref
+            vat_included = picking.move_lines[0].logistic_unload_id.tax_id[0].price_include
+            agent_code = picking.move_lines[0].logistic_unload_id.order_id.team_id.channel_ref
         except:
             _logger.error('Missing fields!')
             vat_included = True  # TODO manage error
