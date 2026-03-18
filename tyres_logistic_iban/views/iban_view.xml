@@ -10,10 +10,11 @@
                      <page name="iban_page" string="IBAN">
                          <group colspan="4" col="4">
                              <field name="iban_management" />
-                             <newline/>
-                             <field name="iban_format" attrs="{'invisibile': [('iban_management', '=', False)]}" colspan="4" />
-                             <field name="iban_field" attrs="{'invisibile': [('iban_management', '=', False)]}" colspan="4" />
-                             <field name="iban_check" attrs="{'invisibile': [('iban_management', '=', False)]}" colspan="4" />
+                         </group>
+                         <group colspan="4" col="4" attrs="{'invisible': [('iban_management', '=', False)]}">
+                             <field name="iban_format" colspan="4" />
+                             <field name="iban_field" colspan="4" />
+                             <field name="iban_check" colspan="4" />
                          </group>
                      </page>
                  </page>
