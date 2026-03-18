@@ -1743,7 +1743,6 @@ class StockPicking(models.Model):
         )
         return document_number, document_date, document_filename
 
-    @api.model
     def send_invoice_to_account_api_test(self):
         """ Demo call for test
         """
