@@ -30,14 +30,20 @@
             <field name="view_id" ref="view_sale_order_status_extract_wizard"/>
             <field name="target">new</field>
         </record>
+
+        <!-- MENU: -->
         <menuitem 
             parent="menu_logistic_left_configuration_root"
             sequence="10"
             id="menu_view_sale_order_status_extract_wizard" 
             action="action_view_sale_order_status_extract_wizard"
             />
-        
-
+            <menuitem
+                id="menu_res_partner_iban"
+                parent="menu_logistic_left_configuration_root"
+                action="res_partner_iban_action"
+                sequence="60"
+                />
     </data>
 </openerp>
 

@@ -1817,7 +1817,6 @@ class StockPicking(models.Model):
             if len(banks) > 1:
                 _logger.warning('Multiple bank integration')
 
-            integrate_on = False
             if bank and bank.acc_type == 'iban' and bank.acc_number:
                 integrate_on = True
                 iban_data.update({
@@ -1825,24 +1824,23 @@ class StockPicking(models.Model):
                     'bankName': bank.bank_name or '',  # Bank name
                 })
             else:
+                integrate_on = False
                 _logger.warning('No Bank integration')
 
             # 2. Integrate with IBAN split:
-            fiscal_position = partner.property_account_position_id
-            if fiscal_position.iban_management:
-                if integrate_on:  # Bank is correct:
-                    split_iban = bank.iban_breakdown(fiscal_position)
-                    # If splitted:
-                    if split_iban:
-                        iban_data.update(split_iban)
+            country = partner.country_id
+            if country.iban_management and integrate_on:  # IBAN Management and correct Bank present:
+                split_iban = bank.iban_breakdown(country)
+                if split_iban:  # If splitted:
+                    iban_data.update(split_iban)
 
             # 3. Add extra data from partner:
-            # todo payment
-            iban_data.update({
-                'payment': '',
-                # 'codMandato': '', # Code
-                # 'dataMandato': '2026-03-07T09:29:18.669Z',
-            })
+            # Note: payment updated during invoice JSON creation (caller)
+            # iban_data.update({
+            #    'payment': partner.property_payment_term_id.account_ref,
+            #    # 'codMandato': '', # Code
+            #    # 'dataMandato': '2026-03-07T09:29:18.669Z',
+            #})
 
             # END: Integrate all parts:
             partner_data.update(iban_data)
@@ -1927,6 +1925,14 @@ class StockPicking(models.Model):
             call_mode = 'invoice'
             _logger.info('API Invoice call: Invoice Mode ON')
 
+        # ---------------------------------------------------------------------
+        # Integrate payment in partner:
+        # ---------------------------------------------------------------------
+        payment_code = order.payment_term_id.account_ref or '',  # Payment code
+        partner_block = get_partner_block(partner)
+        partner_block['payment'] = payment_code
+        destination_block = get_address_block(address)
+
         invoice_call = {
             'documentNo': '',  # Empty, returned from procedure
             # 'documentDate': '',  # Empty, returned from procedure
@@ -1936,13 +1942,13 @@ class StockPicking(models.Model):
             'documentType': account_position.id,
             'salesPerson': agent_code or '',
             'carrier': order.carrier_supplier_id.account_ref or '',  # code
-            'payment': order.payment_term_id.account_ref or '',  # Payment code
+            'payment': payment_code,
             'vatIncluded': vat_included,
             'noOfPack': parcel,
             'grossWeight': weight,
             'notes': order.note_invoice or '',
-            'customer': get_partner_block(partner),
-            'destination': get_address_block(address),
+            'customer': partner_block,
+            'destination': destination_block,
             # 'address': get_partner_block(address),  # todo
             'details': [],
 

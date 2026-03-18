@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###############################################################################
-#
 # ODOO (ex OpenERP)
 # Open Source Management Solution
 # Copyright (C) 2001-2015 Micronaet S.r.l. (<https://micronaet.com>)
@@ -18,8 +17,8 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
 ###############################################################################
+
 import os
 import sys
 import odoo
@@ -40,14 +39,15 @@ iban_field_available = {
 
 _logger = logging.getLogger(__name__)
 
+
 class ResPartnerBankInherit(models.Model):
     """ Model name: Partner bank
     """
     _inherit = 'res.partner.bank'
 
     @api.model
-    def iban_breakdown(self, fiscal_position):
-        """ Split bank data
+    def iban_breakdown(self, country):
+        """ Split bank data also with check country
         """
         bank = self
         separator = '|'
@@ -84,12 +84,10 @@ class ResPartnerBankInherit(models.Model):
         return iban_part_data
 
 
-class AccountFiscalPositionInherit(models.Model):
-    """ Model name: Extend Fiscal position
+class ResCountryInherit(models.Model):
+    """ Model name: Extend Res Country
     """
-
-    _inherit = 'account.fiscal.position'
-
+    _inherit = 'res.country'
 
     def get_iban_check(self):
         """ Check IBAN data reference
@@ -144,5 +142,3 @@ class AccountFiscalPositionInherit(models.Model):
              'es.: country|check|abi|cab|account'
              'I possibili valori sono: country, check, cin, abi, cab, account')
     iban_check = fields.Char('Controllo dati', compute=get_iban_check)
-
-
