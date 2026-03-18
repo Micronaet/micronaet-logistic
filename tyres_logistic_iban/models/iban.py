@@ -159,4 +159,4 @@ class AccountFiscalPosition(models.Model):
         help='Indicare i campi delle parti del formato sempre separati con |, '
              'es.: country|check|abi|cab|account'
              'I possibili valori sono: country, check, cin, abi, cab, account')
-    iban_check = fields.Char('Controllo dati', compute=get_iban_check)
+    iban_check = fields.Char('Controllo dati')
