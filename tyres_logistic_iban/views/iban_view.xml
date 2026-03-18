@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
-         <!--<record model="ir.ui.view" id="view_account_fiscal_position_iban_management_form">
+         <record model="ir.ui.view" id="view_account_fiscal_position_iban_management_form">
              <field name="name">account.fiscal.position.iban.management.form</field>
              <field name="model">account.fiscal.position</field>
              <field name="inherit_id" ref="account.view_account_position_form"/>
@@ -17,7 +17,7 @@
                      </page>
                  </page>
              </field>
-         </record>-->
+         </record>
     </data>
 </openerp>
 
