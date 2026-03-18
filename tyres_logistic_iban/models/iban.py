@@ -116,7 +116,7 @@ class AccountFiscalPositionInherit(models.Model):
         wrong_field = ''
         for field in iban_field_part:
             if field not in iban_format_part:
-                wrong_field += '[{}] '.fornat(field)
+                wrong_field += '[{}] '.format(field)
         if wrong_field:
             iban_check += 'Nomi di campi non autorizzati: {}\n'.format(wrong_field)
 
