@@ -115,7 +115,7 @@ class AccountFiscalPositionInherit(models.Model):
         # Fields name must in a valid list:
         wrong_field = ''
         for field in iban_field_part:
-            if field not in iban_format_part:
+            if field not in iban_field_available:
                 wrong_field += '[{}] '.format(field)
         if wrong_field:
             iban_check += 'Nomi di campi non autorizzati: {}\n'.format(wrong_field)
@@ -130,7 +130,7 @@ class AccountFiscalPositionInherit(models.Model):
         'Formato IBAN', size=100, default='2|2|1|5|5|12',
         help='Indicare le parti con lunghezza blocco separati con |, es.: 2|2|1|5|5|12')
     iban_field = fields.Char(
-        'Campi IBAN', size=180, default='country|check|cin|abi|cab|conto',
+        'Campi IBAN', size=180, default='country|check|cin|abi|cab|account',
         help='Indicare i campi delle parti del formato sempre separati con |, '
              'es.: country|check|abi|cab|account'
              'I possibili valori sono: country, check, cin, abi, cab, account')
