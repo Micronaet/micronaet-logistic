@@ -36,7 +36,7 @@
                 </form>
             </field>
         </record>
-        <record id="res_partner_iban_action" model="ir.actions.act_window">
+        <!--<record id="res_partner_iban_action" model="ir.actions.act_window">
             <field name="name">Nazioni per IBAN</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">res.country</field>
@@ -44,7 +44,7 @@
             <field name="view_type">form</field>
             <field name="view_id" ref="res_country_iban_view_tree"/>
             <field name="context">{'form_view_ref': 'tyres_logistic_iban.res_country_iban_view_form'}</field>
-        </record>
+        </record>-->
 
          <!--<record model="ir.ui.view" id="view_account_fiscal_position_iban_management_form">
              <field name="name">res.country.iban.management.form</field>
