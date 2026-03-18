@@ -9,7 +9,7 @@
                  <page name="tax_mapping" position="after">
                      <page name="iban_page" string="IBAN">
                          <group colspan="4" col="4">
-                             <field name="iban_management" />
+                             <field name="iban_management" widget="boolean_toggle"/>
                          </group>
                          <group colspan="4" col="4" attrs="{'invisible': [('iban_management', '=', False)]}">
                              <field name="iban_format" colspan="4" />
