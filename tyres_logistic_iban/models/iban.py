@@ -24,6 +24,7 @@ import os
 import sys
 import odoo
 import logging
+import pdb
 from odoo import models, fields, api
 from odoo.tools.translate import _
 
@@ -62,13 +63,15 @@ class ResPartnerBankInherit(models.Model):
             'bankAccount': '',
         }
 
+        # Read format:
         iban_format = fiscal_position.iban_format.split(separator)
         iban_field = fiscal_position.iban_field.split(separator)
         total = len(iban_field)
 
         start = 0
+        pdb.set_trace()
         for i in range(total):
-            size = int(iban_format[i])
+            size = int(iban_format[i].strip())
             end = start + size
 
             # Extract part and associate with field:
