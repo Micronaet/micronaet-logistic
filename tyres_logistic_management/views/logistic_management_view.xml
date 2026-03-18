@@ -1203,6 +1203,16 @@
              <field name="code">action = env['sale.order'].order_ready_excel_report()</field>
          </record>
 
+        <record id="res_country_iban_action" model="ir.actions.act_window">
+            <field name="name">Nazioni per IBAN</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.country</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="tyres_logistic_iban.res_country_iban_view_tree"/>
+            <field name="context">{'form_view_ref': 'tyres_logistic_iban.res_country_iban_view_form'}</field>
+        </record>
+
          <!--MASTER MENU:-->
          <menuitem
              id="menu_logistic_header_root"
@@ -1377,7 +1387,7 @@
                      sequence="10"
                      />
 
-            <menuitem
+             <menuitem
                  id="menu_logistic_customer_management_root"
                  parent="menu_logistic_header_root"
                  name="Manage customer delivery"
@@ -1530,12 +1540,12 @@
                      action="action_sales_team_tree"
                      sequence="50"
                      />
-                 <!--<menuitem
+                 <menuitem
                      id="menu_res_partner_iban"
                      parent="menu_logistic_left_configuration_root"
-                     action="tyres_logistic_iban.res_partner_iban_action"
+                     action="res_country_iban_action"
                      sequence="60"
-                     />-->
+                     />
 
 
          <!-- ODOO MENU: -->
