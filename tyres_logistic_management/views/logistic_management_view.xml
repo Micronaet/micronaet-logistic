@@ -1533,7 +1533,7 @@
                  <menuitem
                      id="menu_res_partner_iban"
                      parent="menu_logistic_left_configuration_root"
-                     action="res_partner_iban_action"
+                     action="tyres_logistic_iban.res_partner_iban_action"
                      sequence="60"
                      />
 
