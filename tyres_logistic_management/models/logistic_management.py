@@ -1836,11 +1836,11 @@ class StockPicking(models.Model):
 
             # 3. Add extra data from partner:
             # Note: payment updated during invoice JSON creation (caller)
-            # iban_data.update({
-            #    'payment': partner.property_payment_term_id.account_ref,
-            #    # 'codMandato': '', # Code
-            #    # 'dataMandato': '2026-03-07T09:29:18.669Z',
-            #})
+            iban_data.update({
+                # 'payment': partner.property_payment_term_id.account_ref,
+                'codMandato': '', # Code
+                'dataMandato': '0001-01-01T00:00:00.000Z',
+            })
 
             # END: Integrate all parts:
             partner_data.update(iban_data)

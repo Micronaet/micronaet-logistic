@@ -29,7 +29,7 @@ from odoo.tools.translate import _
 
 # Converter from part to JSON name:
 iban_field_available = {
-    'country': False,  # Not used
+    'country': 'isoiban',
     'abi': 'abi',
     'cab': 'cab',
     'account': 'bankAccount',
@@ -54,7 +54,6 @@ class ResPartnerBankInherit(models.Model):
         iban = (bank.acc_number or '').strip().replace(' ', '')  # Clean IBAN
         iban_part_data = {  # Empty block
             # Bank part:
-            'isoiban': iban,
             'iban': iban,
 
             # Split part:
