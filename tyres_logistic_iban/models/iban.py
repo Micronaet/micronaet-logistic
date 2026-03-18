@@ -69,19 +69,18 @@ class ResPartnerBankInherit(models.Model):
         total = len(iban_field)
 
         start = 0
-        pdb.set_trace()
         for i in range(total):
             size = int(iban_format[i].strip())
             end = start + size
 
             # Extract part and associate with field:
             text_part = iban[start:end]
+            start = end  # New start!
             field_name = iban_field_available.get(iban_field[i])
             if not field_name:
                 continue  # Not used
 
             iban_part_data[field_name] = text_part
-            start = end
         return iban_part_data
 
 
