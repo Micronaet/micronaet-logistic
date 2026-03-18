@@ -132,10 +132,12 @@ class AccountFiscalPositionInherit(models.Model):
     # ------------------------------------------------------------------------------------------------------------------
     iban_management = fields.Boolean('Gestione IBAN')
     iban_format = fields.Char(
-        'Formato IBAN', size=100, default='2|2|1|5|5|12',
+        'Formato IBAN', size=100,
+        # default='2|2|1|5|5|12',
         help='Indicare le parti con lunghezza blocco separati con |, es.: 2|2|1|5|5|12')
     iban_field = fields.Char(
-        'Campi IBAN', size=180, default='country|check|cin|abi|cab|account',
+        'Campi IBAN', size=180,
+        # default='country|check|cin|abi|cab|account',
         help='Indicare i campi delle parti del formato sempre separati con |, '
              'es.: country|check|abi|cab|account'
              'I possibili valori sono: country, check, cin, abi, cab, account')
