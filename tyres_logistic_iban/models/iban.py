@@ -64,8 +64,8 @@ class ResPartnerBankInherit(models.Model):
         }
 
         # Read format:
-        iban_format = fiscal_position.iban_format.split(separator)
-        iban_field = fiscal_position.iban_field.split(separator)
+        iban_format = country.iban_format.split(separator)
+        iban_field = country.iban_field.split(separator)
         total = len(iban_field)
 
         start = 0
