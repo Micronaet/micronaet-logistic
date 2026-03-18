@@ -52,6 +52,10 @@ class ResPartnerBankInherit(models.Model):
         separator = '|'
         iban = (bank.acc_number or '').strip().replace(' ', '')  # Clean IBAN
         iban_part_data = {  # Empty block
+            # Bank part:
+            'isoiban': iban,
+            'iban': iban,
+
             # Split part:
             'abi': '',
             'cab': '',

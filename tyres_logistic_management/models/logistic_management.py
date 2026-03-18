@@ -1821,8 +1821,6 @@ class StockPicking(models.Model):
             if bank and bank.acc_type == 'iban' and bank.acc_number:
                 integrate_on = True
                 iban_data.update({
-                    'isoiban': iban,
-                    'iban': iban,
                     'swift': bank.bank_bic or '',
                     'bankName': bank.bank_name or '',  # Bank name
                 })
