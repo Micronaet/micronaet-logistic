@@ -41,6 +41,7 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">res.country</field>
             <field name="view_mode">tree,form</field>
+            <field name="view_type">form</field>
             <field name="view_id" ref="res_country_iban_view_tree"/>
             <field name="context">{'form_view_ref': 'tyres_logistic_iban.res_country_iban_view_form'}</field>
         </record>
