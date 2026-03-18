@@ -38,12 +38,6 @@
             id="menu_view_sale_order_status_extract_wizard" 
             action="action_view_sale_order_status_extract_wizard"
             />
-            <menuitem
-                id="menu_res_partner_iban"
-                parent="menu_logistic_left_configuration_root"
-                action="res_partner_iban_action"
-                sequence="60"
-                />
     </data>
 </openerp>
 

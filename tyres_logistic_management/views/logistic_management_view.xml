@@ -1530,6 +1530,12 @@
                      action="action_sales_team_tree"
                      sequence="50"
                      />
+                 <menuitem
+                     id="menu_res_partner_iban"
+                     parent="menu_logistic_left_configuration_root"
+                     action="res_partner_iban_action"
+                     sequence="60"
+                     />
 
 
          <!-- ODOO MENU: -->
