@@ -1812,7 +1812,7 @@ class StockPicking(models.Model):
             }
 
             # 1. Integrate Bank part:
-            bank = partner.bank_account_cont
+            bank = partner.bank_account_count
             integrate_on = False
             if bank and bank.acc_type == 'iban' and bank.acc_number:
                 integrate_on = True
