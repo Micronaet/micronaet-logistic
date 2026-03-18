@@ -1797,7 +1797,6 @@ class StockPicking(models.Model):
             # ----------------------------------------------------------------------------------------------------------
             #                                        IBAN Split operations:
             # ----------------------------------------------------------------------------------------------------------
-            import pdb; pdb.set_trace()
             # 0. Empty extra IBAN block:
             iban_data = {  # Empty block
                 # Bank account data:
