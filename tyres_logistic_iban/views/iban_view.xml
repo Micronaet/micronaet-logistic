@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
-        <record id="res_country_iban_view_tree" model="ir.ui.view">
+        <!--<record id="res_country_iban_view_tree" model="ir.ui.view">
             <field name="name">res.country.iban.view.tree</field>
             <field name="model">res.country</field>
             <field name="priority" eval="40"/>
@@ -11,7 +11,6 @@
                     <field name="name"/>
                     <field name="iban_management"/>
                     <field name="iban_field" />
-                    <!--<field name="iban_check" />-->
                 </tree>
             </field>
         </record>
@@ -36,14 +35,14 @@
                     </sheet>
                 </form>
             </field>
-        </record>
+        </record>-->
         <record id="res_partner_iban_action" model="ir.actions.act_window">
             <field name="name">Nazioni per IBAN</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">res.country</field>
             <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="res_country_iban_view_tree"/>
-            <field name="context">{'form_view_ref': 'tyres_logistic_iban.res_country_iban_view_form'}</field>
+            <!--<field name="view_id" ref="res_country_iban_view_tree"/>
+            <field name="context">{'form_view_ref': 'tyres_logistic_iban.res_country_iban_view_form'}</field>-->
         </record>
 
          <!--<record model="ir.ui.view" id="view_account_fiscal_position_iban_management_form">
