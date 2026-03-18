@@ -68,7 +68,8 @@ class ResPartnerBankInherit(models.Model):
 
         start = 0
         for i in range(total):
-            end = start + iban_format[i]
+            size = int(iban_format[i])
+            end = start + size
 
             # Extract part and associate with field:
             text_part = iban[start:end]
