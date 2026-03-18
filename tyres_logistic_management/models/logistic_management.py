@@ -1987,10 +1987,11 @@ class StockPicking(models.Model):
         # API Call:
         # --------------------------------------------------------------------------------------------------------------
         if demo_call:
+            formatted_json = json.dumps(invoice_call, indent=4, sort_keys=True)
             _logger.info('Calling: Invoice\nInvoice data: %s' % (
-                invoice_call,
+                formatted_json,
             ))
-            raise exceptions.Warning(invoice_call)
+            raise exceptions.Warning(formatted_json)
 
         # Parameter for API Call:
         url = company.api_root_url
