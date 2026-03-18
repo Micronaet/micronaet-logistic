@@ -8,8 +8,9 @@
              <field name="arch" type="xml">
                  <page name="tax_mapping" position="after">
                      <page name="iban_page" string="IBAN">
-                         <group col="4">
+                         <group col="4" colspan="4">
                              <field name="iban_management" />
+                             <newline/>
                              <field name="iban_format" attrs="{'invisibile': [('iban_management', '=', False)]}" colspan="4" />
                              <field name="iban_field" attrs="{'invisibile': [('iban_management', '=', False)]}" colspan="4" />
                              <field name="iban_check" attrs="{'invisibile': [('iban_management', '=', False)]}" colspan="4" />
