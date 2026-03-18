@@ -50,6 +50,7 @@
         'logistic_product_supplier',  # Supplier purchase management
         'logistic_secure_payment',  # For auto go ahead when confirmed payment
         'tyres_logistic_carrier',  # Carrier management
+        'tyres_logistic_iban',
         # 'mmac_odoo4', # Extra fields (loop reference)
 
         # 'logistic_stock_position', # Stock position
@@ -71,7 +72,6 @@
         # Views:
         'views/logistic_management_view.xml',
         'views/dropship_view.xml',
-        'views/iban_view.xml',
         'wizard/manual_operation_view.xml',  # Test events
         'wizard/status_extract_view.xml',  # Extract operation
         'wizard/fees_report_view.xml',  # Extract feed
