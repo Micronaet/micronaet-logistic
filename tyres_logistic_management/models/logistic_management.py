@@ -1928,7 +1928,7 @@ class StockPicking(models.Model):
         # ---------------------------------------------------------------------
         # Integrate payment in partner:
         # ---------------------------------------------------------------------
-        payment_code = order.payment_term_id.account_ref or '',  # Payment code
+        payment_code = order.payment_term_id.account_ref or ''  # Payment code
         partner_block = get_partner_block(partner)
         partner_block['payment'] = payment_code
         destination_block = get_address_block(address)
