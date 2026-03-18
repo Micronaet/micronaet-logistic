@@ -1744,8 +1744,17 @@ class StockPicking(models.Model):
         return document_number, document_date, document_filename
 
     @api.model
+    def send_invoice_to_account_api_test(self):
+        """ Demo call for test
+        """
+        reply = self.with_context(demo_call=True).send_invoice_to_account_api()
+        return reply
+
+    @api.model
     def send_invoice_to_account_api(self):
         """ Send invoice / picking via CSV to Account
+            Context param:
+              - demo_call: Return JSON text instead of call method
         """
         def get_partner_block(partner):
             """ Prepare partner block for partner
@@ -1878,14 +1887,14 @@ class StockPicking(models.Model):
         self.ensure_one()
 
         # Readability:
+        demo_call = self.env.context.get('demo_call')
         picking = self
         order = picking.sale_order_id
         partner = order.partner_invoice_id or order.partner_id
         address = order.partner_shipping_id
         account_position = partner.property_account_position_id
         company = self.env.user.company_id
-        # logistic_root_folder = os.path.expanduser(
-        # company.logistic_root_folder)
+        # logistic_root_folder = os.path.expanduser(company.logistic_root_folder)
 
         # Parse extra data:
         if order.carrier_shippy:
@@ -1949,8 +1958,7 @@ class StockPicking(models.Model):
             # -----------------------------------------------------------------
             # Product not in invoice, except partner and fis. pos. case
             if product.not_in_invoice:
-                if not partner.pfu_invoice_fiscal or not \
-                        account_position.pfu_invoice_enable:
+                if not partner.pfu_invoice_fiscal or not account_position.pfu_invoice_enable:
                     _logger.warning('Line not extract for invoice')
                     continue
 
@@ -1976,9 +1984,16 @@ class StockPicking(models.Model):
                 'note': '',  # TODO comment
             })
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # API Call:
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
+        if demo_call:
+            _logger.info('Calling: Invoice\nInvoice data: %s' % (
+                invoice_call,
+            ))
+            raise exceptions.Warning(invoice_call)
+
+        # Parameter for API Call:
         url = company.api_root_url
         endpoint = 'Invoice'
         location = '%s/%s' % (url, endpoint)
@@ -2009,8 +2024,7 @@ class StockPicking(models.Model):
                 #                    Mode management:
                 # -------------------------------------------------------------
                 # Extract Invoice / DDT number and save in correct field
-                doc_number, doc_date, doc_filename = \
-                    self.extract_invoice_data_from_account(reply_json)
+                doc_number, doc_date, doc_filename = self.extract_invoice_data_from_account(reply_json)
                 _logger.warning('Document {} generated: {}'.format(
                     call_mode, doc_number))
 

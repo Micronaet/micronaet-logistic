@@ -1,6 +1,18 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
+        <!--stock.picking-->
+         <record model="ir.ui.view" id="view_stock_picking_debug_invoice_form">
+             <field name="name">stock.picking.form</field>
+             <field name="model">stock.picking</field>
+             <field name="inherit_id" ref="stock.view_picking_form"/>
+             <field name="arch" type="xml">
+                 <xpath expr="//header/button[1]" position="after">
+                     <button name="send_invoice_to_account_api_test" type="object" string="Test invio fattura" groups="tyres_logistic_management.group_logistic_debugger"/>
+                 </xpath>
+             </field>
+         </record>
+
          <record model="ir.ui.view" id="view_stock_move_transfer_search">
              <field name="name">stock.move.transfer.search</field>
              <field name="model">stock.move.transfer</field>
