@@ -1758,6 +1758,7 @@ class StockPicking(models.Model):
         def get_partner_block(partner):
             """ Prepare partner block for partner
             """
+            null_date = '0001-01-01T00:00:00.000Z'
             # ----------------------------------------------------------------------------------------------------------
             # Private management:
             # ----------------------------------------------------------------------------------------------------------
@@ -1816,7 +1817,9 @@ class StockPicking(models.Model):
 
             if banks:
                 bank = banks[0]
+                create_date = '{}.000Z'.format(bank.create_date.replace(' ', 'T'))
             else:
+                create_date = null_date
                 bank = False
 
             if bank and bank.acc_type == 'iban' and bank.acc_number:
@@ -1841,7 +1844,7 @@ class StockPicking(models.Model):
             iban_data.update({
                 # 'payment': partner.property_payment_term_id.account_ref,
                 'codMandato': partner.mmac_mandato_sepa or '', # Codice Mandato
-                'dataMandato': '0001-01-01T00:00:00.000Z',
+                'dataMandato': create_date if partner.mmac_mandato_sepa else null_date,
             })
 
             # END: Integrate all parts:
