@@ -1840,7 +1840,7 @@ class StockPicking(models.Model):
             # Note: payment updated during invoice JSON creation (caller)
             iban_data.update({
                 # 'payment': partner.property_payment_term_id.account_ref,
-                'codMandato': '', # Code
+                'codMandato': partner.mmac_mandato_sepa or '', # Codice Mandato
                 'dataMandato': '0001-01-01T00:00:00.000Z',
             })
 
