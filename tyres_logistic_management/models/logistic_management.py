@@ -1844,7 +1844,7 @@ class StockPicking(models.Model):
             iban_data.update({
                 # 'payment': partner.property_payment_term_id.account_ref,
                 'codMandato': partner.mmac_mandato_sepa or '', # Codice Mandato
-                'dataMandato': create_date if partner.mmac_mandato_sepa else null_date,
+                'dataMandato': create_date,
             })
 
             # END: Integrate all parts:
