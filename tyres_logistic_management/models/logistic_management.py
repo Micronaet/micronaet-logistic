@@ -1848,7 +1848,8 @@ class StockPicking(models.Model):
             })
 
             # END: Integrate all parts:
-            partner_data.update(iban_data)
+            if country.iban_management:
+                partner_data.update(iban_data)
             return partner_data
 
         def get_address_block(partner):
