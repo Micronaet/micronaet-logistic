@@ -1815,13 +1815,13 @@ class StockPicking(models.Model):
                 }
 
                 # 1. Integrate Bank part:
-                banks = partner.bank_ids.sorted(key=lambda r: r.create_date, reverse=True)
+                banks = partner.bank_ids.sorted(key=lambda r: r.write_date, reverse=True)
 
                 if banks:
                     bank = banks[0]
-                    create_date = '{}.000Z'.format(bank.create_date.replace(' ', 'T'))
+                    write_date = '{}.000Z'.format(bank.write_date.replace(' ', 'T'))
                 else:
-                    create_date = null_date
+                    write_date = null_date
                     bank = False
 
                 if bank and bank.acc_type == 'iban' and bank.acc_number:
@@ -1846,7 +1846,7 @@ class StockPicking(models.Model):
                 iban_data.update({
                     # 'payment': partner.property_payment_term_id.account_ref,
                     'codMandato': partner.mmac_mandato_sepa or '', # Codice Mandato
-                    'dataMandato': create_date,
+                    'dataMandato': write_date,
                 })
 
                 # END: Integrate all parts:
