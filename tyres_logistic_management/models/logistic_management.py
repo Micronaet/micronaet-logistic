@@ -1848,7 +1848,7 @@ class StockPicking(models.Model):
             })
 
             # END: Integrate all parts:
-            if country.iban_management:
+            if country.iban_management:  # Only if enabled management!
                 partner_data.update(iban_data)
             return partner_data
 
