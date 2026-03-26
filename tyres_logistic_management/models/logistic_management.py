@@ -1795,11 +1795,11 @@ class StockPicking(models.Model):
                 'ipaCode': partner.fatturapa_unique_code or '',  # SDI code
                 }
 
-            # ----------------------------------------------------------------------------------------------------------
+            # ==========================================================================================================
             #                                        IBAN Split operations:
-            # ----------------------------------------------------------------------------------------------------------
+            # ==========================================================================================================
             country = partner.country_id
-            if country.iban_management:  # Only if enabled management!
+            if country.iban_management:  # Only if enabled management for this country!
                 # 0. Empty extra IBAN block:
                 iban_data = {  # Empty block
                     # Bank account data:
