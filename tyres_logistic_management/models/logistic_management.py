@@ -1798,58 +1798,60 @@ class StockPicking(models.Model):
             # ----------------------------------------------------------------------------------------------------------
             #                                        IBAN Split operations:
             # ----------------------------------------------------------------------------------------------------------
-            # 0. Empty extra IBAN block:
-            iban_data = {  # Empty block
-                # Bank account data:
-                'isoiban': '',
-                'iban': '',
-                'swift': '',
-                'bankName': '',
-
-                # Split IBAN part:
-                'abi': '',
-                'cab': '',
-                'bankAccount': '',
-            }
-
-            # 1. Integrate Bank part:
-            banks = partner.bank_ids.sorted(key=lambda r: r.create_date, reverse=True)
-
-            if banks:
-                bank = banks[0]
-                create_date = '{}.000Z'.format(bank.create_date.replace(' ', 'T'))
-            else:
-                create_date = null_date
-                bank = False
-
-            if bank and bank.acc_type == 'iban' and bank.acc_number:
-                integrate_on = True
-                iban_data.update({
-                    'swift': bank.bank_bic or '',
-                    'bankName': bank.bank_name or '',  # Bank name
-                })
-            else:
-                integrate_on = False
-                _logger.warning('No Bank integration')
-
-            # 2. Integrate with IBAN split:
             country = partner.country_id
-            if country.iban_management and integrate_on:  # IBAN Management and correct Bank present:
-                split_iban = bank.iban_breakdown(country)
-                if split_iban:  # If splitted:
-                    iban_data.update(split_iban)
-
-            # 3. Add extra data from partner:
-            # Note: payment updated during invoice JSON creation (caller)
-            iban_data.update({
-                # 'payment': partner.property_payment_term_id.account_ref,
-                'codMandato': partner.mmac_mandato_sepa or '', # Codice Mandato
-                'dataMandato': create_date,
-            })
-
-            # END: Integrate all parts:
             if country.iban_management:  # Only if enabled management!
+                # 0. Empty extra IBAN block:
+                iban_data = {  # Empty block
+                    # Bank account data:
+                    'isoiban': '',
+                    'iban': '',
+                    'swift': '',
+                    'bankName': '',
+
+                    # Split IBAN part:
+                    'abi': '',
+                    'cab': '',
+                    'bankAccount': '',
+                }
+
+                # 1. Integrate Bank part:
+                banks = partner.bank_ids.sorted(key=lambda r: r.create_date, reverse=True)
+
+                if banks:
+                    bank = banks[0]
+                    create_date = '{}.000Z'.format(bank.create_date.replace(' ', 'T'))
+                else:
+                    create_date = null_date
+                    bank = False
+
+                if bank and bank.acc_type == 'iban' and bank.acc_number:
+                    integrate_on = True
+                    iban_data.update({
+                        'swift': bank.bank_bic or '',
+                        'bankName': bank.bank_name or '',  # Bank name
+                    })
+                else:
+                    integrate_on = False
+                    _logger.warning('No Bank integration')
+
+                # 2. Integrate with IBAN split:
+                # country = partner.country_id
+                if integrate_on:  # IBAN Management and correct Bank present:  country.iban_management and
+                    split_iban = bank.iban_breakdown(country)
+                    if split_iban:  # If splitted:
+                        iban_data.update(split_iban)
+
+                # 3. Add extra data from partner:
+                # Note: payment updated during invoice JSON creation (caller)
+                iban_data.update({
+                    # 'payment': partner.property_payment_term_id.account_ref,
+                    'codMandato': partner.mmac_mandato_sepa or '', # Codice Mandato
+                    'dataMandato': create_date,
+                })
+
+                # END: Integrate all parts:
                 partner_data.update(iban_data)
+
             return partner_data
 
         def get_address_block(partner):
