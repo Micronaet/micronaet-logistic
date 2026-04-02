@@ -1758,6 +1758,8 @@ class StockPicking(models.Model):
         def get_partner_block(partner):
             """ Prepare partner block for partner
             """
+            country_pool = self.env['res.country']
+
             null_date = '0001-01-01T00:00:00.000Z'
             # ----------------------------------------------------------------------------------------------------------
             # Private management:
@@ -1798,59 +1800,67 @@ class StockPicking(models.Model):
             # ==========================================================================================================
             #                                        IBAN Split operations:
             # ==========================================================================================================
-            country = partner.country_id
-            if country.iban_management:  # Only if enabled management for this country!
-                # 0. Empty extra IBAN block:
-                iban_data = {  # Empty block
-                    # Bank account data:
-                    'isoiban': '',
-                    'iban': '',
-                    'swift': '',
-                    'bankName': '',
+            # Search country depend on bank account IBAN reference, start 2 char:
 
-                    # Split IBAN part:
-                    'abi': '',
-                    'cab': '',
-                    'bankAccount': '',
-                }
+            # 0. Empty extra IBAN block:
+            iban_data = {  # Empty block
+                # Bank account data:
+                'isoiban': '',
+                'iban': '',
+                'swift': '',
+                'bankName': '',
 
-                # 1. Integrate Bank part:
-                banks = partner.bank_ids.sorted(key=lambda r: r.write_date, reverse=True)
+                # Split IBAN part:
+                'abi': '',
+                'cab': '',
+                'bankAccount': '',
+            }
 
-                if banks:
-                    bank = banks[0]
-                    write_date = '{}.000Z'.format(bank.write_date.replace(' ', 'T'))
-                else:
-                    write_date = null_date
-                    bank = False
+            # 1. Integrate Bank part:
+            banks = partner.bank_ids.sorted(key=lambda r: r.write_date, reverse=True)
+            if banks:
+                bank = banks[0]
+                write_date = '{}.000Z'.format(bank.write_date.replace(' ', 'T'))
+            else:
+                write_date = null_date
+                bank = False
 
-                if bank and bank.acc_type == 'iban' and bank.acc_number:
-                    integrate_on = True
-                    iban_data.update({
-                        'swift': bank.bank_bic or '',
-                        'bankName': bank.bank_name or '',  # Bank name
-                    })
-                else:
-                    integrate_on = False
-                    _logger.warning('No Bank integration')
-
-                # 2. Integrate with IBAN split:
-                # country = partner.country_id
-                if integrate_on:  # IBAN Management and correct Bank present:  country.iban_management and
-                    split_iban = bank.iban_breakdown(country)
-                    if split_iban:  # If splitted:
-                        iban_data.update(split_iban)
-
-                # 3. Add extra data from partner:
-                # Note: payment updated during invoice JSON creation (caller)
+            if bank and bank.acc_type == 'iban' and bank.acc_number:
                 iban_data.update({
-                    # 'payment': partner.property_payment_term_id.account_ref,
-                    'codMandato': partner.mmac_mandato_sepa or '', # Codice Mandato
-                    'dataMandato': write_date,
+                    'swift': bank.bank_bic or '',
+                    'bankName': bank.bank_name or '',  # Bank name
                 })
+                country_code = bank.acc_number[:2].upper()
+                countries = country_pool.search([
+                    ('iban_management', '=', True),
+                    ('code', '=', country_code),
+                ])
+                if countries:  # Found country with IBAN Management
+                    country = countries[0]
+                    if len(countries) > 1:
+                        _logger.warning('More country with {}'.format(country_code))
 
-                # END: Integrate all parts:
-                partner_data.update(iban_data)
+                    if country:  # and country.iban_management:  # Only if enabled management for this country!
+                        # 2. Integrate with IBAN split:
+                        # Note: Bank is present, account is IBAN and there is acc_number here! (no need to check)
+                        split_iban = bank.iban_breakdown(country)
+                        if split_iban:  # If splitted:
+                            iban_data.update(split_iban)
+
+                        # 3. Add extra data from partner:
+                        # Note: payment updated during invoice JSON creation (caller)
+                        iban_data.update({
+                            # 'payment': partner.property_payment_term_id.account_ref,
+                            'codMandato': partner.mmac_mandato_sepa or '', # Codice Mandato
+                            'dataMandato': write_date,
+                        })
+
+                        # END: Integrate all parts:
+                        partner_data.update(iban_data)
+                else:
+                    _logger.warning('No Bank integration')
+            else:
+                _logger.warning('No Bank integration')
 
             return partner_data
 
