@@ -1830,7 +1830,7 @@ class StockPicking(models.Model):
                     'swift': bank.bank_bic or '',
                     'bankName': bank.bank_name or '',  # Bank name
                 })
-                country_code = bank.acc_number[:2].upper()
+                country_code = bank.acc_number[:2].upper()  # Always first 2 char of IBAN!
                 countries = country_pool.search([
                     ('iban_management', '=', True),
                     ('code', '=', country_code),
@@ -1858,9 +1858,9 @@ class StockPicking(models.Model):
                         # END: Integrate all parts:
                         partner_data.update(iban_data)
                 else:
-                    _logger.warning('No Bank integration')
+                    _logger.warning('No Bank integration: No country found, or not enabled')
             else:
-                _logger.warning('No Bank integration')
+                _logger.warning('No Bank integration: Bank not present')
 
             return partner_data
 
