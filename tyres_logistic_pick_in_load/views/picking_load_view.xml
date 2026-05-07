@@ -433,25 +433,22 @@
             <field name="model">stock.move</field>
             <field name="arch" type="xml">
                 <tree string="Orphan stock move" default_order="partner_id" editable="bottom" decoration-primary="dropship_manage==True">
-                    <field name="picking_id" invisible="1"/>
-                    <field name="force_hide" invisible="1" />
                     <field name="date" />
-                    <field name="internal_note" />
                     <field name="partner_id" readonly="1"/>
-                    <field name="product_id" readonly="1" invisible="1"/>
-                    <field name="name" readonly="1" invisible="1"/>
                     <field name="default_code" readonly="1"/>
+                    <field name="product_uom_qty" readonly="1" />
                     <field name="name_extended" readonly="1" />
-                    <field name="price_unit" readonly="1"/>
+                    <field name="internal_note" />
                     <field name="logistic_load_id" readonly="1"/>
+
                     <button name="split_pending_stock_movement" string="Dividi il movimento"
                         type="object" confirm="Confermi la divisione del movimento di carico per assegnare 2 documenti padre?"
                         icon="fa-cut fa-2x" attrs="{'invisible': [('product_uom_qty', '&lt;=', 1)]}"
                         groups="tyres_logistic_management.group_logistic_account_manager,tyres_logistic_management.group_logistic_manager"
                         /><!--attrs="{'invisible': [('dropship_manage','=',True)]}"-->
-                    <field name="product_uom_qty" readonly="1" />
-                    <field name="dropship_manage" invisible="1"/>
-                    <field name="state" invisible="1" />
+
+                    <field name="price_unit" readonly="1"/>
+
                     <button name="unlink_pending_stock_movement" string="Unlink stock move"
                         type="object" confirm="Confirm remove of pending stock movement?"
                         icon="fa-minus-square fa-2x" attrs="{'invisible': [('dropship_manage','=',True)]}"
@@ -467,6 +464,15 @@
                         icon="fa-eye fa-2x" attrs="{'invisible': [('force_hide','=',False)]}"
                         groups="tyres_logistic_management.group_logistic_account_manager,tyres_logistic_management.group_logistic_manager"
                         />
+
+                    <!-- Hidden -->
+                    <field name="picking_id" invisible="1"/>
+                    <field name="force_hide" invisible="1" />
+                    <field name="product_id" readonly="1" invisible="1"/>
+                    <field name="name" readonly="1" invisible="1"/>
+                    <field name="dropship_manage" invisible="1"/>
+                    <field name="state" invisible="1" />
+
                     <!--TODO-->
                 </tree>
             </field>
