@@ -2129,8 +2129,7 @@ class StockPicking(models.Model):
         # For Invoice mode ONLY (reload if not present picking references):
         # ---------------------------------------------------------------------
         if call_mode == 'invoice':
-            invoice_number = requote_uri(
-                picking.invoice_number or '')  # quoted!
+            invoice_number = requote_uri(picking.invoice_number or '')  # quoted!
             invoice_year = (picking.invoice_date or '')[:4]
 
             # Cases possible: has number assigned, without number assigned
@@ -2149,8 +2148,7 @@ class StockPicking(models.Model):
                 # invoice_year = (invoice_date or '')[:4]
 
             # A. Call with invoice reference:
-            # location = '%s/Invoice/%s/%s/pdf' % (
-            #    url, invoice_year, invoice_number)
+            # location = '%s/Invoice/%s/%s/pdf' % (url, invoice_year, invoice_number)
 
         # ---------------------------------------------------------------------
         # B. Call with order reference

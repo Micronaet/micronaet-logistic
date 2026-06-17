@@ -85,8 +85,7 @@ class StockPickingRefundDocumentWizard(models.TransientModel):
         now = fields.Datetime.now()
         partner = from_picking.partner_id # sale_order_id ref.
         order = from_picking.sale_order_id
-        origin = from_picking.invoice_number or from_picking.ddt_number or \
-            from_picking.name
+        origin = from_picking.invoice_number or from_picking.ddt_number or from_picking.name
         
         to_picking = picking_pool.create({
             'refund_origin_id': from_picking.id,
@@ -117,11 +116,9 @@ class StockPickingRefundDocumentWizard(models.TransientModel):
 
             move_id = move_pool.create({
                 'picking_id': to_picking_id,
-
                 'company_id': company.id,
                 'partner_id': partner.id,
-                'picking_id': to_picking_id,
-                'product_id': product.id, 
+                'product_id': product.id,
                 'name': product.name or ' ',
                 'date': now,
                 'date_expected': now,
@@ -183,8 +180,7 @@ class StockPickingRefundDocumentWizard(models.TransientModel):
     # -------------------------------------------------------------------------
     # Columns:
     # -------------------------------------------------------------------------
-    picking_id = fields.Many2one(
-        'stock.picking', 'From document', required=True)
+    picking_id = fields.Many2one('stock.picking', 'From document', required=True)
 
 class StockPickingRefundDocumentLineWizard(models.TransientModel):
     ''' Wizard for generate refund document
@@ -216,5 +212,3 @@ class StockPickingRefundDocumentWizard(models.TransientModel):
     line_ids = fields.One2many(
         'stock.picking.refund.line.wizard', 'wizard_id', 
         'Picking line')
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
