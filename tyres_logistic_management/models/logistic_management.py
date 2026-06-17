@@ -358,8 +358,7 @@ class PurchaseOrder(models.Model):
 
         api_order = {
             'documentNo': purchase.name,
-            'documentDate':
-                company_pool.get_zulu_date(first_line.date_planned),
+            'documentDate': company_pool.get_zulu_date(first_line.date_planned),
             'notes':  # ex customerCode
                 first_line.clean_account_char(sale_order.partner_id.name),
             'customerCode':  # ex costReference

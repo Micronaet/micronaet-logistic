@@ -95,7 +95,7 @@ class StockPicking(models.Model):
             if not product_qty:
                 continue # jump empty q (es. Kit)
             if line.product_id.type == 'service':
-                continue # no service product (expense and lavoration)
+                continue # no service product (expense and job)
 
             line_pool.create({
                 'wizard_id': wizard_id,
@@ -134,15 +134,13 @@ class StockPicking(models.Model):
             # Load partner sequence (depend on fiscal position)
             partner = picking.partner_id
             if not partner.property_account_position_id:
-                _logger.error(
-                    'Partner %s with no fiscal position' % partner.name)
+                _logger.error('Partner %s with no fiscal position' % partner.name)
                 return False
 
             sequence = False # TODO
             if not sequence:
                 _logger.error(
-                    'Partner %s no sequence found in fiscal position' % (
-                        partner.name))
+                    'Partner %s no sequence found in fiscal position' % (partner.name))
                 return False
 
             sequence_number = False  # todo
