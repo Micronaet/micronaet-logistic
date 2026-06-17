@@ -85,8 +85,7 @@ class StockPickingRefundDocumentWizard(models.TransientModel):
         now = fields.Datetime.now()
         partner = from_picking.partner_id
         order = from_picking.sale_order_id
-        origin = from_picking.invoice_number or from_picking.ddt_number or \
-            from_picking.name
+        origin = from_picking.invoice_number or from_picking.ddt_number or from_picking.name
         
         to_picking = picking_pool.create({
             'refund_origin_id': from_picking.id,
@@ -117,11 +116,9 @@ class StockPickingRefundDocumentWizard(models.TransientModel):
 
             move_id = move_pool.create({
                 'picking_id': to_picking_id,
-
                 'company_id': company.id,
                 'partner_id': partner.id,
-                'picking_id': to_picking_id,
-                'product_id': product.id, 
+                'product_id': product.id,
                 'name': product.name or ' ',
                 'date': now,
                 'date_expected': now,
