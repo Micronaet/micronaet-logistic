@@ -56,6 +56,13 @@ class ResCompany(models.Model):
         'Gestione API', help='Attivazione gestione API gestionale per evitare passaggi CSV')
     api_invoice_area = fields.Boolean('Fatturazione', help='Creazione fattura e recupero PDF stampa')
     api_fees_area = fields.Boolean('Corrispettivi', help='Scarico corrispettivi fine giornata')
+    api_fees_from_days = fields.Integer(
+        'Giorni di partenza',
+        help='Indicare da quanti giorni prima della data di oggi selezionare i corrispettivi, mettendo 0 prende solo '
+             'quelli creati oggi, mettendo 3 quelli da oggi - 3 gg. in poi, date comprese. '
+             'Utilizzare 0 quando si vogliono fare le prove i primi giorni (così non si prendono scontrini preced.)'
+             'Utilizzare almeno 3 quando il programma è testato così da prendere anche gli scontrini di 3 gg. prima '
+             '(utile nel week end per tornare a venerdì)')
     api_pick_internal_area = fields.Boolean(
         'Scarico interno',
         help='Scarico merce assegnata agli ordini da magazzino interno'

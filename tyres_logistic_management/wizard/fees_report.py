@@ -67,6 +67,20 @@ class LogisticFeesHeader(models.Model):
         help='Indica che la sincro ha dato qualche errore durante la procedura, utilizzata anche per segnalare '
              'eventuali date extra troppo indietro nel tempo (max -3 gg!)')
 
+
+class StockPickingInherit(models.Model):
+    """ Model name: Stock picking Relations
+    """
+
+    _inherit = 'stock.picking'
+
+    # Link fields:
+    fees_api_id = fields.Many2one(
+        'logistic.fees.api', 'Scontrino',
+        help='Crea e collega lo scontrino al Picking Out che ha generato lo scarico effettivo')
+    # TODO flag for remove olt picking?
+    
+
 # Wizard:
 class LogisticFeesExtractWizard(models.TransientModel):
     _name = 'logistic.fees.extract.wizard'
