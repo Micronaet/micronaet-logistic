@@ -1,6 +1,97 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
+        <!-- Fees API header -->
+        <record id="view_logistic_fees_api_tree" model="ir.ui.view">
+            <name>logistic.fees.api.tree</name>
+            <model>logistic.fees.api</model>
+            <arch type="xml">
+                <tree string="Documenti API Fees" colors="red: error == True">
+                    <field name="date" />
+                    <field name="team_id" />
+                    <field name="payment_code" />
+                    <field name="account_ref" />
+                    <field name="error" />
+                    <field name="state" />
+                </tree>
+            </arch>
+        </record>
+        <record id="view_logistic_fees_api_form" model="ir.ui.view">
+            <name>logistic.fees.api.form</name>
+            <model>logistic.fees.api</model>
+            <arch type="xml">
+                <form string="Documento API Fees">
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,done,manual"/>
+                    </header>
+                    <sheet>
+                        <div class="alert alert-danger text-center o_form_header" role="status" attrs="{'invisible': [('error', '=', False)]}">
+                            <strong>Attenzione!</strong> Si è verificato un errore durante la sincronizzazione o il controllo delle date extra.
+                        </div>
+
+                        <div class="oe_title">
+                            <h1>
+                                <field name="account_ref" placeholder="Rif. scontrino" readonly="1"/>
+                            </h1>
+                        </div>
+                        <notebook colspan="4">
+                            <page string="Dettaglio" name="page_detail">
+                                <group>
+                                    <group string="Dati Principali">
+                                        <field name="date" readonly="1"/>
+                                        <field name="team_id" readonly="1"/>
+                                        <field name="payment_code" readonly="1"/>
+                                    </group>
+                                    <group string="Stato &amp; Sincronizzazione">
+                                        <field name="error" readonly="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Note &amp; Controlli" name="page_note">
+                                <group>
+                                    <field name="extra_date" readonly="1"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </arch>
+        </record>
+        <record id="view_logistic_fees_api_search" model="ir.ui.view">
+            <name>logistic.fees.api.search</name>
+            <model>logistic.fees.api</model>
+            <arch type="xml">
+                <search string="Ricerca Scontrini">
+                    <field name="account_ref" string="Riferimento Scontrino"/>
+                    <field name="team_id" string="Canale di Vendita"/>
+                    <field name="payment_code" string="Codice Pagamento"/>
+                    <field name="date" string="Data"/>
+
+                    <filter string="Da Sincronizzare" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                    <filter string="Sincronizzati" name="filter_done" domain="[('state', '=', 'done')]"/>
+
+                    <separator/>
+                    <filter string="Con Errore" name="filter_error" domain="[('error', '=', True)]"/>
+
+                    <group expand="0" string="Raggruppa per">
+                        <filter string="Canale" name="group_by_team" context="{'group_by': 'team_id'}"/>
+                        <filter string="Pagamento" name="group_by_payment" context="{'group_by': 'payment_code'}"/>
+                        <filter string="Giorno" name="group_by_date" context="{'group_by': 'date:day'}"/>
+                        <filter string="Mese" name="group_by_date" context="{'group_by': 'date:month'}"/>
+                        <filter string="Stato" name="group_by_state" context="{'group_by': 'state'}"/>
+                    </group>
+                </search>
+            </arch>
+        </record>
+        <record id="action_logistic_fees_api" model="ir.actions.act_window">
+            <name>Documenti API Fees</name>
+            <res_model>logistic.fees.api</res_model>
+            <view_type>form</view_type>
+            <view_mode>tree,form</view_mode>
+            <search_view_id ref="view_logistic_fees_api_search"/>
+        </record>
+
+        <!-- WIZARD -->
         <record id="view_logistic_fees_extract_wizard" model="ir.ui.view">
             <field name="name">Fees extract wizard</field>
             <field name="model">logistic.fees.extract.wizard</field>
@@ -53,6 +144,12 @@
                  sequence="10"
                  action="action_logistic_fees_extract_wizard"
                  />
+             <menuitem
+                 parent="crm.menu_logistic_management_fees_root"
+                 id="menu_logistic_management_fees_api"
+                 name="Scontrini"
+                 action="action_logistic_fees_api"
+                 sequence="20"/>
     </data>
 </openerp>
 

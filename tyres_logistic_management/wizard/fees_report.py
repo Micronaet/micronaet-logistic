@@ -31,6 +31,43 @@ from odoo.tools.translate import _
 _logger = logging.getLogger(__name__)
 
 
+# API Object:
+class LogisticFeesHeader(models.Model):
+    """ Object to link all stock picking for Fees API call
+    """
+    _name = 'logistic.fees.api'
+    _description = 'Fees API Document'
+    _order = 'date desc'
+
+    # Header data:
+    date = fields.Date(string='Data scontrino', required=True)
+    state = fields.Selection([
+        ('draft', 'Da sincronizzare'),
+        ('done', 'Sincronizzato'),
+        ('cancel', 'Annullato'),
+        ('manual', 'Manuale'),
+    ], string='Stato', required=True, default='draft')
+
+    team_id = fields.Many2one(
+        'crm.team', 'Canale di vendita')
+    payment_code = fields.Char('Codice pagamento', required=True, size=10)  # order.payment_term_id.account_ref
+
+    # Check:
+    extra_date = fields.Text(
+        'Date extra',
+        help='Indica quali sono le date extra collegate allo scontrino, utilizzato anche per controllare '
+             'scontrini ricorrenti che non verrebbero chiusi male (le date devono essere massimo di 3 gg. precedenti!')
+
+    # From API:
+    account_ref = fields.Char(  # order.payment_term_id.account_ref
+        'Rif. scontrino', size=20,
+        help='Riferimento scontrino definito dal gestionale (presente quando viene sincronizzato')
+    error = fields.Boolean(
+        'Con errore',
+        help='Indica che la sincro ha dato qualche errore durante la procedura, utilizzata anche per segnalare '
+             'eventuali date extra troppo indietro nel tempo (max -3 gg!)')
+
+# Wizard:
 class LogisticFeesExtractWizard(models.TransientModel):
     _name = 'logistic.fees.extract.wizard'
     _description = 'Fees extract report'
