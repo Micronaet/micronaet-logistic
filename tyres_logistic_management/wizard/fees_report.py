@@ -35,12 +35,12 @@ class LogisticFeesExtractWizard(models.TransientModel):
     _name = 'logistic.fees.extract.wizard'
     _description = 'Fees extract report'
 
-    # -------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     #                               BUTTON EVENT:
-    # -------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     @api.multi
     def fees_report_button(self):
-        """ Account fees report
+        """ Account fees report ["PRINT" button]
         """
         stock_pool = self.env['stock.picking']
         excel_pool = self.env['excel.writer']
@@ -54,9 +54,9 @@ class LogisticFeesExtractWizard(models.TransientModel):
         date = evaluation_date.replace('-', '_')
         filename = 'consegnato_il_giorno_%s' % evaluation_date
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         #                               BUTTON EVENT:
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         ws_name = 'Consegnato giornaliero'
         excel_pool.create_worksheet(ws_name)
 
@@ -122,9 +122,9 @@ class LogisticFeesExtractWizard(models.TransientModel):
             order = line[6]
             total = line[12]
 
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             # Page management:
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
 
             if mode == 'CORR.':
                 page = 'Corrispettivo'
@@ -153,9 +153,9 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 ws_name, row, line,
                 default_format=format_color)
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Extra pages:
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         header = [
             'Modo',
             'Canale',
@@ -197,9 +197,9 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 if previous_mode == False:
                     previous_mode = mode
 
-                # -------------------------------------------------------------
+                # ------------------------------------------------------------------------------------------------------
                 # Check partial:
-                # -------------------------------------------------------------
+                # ------------------------------------------------------------------------------------------------------
                 if previous_mode != mode:
                     # Write partial
                     excel_pool.write_xls_line(ws_name, row, [
@@ -228,9 +228,9 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     ], default_format=format_color)
             row += 1
 
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             # check last partial:
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             if previous_mode:  # always present
                 # Write partial
                 excel_pool.write_xls_line(ws_name, row, [
@@ -242,9 +242,9 @@ class LogisticFeesExtractWizard(models.TransientModel):
             excel_pool.write_xls_line(
                 ws_name, row, ['Totale', total], format_text['total'], col=5)
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         #                         Extra page:
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         ws_name = 'Controllo fatturato'
         header = [
             'Modo',
@@ -316,12 +316,18 @@ class LogisticFeesExtractWizard(models.TransientModel):
 
     @api.multi
     def fees_extract_button(self):
-        """ Account fees report
+        """ Account fees report ["Estrai corrispettivi" Button]
+        """
+        stock_pool = self.env['stock.picking']
+        stock_pool.csv_report_extract_accounting_fees(evaluation_date=self.evaluation_date, team_id=self.team_id.id)
+
+    @api.multi
+    def fees_extract_api_button(self):
+        """ Force API call for account fees send ["Estrai corrispettivi API" Button]
         """
         stock_pool = self.env['stock.picking']
         stock_pool.csv_report_extract_accounting_fees(
-            evaluation_date=self.evaluation_date,
-            team_id=self.team_id.id)
+            evaluation_date=self.evaluation_date, team_id=self.team_id.id, mode='API')
 
     # -------------------------------------------------------------------------
     #                               COLUMNS:

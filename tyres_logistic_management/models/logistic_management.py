@@ -1031,9 +1031,9 @@ class StockPicking(models.Model):
         self.workflow_ready_to_done_done_picking()
         return True
 
-    # -------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     # Extract Excel:
-    # -------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     @api.model
     def reply_csv_accounting_fees(self):
         """
@@ -1045,14 +1045,18 @@ class StockPicking(models.Model):
     def csv_report_extract_accounting_fees(
             self, evaluation_date, team_id=False, mode='extract'):
         """ Extract file account fees in CSV for accounting
-            mode = extract for save CSV, data for return list of data
+            mode:
+                'extract' > for save CSV or in API mode call
+                'data'    > return list of data in Excel file
+                'API'     > extract Fees and pass with AI (same as extract and flag on API mode in config)
         """
         # Pool used:
         company_pool = self.env['res.company']
-        # dialog_pool = self.env['dialog.box.wizard']  # with API
         company = company_pool.search([])[0]
 
-        api_mode = company.api_management and company.api_fees_area
+        # API Mode enables AND Fees Export via API:
+        api_mode = (mode == 'API') or (company.api_management and company.api_fees_area)
+
         if api_mode:  # API Mode
             # API Call setup:
             _logger.info('Fees operation in API mode')
@@ -1079,15 +1083,14 @@ class StockPicking(models.Model):
             # Period:
             ('scheduled_date', '>=', '%s 00:00:00' % evaluation_date),
             ('scheduled_date', '<=', '%s 23:59:59' % evaluation_date),
-            # XXX: This? ('ddt_date', '=', now_dt),
             ]
 
         if mode == 'extract':
             domain.append(
                 ('is_fees', '=', True),
                 )
-        # Invoice need to be in report!
-        # else: in Excel mode see all
+
+        # Note: Invoice need to be in report! else: in Excel mode see all
         pickings = self.search(domain, order='scheduled_date')
 
         channel_row = {}
@@ -1113,9 +1116,9 @@ class StockPicking(models.Model):
                             order.name,
                             ))
 
-                # Get channel
+                # Get channel reference:
+                order_line = move.logistic_unload_id  # Could be empty?
                 try:
-                    order_line = move.logistic_unload_id
                     order = order_line.order_id
                     if team_id and order.team_id != team_id:
                         continue  # Not for selected team!
@@ -1132,9 +1135,9 @@ class StockPicking(models.Model):
                 if stock_mode == 'out':
                     total = -total
 
-                # -------------------------------------------------------------
+                # ------------------------------------------------------------------------------------------------------
                 # Manage PFU line for extracted feed:
-                # -------------------------------------------------------------
+                # ------------------------------------------------------------------------------------------------------
                 product = move.product_id
 
                 if mode == 'extract' and product.not_in_invoice:
@@ -1148,14 +1151,16 @@ class StockPicking(models.Model):
                 if channel not in channel_row:
                     channel_row[channel] = {}
 
-                # -------------------------------------------------------------
-                #                    Collect data in 2 ways:
-                # -------------------------------------------------------------
+                # ======================================================================================================
+                #                                        Collect data in 2 ways:
+                # ======================================================================================================
+                # Extract mode:
+                # ------------------------------------------------------------------------------------------------------
                 if mode == 'extract':
                     if api_mode:
-                        # -----------------------------------------------------
+                        # ----------------------------------------------------------------------------------------------
                         # API Mode:
-                        # -----------------------------------------------------
+                        # ----------------------------------------------------------------------------------------------
                         if 'details' not in channel_row[channel]:
                             # Update JSON dict:
                             channel_row[channel].update({
@@ -1164,27 +1169,25 @@ class StockPicking(models.Model):
                                 'salePerson': channel,
                                 'details': [],
                             })
+
                         channel_row[channel]['details'].append({
                             'sku': product.default_code or '',
-                            'product': product.account_ref or
-                                       product_account_ref or '',
+                            'product': product.account_ref or product_account_ref or '',
                             'quantity': qty,
                             'total': total,
-                            'payment':
-                                order.payment_term_id.account_ref or '',
+                            'payment': order.payment_term_id.account_ref or '',
                             'type': 'S' if product.is_expence else 'M',
                         })
 
                     else:
-                        # -----------------------------------------------------
+                        # ----------------------------------------------------------------------------------------------
                         # CSV Mode:
-                        # -----------------------------------------------------
+                        # ----------------------------------------------------------------------------------------------
                         channel_row[channel][order_line.id] = [
                             code_ref,  # Agent code
                             # XXX Use scheduled date or ddt_date?
                             product.default_code or '',
-                            company_pool.formatLang(
-                                picking.scheduled_date, date=True),
+                            company_pool.formatLang(picking.scheduled_date, date=True),
                             order.payment_term_id.account_ref or '',
                             product.account_ref or product_account_ref or '',
                             qty,
@@ -1192,13 +1195,16 @@ class StockPicking(models.Model):
                             'S' if product.is_expence else 'M',
                             channel,
                             ]
+
+                # ------------------------------------------------------------------------------------------------------
+                # Report mode:
+                # ------------------------------------------------------------------------------------------------------
                 else:  # Report mode:
                     # VAT rate:
                     vat_excluded_rate = 0.0
                     try:
                         # Use a check that is not the correct named field:
-                        if partner.property_account_position_id.\
-                                pfu_invoice_enable:
+                        if partner.property_account_position_id.pfu_invoice_enable:
                             vat_excluded_rate = order_line.tax_id[0].amount
                     except:
                         _logger.error('Error calculation VAT tax (use 0)!')
@@ -1207,8 +1213,7 @@ class StockPicking(models.Model):
                     shipping_code = order.partner_shipping_id.country_id.code
                     invoice_code = order.partner_invoice_id.country_id.code
                     if shipping_code != invoice_code:
-                        triangle_invoice = '%s >> %s' % (
-                            invoice_code, shipping_code)
+                        triangle_invoice = '%s >> %s' % (invoice_code, shipping_code)
                     else:
                         triangle_invoice = ''
 
@@ -1233,17 +1238,20 @@ class StockPicking(models.Model):
                         triangle_invoice,
                         ))
 
-        # ---------------------------------------------------------------------
-        # Final operations:
-        # ---------------------------------------------------------------------
+        # ==============================================================================================================
+        #                                                Final operations:
+        # ==============================================================================================================
+        # Extract mode:
+        # --------------------------------------------------------------------------------------------------------------
         if mode == 'extract':
-
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             # API Mode:
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             if api_mode:
                 # Create JSON data for every channel code:
                 message = ''
+
+                # TODO create asyncronus events for every single fees Teams-Date-Customer (Team-Customer!)
                 for channel in channel_row:
                     api_fees = channel_row[channel]
                     json_dumps = json.dumps(api_fees)
@@ -1260,8 +1268,7 @@ class StockPicking(models.Model):
                         # Send invoice:
                         _logger.info(
                             'Calling: %s\n'
-                            'JSON: %s [Attempt: %s]...' % (
-                                 location, json_dumps, loop_times - 1))
+                            'JSON: %s [Attempt: %s]...' % (location, json_dumps, loop_times - 1))
                         reply = requests.post(
                             location, data=json_dumps, headers=api_header)
                         if reply.ok:
@@ -1326,9 +1333,9 @@ class StockPicking(models.Model):
                 #    mode='ok')
                 # return return_view
 
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             # CSV Mode:
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             else:
                 date = evaluation_date.replace('-', '_')
 
@@ -1352,12 +1359,16 @@ class StockPicking(models.Model):
                             row))
                     fees_f.close()
             return True
+
+        # --------------------------------------------------------------------------------------------------------------
+        # Report mode:
+        # --------------------------------------------------------------------------------------------------------------
         else:  # Report mode
             return excel_row
 
-    # -------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     # Extract Excel:
-    # -------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     @api.model
     def excel_report_extract_accounting_fees(self, evaluation_date=False):
         """ Extract file account fees
@@ -1398,9 +1409,9 @@ class StockPicking(models.Model):
         ws_invoice = 'Fatturato'
         excel_pool.create_worksheet(ws_invoice)
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Format:
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         excel_pool.set_format()
         f_title = excel_pool.get_format('title')
         f_header = excel_pool.get_format('header')

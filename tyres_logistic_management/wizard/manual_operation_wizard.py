@@ -154,12 +154,10 @@ class StockChangeStandardPrice(models.TransientModel):
 
     @api.multi
     def print_report_account_fees_month(self):
-        """ Account fees report
+        """ Account fees report [WIZARD page extract Button]
         """
         stock_pool = self.env['stock.picking']
-        stock_pool.csv_report_extract_accounting_fees(
-            evaluation_date=self.evaluation_date,
-            team_id=self.team_id.id)
+        stock_pool.csv_report_extract_accounting_fees(evaluation_date=self.evaluation_date, team_id=self.team_id.id)
 
     @api.multi
     def print_bug_check_pending_draft_line(self):
