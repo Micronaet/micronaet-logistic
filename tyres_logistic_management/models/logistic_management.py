@@ -1056,17 +1056,34 @@ class StockPicking(models.Model):
         # API Mode enables AND Fees Export via API:
         api_mode = (mode == 'API') or (company.api_management and company.api_fees_area)
 
-        if api_mode:  # API Mode
-            # API Call setup:
+        # ==============================================================================================================
+        # Extract 2 cases:
+        # ==============================================================================================================
+        if api_mode:  # API Mode (JSON call)
             _logger.info('Fees operation in API mode')
+
+            # Parameters for API call
             url = company.api_root_url
             endpoint = 'NotCollectedReceipt'
             location = '%s/%s' % (url, endpoint)
             token = company.api_token or company.api_get_token()
-        else:  # CSV Mode:
+
+            # Domain selection -Picking from selected date range till now, not invoiced (DDT and Refund):
+            interval_days = company.api_fees_from_days or 0
+            now = datetime.datetime.now()
+            to_date = now.strftime('%Y-%m-%d')
+            if interval_days > 0:
+                from_date = (now - timedelta(days=interval_days)).strftime('%Y-%m-%d')
+            else:
+                from_date = to_date
+            _logger.warning('Account Fees evaluation (API Period): %s-%s' % (from_date, to_date))
+
+        else:  # CSV Mode (file saved on server): (also used for Excel report mode)
+            _logger.info('Fees operation in File CSV mode (or Excel report export)')
+
+            # Create subfolder used:
             path = os.path.expanduser(company.logistic_root_folder)
             path = os.path.join(path, 'corrispettivi')
-
             try:
                 os.system('mkdir -p %s' % path)
                 os.system('mkdir -p %s' % os.path.join(path, 'reply'))
@@ -1074,23 +1091,24 @@ class StockPicking(models.Model):
             except:
                 _logger.error('Cannot create %s' % path)
 
-        # Period current date:
-        _logger.warning('Account Fees evaluation: %s' % evaluation_date)
+            # Domain selection -Picking not invoiced (DDT and Refund):
+            _logger.warning('Account Fees evaluation: %s' % evaluation_date)
+            from_date = to_date = evaluation_date
 
-        # Picking not invoiced (DDT and Refund):
+        # Common part: Domain setup:
         domain = [
             # Period:
-            ('scheduled_date', '>=', '%s 00:00:00' % evaluation_date),
-            ('scheduled_date', '<=', '%s 23:59:59' % evaluation_date),
-            ]
+            ('scheduled_date', '>=', '%s 00:00:00' % from_date),
+            ('scheduled_date', '<=', '%s 23:59:59' % to_date),
+        ]
 
-        if mode == 'extract':
+        if mode == 'extract':  # Excel report
             domain.append(
                 ('is_fees', '=', True),
                 )
 
         # Note: Invoice need to be in report! else: in Excel mode see all
-        pickings = self.search(domain, order='scheduled_date')
+        pickings = self.search(domain, order='scheduled_date')  # TODO Need order?
 
         channel_row = {}
         excel_row = []
@@ -1153,7 +1171,7 @@ class StockPicking(models.Model):
                 # ======================================================================================================
                 #                                        Collect data in 2 ways:
                 # ======================================================================================================
-                # Extract mode:
+                # 1-2 Extract mode:
                 # ------------------------------------------------------------------------------------------------------
                 if mode == 'extract':
                     if api_mode:
@@ -1178,6 +1196,8 @@ class StockPicking(models.Model):
                             'type': 'S' if product.is_expence else 'M',
                         })
 
+                        # TODO add picking
+
                     else:
                         # ----------------------------------------------------------------------------------------------
                         # CSV Mode:
@@ -1196,7 +1216,7 @@ class StockPicking(models.Model):
                             ]
 
                 # ------------------------------------------------------------------------------------------------------
-                # Report mode:
+                # 3 Report mode:
                 # ------------------------------------------------------------------------------------------------------
                 else:  # Report mode:
                     # VAT rate:
@@ -1244,13 +1264,13 @@ class StockPicking(models.Model):
         # --------------------------------------------------------------------------------------------------------------
         if mode == 'extract':
             # ----------------------------------------------------------------------------------------------------------
-            # API Mode:
+            # 1. API Mode:
             # ----------------------------------------------------------------------------------------------------------
             if api_mode:
                 # Create JSON data for every channel code:
                 message = ''
 
-                # TODO create asyncronus events for every single fees Teams-Date-Customer (Team-Customer!)
+                # TODO create asynchronous events for every single fees Teams-Date-Customer (Team-Customer!)
                 for channel in channel_row:
                     api_fees = channel_row[channel]
                     json_dumps = json.dumps(api_fees)
@@ -1333,7 +1353,7 @@ class StockPicking(models.Model):
                 # return return_view
 
             # ----------------------------------------------------------------------------------------------------------
-            # CSV Mode:
+            # 2. CSV Mode:
             # ----------------------------------------------------------------------------------------------------------
             else:
                 date = evaluation_date.replace('-', '_')
@@ -1360,7 +1380,7 @@ class StockPicking(models.Model):
             return True
 
         # --------------------------------------------------------------------------------------------------------------
-        # Report mode:
+        # 3. Report mode:
         # --------------------------------------------------------------------------------------------------------------
         else:  # Report mode
             return excel_row

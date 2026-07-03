@@ -79,7 +79,15 @@ class StockPickingInherit(models.Model):
         'logistic.fees.api', 'Scontrino',
         help='Crea e collega lo scontrino al Picking Out che ha generato lo scarico effettivo')
     # TODO flag for remove olt picking?
-    
+
+
+class LogisticFeesHeaderInerit(models.Model):
+    """ Object to link all stock picking for Fees API call
+    """
+    _inherit = 'logistic.fees.api'
+
+    picking_ids = fields.One2many('stock.picking', 'fees_api_id', string='Consegne collegate')
+
 
 # Wizard:
 class LogisticFeesExtractWizard(models.TransientModel):
@@ -118,7 +126,6 @@ class LogisticFeesExtractWizard(models.TransientModel):
             'text': excel_pool.get_format('text'),
             'number': excel_pool.get_format('number'),
             'total': excel_pool.get_format('text_total'),
-
             'red': excel_pool.get_format('text_red'),
             }
 
@@ -227,9 +234,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             excel_pool.create_worksheet(ws_name)
             excel_pool.column_width(ws_name, width)
             row = 0
-            excel_pool.write_xls_line(
-                ws_name, row, header,
-                default_format=format_text['header'])
+            excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
             total = 0.0  # final total
 
             # Partial management:
