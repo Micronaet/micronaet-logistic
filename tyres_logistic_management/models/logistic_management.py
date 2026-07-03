@@ -1050,28 +1050,28 @@ class StockPicking(models.Model):
                 'API'     > extract Fees and pass with AI (same as extract and flag on API mode in config)
         """
         # Pool used:
+        fees_pool = self.env['logistic.fees.api']
+        move_pool = self.env['stock.move']
+
         company_pool = self.env['res.company']
-        company = company_pool.search([])[0]
+
+        company = self.env.user.company_id
 
         # API Mode enables AND Fees Export via API:
         api_mode = (mode == 'API') or (company.api_management and company.api_fees_area)
+        api_mode_fees = {}  # Corrispettivi data, to created in ODOO (IMPORTANT: sync after!)
 
         # ==============================================================================================================
-        # Extract 2 cases:
+        #                                                  Extract 2 cases:
         # ==============================================================================================================
+        now = datetime.datetime.now()
+        now_date = now.strftime('%Y-%m-%d')  # Used in various part (to_date in API, Feed date)
         if api_mode:  # API Mode (JSON call)
             _logger.info('Fees operation in API mode')
-
-            # Parameters for API call
-            url = company.api_root_url
-            endpoint = 'NotCollectedReceipt'
-            location = '%s/%s' % (url, endpoint)
-            token = company.api_token or company.api_get_token()
-
-            # Domain selection -Picking from selected date range till now, not invoiced (DDT and Refund):
+            # Domain selection -> Picking from selected date range till now, not invoiced (DDT and Refund):
+            # Note: API mode use always current date and range in Company parameters!
+            to_date = now_date
             interval_days = company.api_fees_from_days or 0
-            now = datetime.datetime.now()
-            to_date = now.strftime('%Y-%m-%d')
             if interval_days > 0:
                 from_date = (now - timedelta(days=interval_days)).strftime('%Y-%m-%d')
             else:
@@ -1082,8 +1082,8 @@ class StockPicking(models.Model):
             _logger.info('Fees operation in File CSV mode (or Excel report export)')
 
             # Create subfolder used:
-            path = os.path.expanduser(company.logistic_root_folder)
-            path = os.path.join(path, 'corrispettivi')
+            path = os.path.join(
+                os.path.expanduser(company.logistic_root_folder), 'corrispettivi')
             try:
                 os.system('mkdir -p %s' % path)
                 os.system('mkdir -p %s' % os.path.join(path, 'reply'))
@@ -1116,22 +1116,22 @@ class StockPicking(models.Model):
         product_account_ref = company.product_account_ref
         for picking in pickings:
             # Readability:
+            # TODO there are 2 order object (header and line, could be different???)
             order = picking.sale_order_id
+
             if not order:
                 _logger.warning('No order linked for this picking')
                 continue
+
             partner = order.partner_invoice_id
             stock_mode = picking.stock_mode  # in: refund, out: DDT
+            picking_date = picking.scheduled_date[:10]
 
             for move in picking.move_lines:
                 qty = move.product_uom_qty
                 total = qty * move.logistic_unload_id.price_unit
                 if not total:
-                    _logger.error(
-                        'Found empty picking %s in order %s' % (
-                            picking.name,
-                            order.name,
-                            ))
+                    _logger.error('Found empty picking %s in order %s' % (picking.name, order.name))
 
                 # Get channel reference:
                 order_line = move.logistic_unload_id  # Could be empty?
@@ -1143,7 +1143,7 @@ class StockPicking(models.Model):
                 except:
                     channel = ''
 
-                # Get partner code
+                # Get customer code (Team's Customer code used in Accounting!)
                 try:
                     code_ref = order.team_id.team_code_ref
                 except:
@@ -1176,8 +1176,40 @@ class StockPicking(models.Model):
                 if mode == 'extract':
                     if api_mode:
                         # ----------------------------------------------------------------------------------------------
-                        # API Mode:
+                        # API Mode (collect Corrispettivi to be generated after):
                         # ----------------------------------------------------------------------------------------------
+                        payment_code = order.payment_term_id.account_ref or ''  # TODO not empty?!?
+                        fees_key = (channel, payment_code)  # TODO Move in better place
+                        if fees_key not in api_mode_fees:  # fees_key created in picking for optimize!
+                            api_mode_fees[fees_key] = {
+                                # Fees record (created after)
+                                'record': {
+                                    'date': now_date,  # Use now date not picking_date
+                                    'state': 'draft',
+                                    'team_id': order.team_id.id,
+                                    'payment_code': payment_code,
+                                    'extra_date': '',  # Check if in this fee there's also picking with different date
+                                },
+
+                                # Picking linked to Fees record:
+                                'picking': set(),  # Unique reference
+
+                                # Move line linked to Fees record:
+                                'move': [],
+                            }
+
+                        # Update with Picking (for link after)
+                        api_mode_fees[fees_key]['picking'].add(picking.id)
+
+                        # Update with Picking (for link after)
+                        api_mode_fees[fees_key]['move'].append(move.id)
+
+                        # Log extra picking date present in today fees document:
+                        if (picking_date != now_date and
+                                picking_date not in api_mode_fees[fees_key]['record']['extra_date']):
+                            api_mode_fees[fees_key]['record']['extra_date'] += '[{}] '.format(picking_date)
+
+                        '''
                         if 'details' not in channel_row[channel]:
                             # Update JSON dict:
                             channel_row[channel].update({
@@ -1194,9 +1226,10 @@ class StockPicking(models.Model):
                             'total': total,
                             'payment': order.payment_term_id.account_ref or '',
                             'type': 'S' if product.is_expence else 'M',
-                        })
+                        })'''
 
-                        # TODO add picking
+                        # TODO add picking (to update link)
+                        # TODO add stock move (to update link)
 
                     else:
                         # ----------------------------------------------------------------------------------------------
@@ -1241,8 +1274,7 @@ class StockPicking(models.Model):
                         order.team_id.market_type or '',
                         partner.property_account_position_id.name or '',
                         channel or '',
-                        company_pool.formatLang(
-                            picking.scheduled_date, date=True),
+                        company_pool.formatLang(picking.scheduled_date, date=True),
                         partner.name or '',
                         order.name or '',
                         product.default_code or '',
@@ -1264,9 +1296,30 @@ class StockPicking(models.Model):
         # --------------------------------------------------------------------------------------------------------------
         if mode == 'extract':
             # ----------------------------------------------------------------------------------------------------------
-            # 1. API Mode:
+            # 1. API Mode (link all document to Feed created):
             # ----------------------------------------------------------------------------------------------------------
             if api_mode:
+                # Link Fees to Picking / Stock move (API call asynchronus update)
+                for fees_key in api_mode_fees:
+                    # channel, payment_code = fees_key
+                    record = api_mode_fees[fees_key]['record']
+                    fees = fees_pool.create(record)
+                    fees_api_id = fees.id
+
+                    # Update picking linked with this Fee:
+                    picking_ids = list(api_mode_fees[fees_key]['picking'])
+                    self.browse(picking_ids).write({
+                        'fees_api_id': fees_api_id,
+                    })
+
+                    # Update stock move:
+                    # TODO could be a related fields?
+                    move_ids = list(api_mode_fees[fees_key]['move'])
+                    move_pool.browse(move_ids).write({
+                        'fees_api_id': fees_api_id,
+                    })
+
+                '''
                 # Create JSON data for every channel code:
                 message = ''
 
@@ -1309,21 +1362,16 @@ class StockPicking(models.Model):
                             token = company.api_get_token()
                         else:  # Error not managed
                             pass  # Not managed as error
-                            '''
-                            message += \
-                                'Chiamata {} errore\n'.format(loop_times)
+                            
+                            """
+                            message += 'Chiamata {} errore\n'.format(loop_times)
                             try:
-                                message += \
-                                    'Corrispettivi del {} Canale {}, ' \
-                                    'errore: {}\n'.format(
+                                message += 'Corrispettivi del {} Canale {}, errore: {}\n'.format(
                                         evaluation_date, channel, reply.text)
                             except:
-                                message += \
-                                    'Corrispettivo del {} Canale {}, ' \
-                                    'errore: ' \
-                                    'Generico nella chiamata API\n'.format(
-                                        evaluation_date, channel)
-                            '''
+                                message += 'Corrispettivo del {} Canale {}, errore: ' \
+                                    'Generico nella chiamata API\n'.format(evaluation_date, channel)
+                            """
 
                     # Check if API works:
                     if not reply_ok:
@@ -1345,12 +1393,7 @@ class StockPicking(models.Model):
 
                 _logger.warning('Message:\n{}'.format(message))
                 raise exceptions.Warning(message)
-                # return_view = dialog_pool.open_dialog(
-                #    message=message,
-                #    title='Importazione Corrispettivi',
-                #    action='',
-                #    mode='ok')
-                # return return_view
+                '''
 
             # ----------------------------------------------------------------------------------------------------------
             # 2. CSV Mode:

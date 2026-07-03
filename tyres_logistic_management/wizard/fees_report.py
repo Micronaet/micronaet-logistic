@@ -39,6 +39,18 @@ class LogisticFeesHeader(models.Model):
     _description = 'Fees API Document'
     _order = 'date desc'
 
+    def api_sync(self):
+        """ Syncro with API to Account
+        """
+        # Parameters for API call
+        company = self.env.user.company_id
+
+        url = company.api_root_url
+        endpoint = 'CreateUncashedReceipts'
+        location = '%s/%s' % (url, endpoint)
+        token = company.api_token or company.api_get_token()
+
+
     # Header data:
     date = fields.Date(string='Data scontrino', required=True)
     state = fields.Selection([
@@ -48,8 +60,7 @@ class LogisticFeesHeader(models.Model):
         ('manual', 'Manuale'),
     ], string='Stato', required=True, default='draft')
 
-    team_id = fields.Many2one(
-        'crm.team', 'Canale di vendita')
+    team_id = fields.Many2one('crm.team', 'Canale di vendita')
     payment_code = fields.Char('Codice pagamento', required=True, size=10)  # order.payment_term_id.account_ref
 
     # Check:
@@ -81,12 +92,25 @@ class StockPickingInherit(models.Model):
     # TODO flag for remove olt picking?
 
 
+class StockMoveInherit(models.Model):
+    """ Model name: Stock move Relations
+    """
+
+    _inherit = 'stock.move'
+
+    # Link fields:
+    fees_api_id = fields.Many2one(
+        'logistic.fees.api', 'Scontrino',
+        help='Crea e collega lo scontrino alle righe magazzino che hanno generato lo scarico effettivo')
+
+
 class LogisticFeesHeaderInerit(models.Model):
     """ Object to link all stock picking for Fees API call
     """
     _inherit = 'logistic.fees.api'
 
-    picking_ids = fields.One2many('stock.picking', 'fees_api_id', string='Consegne collegate')
+    picking_ids = fields.One2many('stock.picking', 'fees_api_id', string='Picking collegati')
+    move_ids = fields.One2many('stock.move', 'fees_api_id', string='Movimenti collegati')
 
 
 # Wizard:
@@ -183,7 +207,6 @@ class LogisticFeesExtractWizard(models.TransientModel):
             # ----------------------------------------------------------------------------------------------------------
             # Page management:
             # ----------------------------------------------------------------------------------------------------------
-
             if mode == 'CORR.':
                 page = 'Corrispettivo'
             else:  # invoice:
