@@ -43,14 +43,14 @@
                                         <field name="team_id" readonly="1"/>
                                         <field name="payment_code" readonly="1"/>
                                     </group>
-                                    <group string="Stato &amp; Sincronizzazione">
+                                    <group string="Stato e Sincronizzazione">
                                         <field name="account_date" readonly="1"/>
                                         <field name="force_account_ref" readonly="1"/>
                                         <field name="error" readonly="1" widget="boolean_toggle"/>
                                     </group>
                                 </group>
                             </page>
-                            <page string="Note &amp; Controlli" name="page_note">
+                            <page string="Note e Controlli" name="page_note">
                                 <group>
                                     <field name="extra_date" readonly="1"/>
                                 </group>
