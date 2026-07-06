@@ -3,8 +3,8 @@
     <data>
         <!-- Fees API header -->
         <record id="view_logistic_fees_api_tree" model="ir.ui.view">
-            <name>logistic.fees.api.tree</name>
-            <model>logistic.fees.api</model>
+            <field name="name">logistic.fees.api.tree</field>
+            <field name="model">logistic.fees.api</field>
             <arch type="xml">
                 <tree string="Documenti API Fees" colors="red: error == True">
                     <field name="date" />
@@ -17,9 +17,9 @@
             </arch>
         </record>
         <record id="view_logistic_fees_api_form" model="ir.ui.view">
-            <name>logistic.fees.api.form</name>
-            <model>logistic.fees.api</model>
-            <arch type="xml">
+            <field name="name">logistic.fees.api.form</field>
+            <field name="model">logistic.fees.api</field>
+            <field name="arch" type="xml">
                 <form string="Documento API Fees">
                     <header>
                         <field name="state" widget="statusbar" statusbar_visible="draft,done,manual"/>
@@ -63,12 +63,12 @@
                         </notebook>
                     </sheet>
                 </form>
-            </arch>
+            </field>
         </record>
         <record id="view_logistic_fees_api_search" model="ir.ui.view">
-            <name>logistic.fees.api.search</name>
-            <model>logistic.fees.api</model>
-            <arch type="xml">
+            <field name="name">logistic.fees.api.search</field>
+            <field name="model">logistic.fees.api</field>
+            <field name="arch" type="xml">
                 <search string="Ricerca Scontrini">
                     <field name="account_ref" string="Riferimento Scontrino"/>
                     <field name="team_id" string="Canale di Vendita"/>
@@ -89,7 +89,7 @@
                         <filter string="Stato" name="group_by_state" context="{'group_by': 'state'}"/>
                     </group>
                 </search>
-            </arch>
+            </field>
         </record>
         <record id="action_logistic_fees_api" model="ir.actions.act_window">
             <field name="name">Documenti API Fees</field>
