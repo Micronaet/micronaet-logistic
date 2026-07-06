@@ -585,7 +585,7 @@
                                          <newline/>
 
                                          <field name="api_fees_area" />
-                                         <field name="api_fees_from_days" attrs="{'invisible': [('api_fees_areas', '=', False)]}"/>
+                                         <field name="api_fees_from_days" attrs="{'invisible': [('api_fees_area', '=', False)]}"/>
                                      </group>
                                  </page>
                              </notebook>
