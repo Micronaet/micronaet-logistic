@@ -2,7 +2,6 @@
 <odoo>
     <data>
         <!-- Fees API header -->
-        <!--
         <record id="view_logistic_fees_api_tree" model="ir.ui.view">
             <name>logistic.fees.api.tree</name>
             <model>logistic.fees.api</model>
@@ -92,14 +91,13 @@
                 </search>
             </arch>
         </record>
-        -->
         <record id="action_logistic_fees_api" model="ir.actions.act_window">
             <name>Documenti API Fees</name>
             <field name="type">ir.actions.act_window</field>
-            <res_model>logistic.fees.api</res_model>
-            <view_type>form</view_type>
-            <view_mode>tree,form</view_mode>
-            <!--<search_view_id ref="view_logistic_fees_api_search"/>-->
+            <field name="res_model">logistic.fees.api</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_logistic_fees_api_search"/>
         </record>
 
         <!-- WIZARD -->
