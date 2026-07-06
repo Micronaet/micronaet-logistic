@@ -95,6 +95,7 @@
         -->
         <record id="action_logistic_fees_api" model="ir.actions.act_window">
             <name>Documenti API Fees</name>
+            <field name="type">ir.actions.act_window</field>
             <res_model>logistic.fees.api</res_model>
             <view_type>form</view_type>
             <view_mode>tree,form</view_mode>
