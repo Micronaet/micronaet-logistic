@@ -34,6 +34,7 @@
                                 <field name="account_ref" placeholder="Rif. scontrino" readonly="1"/>
                             </h1>
                         </div>
+
                         <notebook colspan="4">
                             <page string="Dettaglio" name="page_detail">
                                 <group>
@@ -43,13 +44,20 @@
                                         <field name="payment_code" readonly="1"/>
                                     </group>
                                     <group string="Stato &amp; Sincronizzazione">
-                                        <field name="error" readonly="1"/>
+                                        <field name="account_date" readonly="1"/>
+                                        <field name="force_account_ref" readonly="1"/>
+                                        <field name="error" readonly="1" widget="boolean_toggle"/>
                                     </group>
                                 </group>
                             </page>
                             <page string="Note &amp; Controlli" name="page_note">
                                 <group>
                                     <field name="extra_date" readonly="1"/>
+                                </group>
+                            </page>
+                            <page string="Risposta JSON" name="page_json" attrs="{'invisible': [('json_reply', '=', False)]}">
+                                <group>
+                                    <field name="json_reply" readonly="1" />
                                 </group>
                             </page>
                         </notebook>
