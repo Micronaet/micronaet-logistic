@@ -1064,7 +1064,7 @@ class StockPicking(models.Model):
         # ==============================================================================================================
         #                                                  Extract 2 cases:
         # ==============================================================================================================
-        now = datetime.datetime.now()
+        now = datetime.now()
         now_date = now.strftime('%Y-%m-%d')  # Used in various part (to_date in API, Feed date)
         if api_mode:  # API Mode (JSON call)
             _logger.info('Fees operation in API mode')
