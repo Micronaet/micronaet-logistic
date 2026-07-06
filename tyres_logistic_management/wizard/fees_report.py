@@ -50,6 +50,113 @@ class LogisticFeesHeader(models.Model):
         location = '%s/%s' % (url, endpoint)
         token = company.api_token or company.api_get_token()
 
+        fee = self
+        # Call check:
+        if fee.json_reply:
+            _logger.error('Fee yet sent! No more API call!')
+            return False
+
+        # --------------------------------------------------------------------------------------------------------------
+        # Create Payload:
+        # --------------------------------------------------------------------------------------------------------------
+        # Fees Parameters:
+        team = fee.team_id
+        channel = team.channel_ref
+
+        api_fees = {  # Payload
+            "Customer": team.team_code_ref, # es: "0000061" Intestatario della ricevuta non incassata
+            "Payment": fee.payment_code, # es: "250" Codice della condizione di pagamento
+            "Salesperson": channel, # es: "0062" Canale di vendita
+            "IDReceipts": '{}'.format(fee.id),  # Identificativo univoco della ricevuta
+            "Details": [],  # Righe dettaglio
+        }
+        master_total = 0.0
+        for move in fee.move_ids:
+            product = move.product_id
+            qty = move.product_uom_qty
+            total = qty * move.logistic_unload_id.price_unit
+            master_total += total
+            api_fees['Details'].append(
+                {
+                    "LineType": 'S' if product.is_expence else 'M', # Row type ex: "M", Tipologia della riga
+                    "Item": product.default_code or '', # ex: "VALVOLAMOTO113_ARGENTO",  Codice articolo
+                    "Quantity": qty, # es: 3.0, # Quantità della riga
+                    "Total": -total, # es: -10.0, # Totale (espresso in negativo)
+                }
+            )
+
+        # --------------------------------------------------------------------------------------------------------------
+        # Send via API
+        # --------------------------------------------------------------------------------------------------------------
+        json_dumps = json.dumps(api_fees)
+        loop_times = 1
+
+        while loop_times <= 2:  # Loop twice if token error (reload API key)
+            loop_times += 1
+            api_header = {
+                'Authorization': 'bearer %s' % token,
+                'accept': 'text/plain',
+                'Content-Type': 'application/json',
+            }
+            # Send Corrispettivi:
+            _logger.info(
+                'Calling: %s\n'
+                'JSON: %s [Attempt: %s]...' % (location, json_dumps, loop_times - 1))
+            reply = requests.post(location, data=json_dumps, headers=api_header)
+            if reply.ok:
+                reply_json = reply.json()
+                """ 
+                "DocNo": NUMERO DOCUMENTO DELLA RICEVUTA, es: "000528",
+                "DocumentDate": DATA DOCUMENTO, es: "2026-04-29T00:00:00",
+                "PostingDate": DATA REGISTRAZIONE, es: "2026-04-29T00:00:00",
+                "Customer": CLIENTE A CUI E’ INTESTATA LA RICEVUTA, es: "0000061",
+                "Payment": ": CONDIZIONE DI PAGAMENTO, es: "025",
+                "ExternalDocumentId": ID ODOO, es: "XXXXXXX",
+                "TotalAmount": TOTALE IVATO, es: 1000,
+                "ErrorDetails": ELENCO DELLE EVENTUALI RIGHE SCARTATE, es: [
+                    {
+                    "LineType": TIPOLOGIA DI RIGA, es: "M",
+                    "Item": CODICE ARTICOLO, es: "VALVOLAMOTO113_ARGENTO",
+                    "Quantity": QUANTITÀ, es: 3.0,
+                    "Total": TOTALE IN NEGATIVO DELLA RIGA (VALORE PASSATO IN INPUT), es: -10.0,
+                    "MSGError": MESSAGGIO DI ERRORE CHE INDICA IL MOTIVO PER CUI HO SCARTATO LA RIGA, es: "Articolo non"
+                    }
+                ]
+                """
+
+                _logger.info('SUCCESS: [Fees operation] Loaded correctly')
+                # Update ODOO Fees with returned data:
+                try:
+                    fee.write({
+                        'account_ref': reply_json['DocNo'],
+                        'account_date': reply_json['DocumentDate'][:10],
+                        'json_reply': reply.text,
+                        'error': reply_json['ErrorDetails'],
+                    })
+                    _logger.error('ODOO Fee updated')
+                except:
+                    # Write only JSON call:
+                    _logger.error('Error parse Fee reply')
+                    fee.write({
+                        'json_reply': reply.text,
+                    })
+
+                _logger.info('Corrispettivi datato oggi - Canale %s Pagamento %s, Esito OK\n' % (
+                    api_fees['Customer'],
+                    api_fees['Payment'],
+                    ))
+                break  # No other loop
+
+            elif reply.status_code == 401:  # Token error
+                _logger.error(
+                    '[ERROR] API Fees operation: '
+                    'Reload token...')
+                token = company.api_get_token()
+            else:  # Error not managed
+                _logger.error(
+                    '[ERROR] API Fees operation: '
+                    'Errore non gestito:\n{}'.format(sys.exc_info()))
+        return True
 
     # Header data:
     date = fields.Date(string='Data scontrino', required=True)
@@ -70,9 +177,12 @@ class LogisticFeesHeader(models.Model):
              'scontrini ricorrenti che non verrebbero chiusi male (le date devono essere massimo di 3 gg. precedenti!')
 
     # From API:
+    json_reply = fields.Text('Risposta JSON')
+    force_account_ref = fields.Char('Numero forzato', help='Indicazione del numero scontrino forzato manualmente')
     account_ref = fields.Char(  # order.payment_term_id.account_ref
-        'Rif. scontrino', size=20,
+        'Rif. scontrino (gest.)', size=20,
         help='Riferimento scontrino definito dal gestionale (presente quando viene sincronizzato')
+    account_date = fields.Date('Data scontrino (gest.)')
     error = fields.Boolean(
         'Con errore',
         help='Indica che la sincro ha dato qualche errore durante la procedura, utilizzata anche per segnalare '
@@ -154,29 +264,21 @@ class LogisticFeesExtractWizard(models.TransientModel):
             }
 
         header = [
-            'Tipo',
-            'Modo',
-            'Pos. fisc.',
-            'Canale',
-            'Data',
-            'Cliente',
-            'Ordine',
-            'SKU',
-            'Descrizione',
-            'Pagamento',
-            'Contropartita',
-            'Q.',
-            'Totale',
-            'Tipo',
-            'Agente',
-            'IVA',
-            'Triang.',
+            'Tipo', 'Modo', 'Pos. fisc.', 'Canale',
+            'Data', 'Cliente', 'Ordine',
+            'SKU', 'Descrizione',
+            'Pagamento', 'Contropartita',
+            'Q.', 'Totale',
+            'Tipo', 'Agente', 'IVA', 'Triang.',
             ]
-
         width = [
-            6, 6, 20, 10, 15, 30, 25, 15, 40, 10, 11, 5, 12, 5, 10, 5, 10,
+            6, 6, 20, 10,
+            15, 30, 25,
+            15, 40,
+            10, 11,
+            5, 12,
+            5, 10, 5, 10,
             ]
-
         excel_pool.column_width(ws_name, width)
 
         row = 0
@@ -230,9 +332,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             else:
                 format_color = format_text['red']
             # Write formatted with color
-            excel_pool.write_xls_line(
-                ws_name, row, line,
-                default_format=format_color)
+            excel_pool.write_xls_line(ws_name, row, line, default_format=format_color)
 
         # --------------------------------------------------------------------------------------------------------------
         # Extra pages:
