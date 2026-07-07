@@ -22,7 +22,7 @@
             <field name="arch" type="xml">
                 <form string="Documento API Fees">
                     <header>
-                        <button name="api_sync" type="object" string="API Sync" confirm="Confermi chiamata API con gestionale?" attrs="{'invisible': [('json_reply', '=', False)]}"/>
+                        <button name="api_sync" type="object" string="API Sync" confirm="Confermi chiamata API con gestionale?" attrs="{'invisible': [('state', '=', 'done')]}"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,done,manual"/>
                     </header>
                     <sheet>
@@ -49,12 +49,12 @@
                                 </group>
                             </page>
                             <page string="Picking" name="page_note">
-                                <group>
-                                    <field name="picking_ids" readonly="1"/>
+                                <group string="Picking collegati">
+                                    <field name="picking_ids" readonly="1" nolabel="1"/>
                                 </group>
                             </page>
                             <page string="Movimenti" name="page_note">
-                                <group>
+                                <group string="Movimenti collegati">
                                     <field name="move_ids" readonly="1" nolabel="1"/>
                                 </group>
                             </page>
