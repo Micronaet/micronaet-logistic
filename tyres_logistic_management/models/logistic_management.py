@@ -1065,6 +1065,8 @@ class StockPicking(models.Model):
         #                                                  Extract 2 cases:
         # ==============================================================================================================
         now = datetime.now()
+        min_date = '2026-07-07'  # Start using API procedure!
+
         now_date = now.strftime('%Y-%m-%d')  # Used in various part (to_date in API, Feed date)
         if api_mode:  # API Mode (JSON call)
             _logger.info('Fees operation in API mode')
@@ -1074,6 +1076,8 @@ class StockPicking(models.Model):
             interval_days = company.api_fees_from_days or 0
             if interval_days > 0:
                 from_date = (now - timedelta(days=interval_days)).strftime('%Y-%m-%d')
+                if from_date < min_date:
+                    from_date = min_date
             else:
                 from_date = to_date
             _logger.warning('Account Fees evaluation (API Period): %s-%s' % (from_date, to_date))
