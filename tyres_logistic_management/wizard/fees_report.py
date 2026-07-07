@@ -150,7 +150,7 @@ class LogisticFeesHeader(models.Model):
                     fee.write({
                         'account_ref': reply_json['docNo'],
                         'account_date': reply_json['documentDate'][:10],
-                        'error': reply_json['errorDetails'],
+                        'error': reply_json['errorDetails'] or False,
                         'state': 'done',
                         'json_reply': reply.text,
                     })
