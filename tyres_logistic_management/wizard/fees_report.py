@@ -44,7 +44,9 @@ class LogisticFeesHeader(models.Model):
     def scheduled_api_sync(self):
         """ Update via schedules
         """
-        fees = self.search([])
+        fees = self.search([
+            ('state', '=', 'draft'),
+        ])
         _logger.info('Found Fees to sync: {}'.format(len(fees)))
         for fee in fees:
             fee.api_sync()
