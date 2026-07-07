@@ -1109,6 +1109,7 @@ class StockPicking(models.Model):
                 )
 
         # Note: Invoice need to be in report! else: in Excel mode see all
+        _logger.info(f'Reading Feed domain:\n{domain}')
         pickings = self.search(domain, order='scheduled_date')  # Order need only for Excel report (multiday)
 
         channel_row = {}
