@@ -44,6 +44,9 @@ class LogisticFeesHeader(models.Model):
     def api_sync(self):
         """ Syncro with API to Account
         """
+        sale_line_pool = self.env['sale.order.line']
+        move_pool = self.env['stock.move']
+
         # Parameters for API call
         company = self.env.user.company_id
 
@@ -77,6 +80,21 @@ class LogisticFeesHeader(models.Model):
             product = move.product_id
             qty = move.product_uom_qty
             total = qty * move.logistic_unload_id.price_unit
+
+            # ----------------------------------------------------------------------------------------------------------
+            # Get PFU integration:
+            # ----------------------------------------------------------------------------------------------------------
+            order_line_id = move.logistic_unload_id.id  # Sale order line
+            if order_line_id:  # Search PFU linked to this line:
+                # Search: linked SOL line, from stock move pointing the current SOL
+                pfu_stock_moves = move_pool.search([
+                    ('logistic_unload_id.mmac_pfu_line_id', '=', order_line_id),
+                ])
+                if pfu_stock_moves:
+                    pfu_stock_move = pfu_stock_moves[0]
+                    price_unit = pfu_stock_move.logistic_unload_id.price_unit  # From sale order line
+                    total += pfu_stock_moves.product_uom_qty * price_unit  # Integrate PFU in total
+
             master_total += total
             api_fees['Details'].append(
                 {
@@ -130,10 +148,10 @@ class LogisticFeesHeader(models.Model):
                 # Update ODOO Fees with returned data:
                 try:
                     fee.write({
-                        'account_ref': reply_json['DocNo'],
-                        'account_date': reply_json['DocumentDate'][:10],
+                        'account_ref': reply_json['docNo'],
+                        'account_date': reply_json['documentDate'][:10],
                         'json_reply': reply.text,
-                        'error': reply_json['ErrorDetails'],
+                        'error': reply_json['errorDetails'],
                     })
                     _logger.error('ODOO Fee updated')
                 except:

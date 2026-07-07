@@ -1158,9 +1158,11 @@ class StockPicking(models.Model):
                 # Manage PFU line for extracted feed:
                 # ------------------------------------------------------------------------------------------------------
                 product = move.product_id
-                if not report_mode and product.not_in_invoice:  # mode == 'extract'
+                # Save PFU value (but not exported), used after to update total
+                if not report_mode and product.not_in_invoice:
                     # todo check the 3 fields?
                     pfu_db.append((
+                        # PFU total, Channel, PFU Linked line:
                         total, channel, order_line.mmac_pfu_line_id.id,
                         ))
                     continue
@@ -1410,8 +1412,7 @@ class StockPicking(models.Model):
                         _logger.error('PFU error with line')
 
                 for channel in channel_row:
-                    fees_filename = os.path.join(
-                        path, '%s_%s.csv' % (channel, date))
+                    fees_filename = os.path.join(path, '%s_%s.csv' % (channel, date))
                     fees_f = open(fees_filename, 'w')
 
                     fees_f.write(
