@@ -1077,7 +1077,7 @@ class StockPicking(models.Model):
             if interval_days > 0:
                 from_date = (now - timedelta(days=interval_days)).strftime('%Y-%m-%d')
                 if from_date < min_date:
-                    _logger.info(f'Correct min date {min_date}')
+                    _logger.info(f'Correct min date for API call {min_date}')
                     from_date = min_date
             else:
                 from_date = to_date
