@@ -1104,11 +1104,11 @@ class StockPicking(models.Model):
 
         if api_mode or mode == 'extract':  # API or Extract CSV
             domain.append(
-                ('is_fees', '=', True),
+                ('is_fees', '=', True),  # Used only when extract
                 )
 
         # Note: Invoice need to be in report! else: in Excel mode see all
-        pickings = self.search(domain, order='scheduled_date')  # TODO Need order?
+        pickings = self.search(domain, order='scheduled_date')  # Order need only for Excel report (multiday)
 
         channel_row = {}
         excel_row = []
