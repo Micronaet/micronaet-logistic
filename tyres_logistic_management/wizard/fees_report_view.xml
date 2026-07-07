@@ -58,7 +58,7 @@
                             </page>
                             <page string="Movimenti" name="page_note">
                                 <group>
-                                    <field name="move_ids" readonly="1"/>
+                                    <field name="move_ids" readonly="1" nolabel="1"/>
                                 </group>
                             </page>
                             <page string="Note e Controlli" name="page_note">
