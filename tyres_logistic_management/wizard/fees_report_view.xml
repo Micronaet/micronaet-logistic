@@ -155,7 +155,7 @@
                  action="action_logistic_fees_extract_wizard"
                  />
              <menuitem
-                 parent="crm.menu_logistic_management_fees_root"
+                 parent="menu_logistic_management_fees_root"
                  id="menu_logistic_management_fees_api"
                  name="Scontrini"
                  action="action_logistic_fees_api"
