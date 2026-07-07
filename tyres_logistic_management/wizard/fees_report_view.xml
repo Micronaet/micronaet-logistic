@@ -51,6 +51,16 @@
                                     </group>
                                 </group>
                             </page>
+                            <page string="Picking" name="page_note">
+                                <group>
+                                    <field name="picking_ids" readonly="1"/>
+                                </group>
+                            </page>
+                            <page string="Movimenti" name="page_note">
+                                <group>
+                                    <field name="move_ids" readonly="1"/>
+                                </group>
+                            </page>
                             <page string="Note e Controlli" name="page_note">
                                 <group>
                                     <field name="extra_date" readonly="1"/>
