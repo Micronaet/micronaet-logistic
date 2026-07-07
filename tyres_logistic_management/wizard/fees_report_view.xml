@@ -108,6 +108,7 @@
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field name="search_view_id" ref="view_logistic_fees_api_search"/>
+            <field name="context">{'search_default_filter_not_sent': True}</field>
         </record>
 
         <!-- WIZARD -->
