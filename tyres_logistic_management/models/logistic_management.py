@@ -1080,7 +1080,7 @@ class StockPicking(models.Model):
                     _logger.info('Correct min date for API call {}'.format(min_date))
                     from_date = min_date
             else:
-                from_date = to_date
+                from_date = to_date  # No need to be corrected
             _logger.warning('Account Fees evaluation (API Period): %s-%s' % (from_date, to_date))
 
         else:  # CSV Mode (file saved on server): (also used for Excel report mode)
