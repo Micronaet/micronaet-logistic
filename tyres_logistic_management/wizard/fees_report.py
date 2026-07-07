@@ -41,6 +41,15 @@ class LogisticFeesHeader(models.Model):
     _description = 'Fees API Document'
     _order = 'date desc'
 
+    def scheduled_api_sync(self):
+        """ Update via schedules
+        """
+        fees = self.search([])
+        _logger.info('Found Fees to sync: {}'.format(len(fees)))
+        for fee in fees:
+            fee.api_sync()
+        return True
+
     def api_sync(self):
         """ Syncro with API to Account
         """
