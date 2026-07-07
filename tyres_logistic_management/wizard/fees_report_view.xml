@@ -6,13 +6,14 @@
             <field name="name">logistic.fees.api.tree</field>
             <field name="model">logistic.fees.api</field>
             <field name="arch" type="xml">
-                <tree string="Documenti API Fees" colors="red: error == True">
+                <tree string="Documenti API Fees" decoration-success="state == 'done'" decoration-danger="error == True">
                     <field name="date" />
                     <field name="team_id" />
                     <field name="payment_code" />
                     <field name="account_ref" />
                     <field name="error" />
                     <field name="state" />
+                    <button name="api_sync" type="object" string="API Sync" confirm="Confermi chiamata API con gestionale?" attrs="{'invisible': [('state', '=', 'done')]}"/>
                 </tree>
             </field>
         </record>
@@ -88,6 +89,7 @@
 
                     <separator/>
                     <filter string="Con Errore" name="filter_error" domain="[('error', '=', True)]"/>
+                    <filter string="Da inviare" name="filter_not_sent" domain="[('state', '!=', 'done')]"/>
 
                     <group expand="0" string="Raggruppa per">
                         <filter string="Canale" name="group_by_team" context="{'group_by': 'team_id'}"/>
