@@ -154,11 +154,11 @@
                  sequence="10"
                  action="action_logistic_fees_extract_wizard"
                  />
-             <!--<menuitem
+             <menuitem
                  parent="crm.menu_logistic_management_fees_root"
                  id="menu_logistic_management_fees_api"
                  name="Scontrini"
                  action="action_logistic_fees_api"
-                 sequence="20"/>-->
+                 sequence="20"/>
     </data>
 </odoo>
