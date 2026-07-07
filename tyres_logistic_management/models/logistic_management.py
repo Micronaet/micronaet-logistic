@@ -1102,6 +1102,11 @@ class StockPicking(models.Model):
             ('scheduled_date', '<=', '%s 23:59:59' % to_date),
         ]
 
+        if api_mode:  # Collect only zombie picking
+            domain.append(
+                ('fees_api_id', '=', False),  # Unlinked
+            )
+
         report_mode = mode == 'data'
         if not report_mode:  # API or Extract CSV  api_mode or mode == 'extract'
             domain.append(
