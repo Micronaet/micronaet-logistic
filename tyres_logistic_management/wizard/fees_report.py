@@ -96,7 +96,7 @@ class LogisticFeesHeader(models.Model):
                     price_unit = pfu_stock_move.logistic_unload_id.price_unit  # From sale order line
                     total += pfu_stock_moves.product_uom_qty * price_unit  # Integrate PFU in total
 
-            master_total += total
+            master_total += total  # Product + PFU (if present)
             api_fees['Details'].append(
                 {
                     "LineType": 'S' if product.is_expence else 'M', # Row type ex: "M", Tipologia della riga
