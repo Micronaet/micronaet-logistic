@@ -1102,7 +1102,8 @@ class StockPicking(models.Model):
             ('scheduled_date', '<=', '%s 23:59:59' % to_date),
         ]
 
-        if api_mode or mode == 'extract':  # API or Extract CSV
+        report_mode = mode == 'data'
+        if not report_mode:  # API or Extract CSV  api_mode or mode == 'extract'
             domain.append(
                 ('is_fees', '=', True),  # Used only when extract
                 )
@@ -1156,8 +1157,7 @@ class StockPicking(models.Model):
                 # Manage PFU line for extracted feed:
                 # ------------------------------------------------------------------------------------------------------
                 product = move.product_id
-
-                if mode == 'extract' and product.not_in_invoice:
+                if not report_mode and product.not_in_invoice:  # mode == 'extract'
                     # todo check the 3 fields?
                     pfu_db.append((
                         total, channel, order_line.mmac_pfu_line_id.id,
@@ -1173,7 +1173,7 @@ class StockPicking(models.Model):
                 # ======================================================================================================
                 # 1-2 Extract mode:
                 # ------------------------------------------------------------------------------------------------------
-                if mode == 'extract':
+                if not report_mode:  #mode == 'extract':
                     if api_mode:
                         # ----------------------------------------------------------------------------------------------
                         # API Mode (collect Corrispettivi to be generated after):
@@ -1294,12 +1294,12 @@ class StockPicking(models.Model):
         # ==============================================================================================================
         # Extract mode:
         # --------------------------------------------------------------------------------------------------------------
-        if mode == 'extract':
+        if not report_mode:  # mode == 'extract':
             # ----------------------------------------------------------------------------------------------------------
             # 1. API Mode (link all document to Feed created):
             # ----------------------------------------------------------------------------------------------------------
             if api_mode:
-                # Link Fees to Picking / Stock move (API call asynchronus update)
+                # Link Fees to Picking / Stock move (API call asynchronous update)
                 for fees_key in api_mode_fees:
                     # channel, payment_code = fees_key
                     record = api_mode_fees[fees_key]['record']
