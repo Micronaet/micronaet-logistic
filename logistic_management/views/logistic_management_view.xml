@@ -346,7 +346,6 @@
              <field name="domain">[]</field>
          </record>
 
-
          <!--sale.order-->
          <record model="ir.ui.view" id="view_sale_order_logistic_form">
              <field name="name">sale.order.logistic.form</field>
