@@ -1102,7 +1102,7 @@ class StockPicking(models.Model):
             ('scheduled_date', '<=', '%s 23:59:59' % to_date),
         ]
 
-        if mode == 'extract':  # Excel report
+        if api_mode or mode == 'extract':  # API or Extract CSV
             domain.append(
                 ('is_fees', '=', True),
                 )
