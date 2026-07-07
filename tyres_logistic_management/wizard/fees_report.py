@@ -222,9 +222,8 @@ class StockPickingInherit(models.Model):
 
     # Link fields:
     fees_api_id = fields.Many2one(
-        'logistic.fees.api', 'Scontrino',
+        'logistic.fees.api', 'Scontrino', ondelete='set null',
         help='Crea e collega lo scontrino al Picking Out che ha generato lo scarico effettivo')
-    # TODO flag for remove olt picking?
 
 
 class StockMoveInherit(models.Model):
@@ -235,7 +234,7 @@ class StockMoveInherit(models.Model):
 
     # Link fields:
     fees_api_id = fields.Many2one(
-        'logistic.fees.api', 'Scontrino',
+        'logistic.fees.api', 'Scontrino', ondelete='set null',
         help='Crea e collega lo scontrino alle righe magazzino che hanno generato lo scarico effettivo')
 
 
