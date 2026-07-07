@@ -73,6 +73,7 @@ class LogisticFeesHeader(models.Model):
             "Payment": fee.payment_code, # es: "250" Codice della condizione di pagamento
             "Salesperson": channel, # es: "0062" Canale di vendita
             "IDReceipts": '{}'.format(fee.id),  # Identificativo univoco della ricevuta
+            "TotalOdoo": 0.0,
             "Details": [],  # Righe dettaglio
         }
         master_total = 0.0
@@ -104,6 +105,9 @@ class LogisticFeesHeader(models.Model):
                     "Total": -total, # es: -10.0, # Totale (espresso in negativo)
                 }
             )
+
+        # Update master total:
+        api_fees["TotalOdoo"] = master_total
 
         # --------------------------------------------------------------------------------------------------------------
         # Send via API
