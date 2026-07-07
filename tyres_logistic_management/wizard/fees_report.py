@@ -150,8 +150,9 @@ class LogisticFeesHeader(models.Model):
                     fee.write({
                         'account_ref': reply_json['docNo'],
                         'account_date': reply_json['documentDate'][:10],
-                        'json_reply': reply.text,
                         'error': reply_json['errorDetails'],
+                        'state': 'done',
+                        'json_reply': reply.text,
                     })
                     _logger.error('ODOO Fee updated')
                 except:
