@@ -66,6 +66,7 @@ class SaleOrderInherit(models.Model):
             ('scheduled_date', '>=', '%s 00:00:00' % from_date),
             ('scheduled_date', '<=', '%s 23:59:59' % to_date),
             ('fees_api_id', '=', False),  # Unlinked
+            ('is_fees', '=', True),  # Used only when extract
         ]
 
         # Collect order:
