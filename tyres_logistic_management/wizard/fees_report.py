@@ -39,8 +39,7 @@ class SaleOrderInherit(models.Model):
     _inherit = 'sale.order'
 
     # Server action:
-    @api.model
-    def pending_fees_order(self, mode):
+    def pending_fees_order(self):
         """ Open pending sale order for corrispettivo
         """
         picking_pool = self.env['stock.picking']
