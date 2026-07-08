@@ -80,24 +80,44 @@ class SaleOrderInherit(models.Model):
         tree_id = self.env.ref('sale.view_order_tree').id
 
         _logger.info('Found # {} order'.format(len(order_ids)))
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Ordini da Corrispettivo aperti',
-            'view_type': 'form',
-            'view_mode': 'tree,form,graph,pivot',
-            'res_model': 'sale.order',
-            'view_id': tree_id,
-            'views': [
-                (tree_id, 'tree'),
-                (False, 'form'),
-                (False, 'pivot'),
-                (False, 'graph'),
-            ],
-            'res_ids': order_ids,
-            'context': self.env.context,
-            'target': 'current',  # 'new'
-            'nodestroy': False,
-        }
+        if order_ids:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Ordini da Corrispettivo aperti',
+                'view_type': 'form',
+                'view_mode': 'tree,form,graph,pivot',
+                'res_model': 'sale.order',
+                'view_id': tree_id,
+                'views': [
+                    (tree_id, 'tree'),
+                    (False, 'form'),
+                    (False, 'pivot'),
+                    (False, 'graph'),
+                ],
+                'res_ids': order_ids,
+                'context': self.env.context,
+                'target': 'current',  # 'new'
+                'nodestroy': False,
+            }
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Ordini da Corrispettivo non trovati',
+                'view_type': 'form',
+                'view_mode': 'tree,form,graph,pivot',
+                'res_model': 'sale.order',
+                'view_id': tree_id,
+                'views': [
+                    (tree_id, 'tree'),
+                    (False, 'form'),
+                    (False, 'pivot'),
+                    (False, 'graph'),
+                ],
+                'domain': [('id', '=', 0)],
+                'context': self.env.context,
+                'target': 'current',  # 'new'
+                'nodestroy': False,
+            }
 
 # API Object:
 class LogisticFeesHeader(models.Model):
