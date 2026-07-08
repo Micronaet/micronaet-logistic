@@ -70,12 +70,16 @@ class SaleOrderInherit(models.Model):
 
         # Collect order:
         order_ids = []
-        for pickings in picking_pool.search(domain):
-            order_id = pickings.sale_order_id.id
+        pickings = picking_pool.search(domain)
+        _logger.info('Found # {} picking'.format(len(pickings)))
+        for picking in pickings:
+            order_id = picking.sale_order_id.id
             if order_id:
                 order_ids.append(order_id)
 
         tree_id = self.env.ref('sale.view_order_tree').id
+
+        _logger.info('Found # {} order'.format(len(order_ids)))
         return {
             'type': 'ir.actions.act_window',
             'name': 'Ordini da Corrispettivo aperti',
