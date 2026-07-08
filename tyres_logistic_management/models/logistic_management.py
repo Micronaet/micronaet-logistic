@@ -1068,7 +1068,9 @@ class StockPicking(models.Model):
         min_date = '2026-07-07'  # Start using API procedure!
 
         now_date = now.strftime('%Y-%m-%d')  # Used in various part (to_date in API, Feed date)
-        if api_mode:  # API Mode (JSON call)
+        if mode == 'data':  # Report_
+            from_date = to_date = evaluation_date
+        elif api_mode:  # API Mode (JSON call)
             _logger.info('Fees operation in API mode')
             # Domain selection -> Picking from selected date range till now, not invoiced (DDT and Refund):
             # Note: API mode use always current date and range in Company parameters!
