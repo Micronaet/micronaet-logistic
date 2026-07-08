@@ -9,6 +9,7 @@
                 <tree string="Documenti API Fees" decoration-success="state == 'done'" decoration-danger="error == True">
                     <field name="date" />
                     <field name="team_id" />
+                    <field name="payment_term_id" />
                     <field name="payment_code" />
                     <field name="account_ref" />
                     <field name="error" />
@@ -32,8 +33,14 @@
                         </div>
 
                         <group>
-                            <field name="account_ref" placeholder="Rif. scontrino" readonly="1"/>
-                            <field name="account_date" readonly="1"/>
+                            <group string="Risposta gestionale">
+                                <field name="account_ref" placeholder="Rif. scontrino" readonly="1"/>
+                                <field name="account_date" readonly="1"/>
+                            </group>
+                            <group string="Totali">
+                                <field name="odoo_total" readonly="1"/>
+                                <field name="account_total" readonly="1"/>
+                            </group>
                         </group>
                         <notebook colspan="4">
                             <page string="Dettaglio" name="page_detail">
@@ -41,6 +48,7 @@
                                     <group string="Dati Principali">
                                         <field name="date" readonly="1"/>
                                         <field name="team_id" readonly="1"/>
+                                        <field name="payment_term_id" readonly="1"/>
                                         <field name="payment_code" readonly="1"/>
                                     </group>
                                     <group string="Stato e Sincronizzazione">
@@ -79,23 +87,29 @@
             <field name="model">logistic.fees.api</field>
             <field name="arch" type="xml">
                 <search string="Ricerca Scontrini">
-                    <field name="account_ref" string="Riferimento Scontrino"/>
+                    <field name="account_date" string="Data passaggio"/>
+                    <field name="account_ref" string="Riferimento scontrino"/>
+
                     <field name="team_id" string="Canale di Vendita"/>
+                    <field name="payment_term_id" string="Canale di Vendita"/>
                     <field name="payment_code" string="Codice Pagamento"/>
-                    <field name="date" string="Data"/>
+                    <field name="date" string="Data creazione" />
+
+                    <filter string="Oggi" name="filter_today" domain="[('account_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                    <separator/>
 
                     <filter string="Da Sincronizzare" name="filter_draft" domain="[('state', '=', 'draft')]"/>
                     <filter string="Sincronizzati" name="filter_done" domain="[('state', '=', 'done')]"/>
-
                     <separator/>
+
                     <filter string="Con Errore" name="filter_error" domain="[('error', '=', True)]"/>
                     <filter string="Da inviare" name="filter_not_sent" domain="[('state', '!=', 'done')]"/>
 
                     <group expand="0" string="Raggruppa per">
                         <filter string="Canale" name="group_by_team" context="{'group_by': 'team_id'}"/>
-                        <filter string="Pagamento" name="group_by_payment" context="{'group_by': 'payment_code'}"/>
-                        <filter string="Giorno" name="group_by_date" context="{'group_by': 'date:day'}"/>
-                        <filter string="Mese" name="group_by_date" context="{'group_by': 'date:month'}"/>
+                        <filter string="Pagamento" name="group_by_payment" context="{'group_by': 'payment_term_id'}"/>
+                        <filter string="Data ins. - Giorno" name="group_by_date" context="{'group_by': 'account_date:day'}"/>
+                        <filter string="Data ins. - Mese" name="group_by_date" context="{'group_by': 'account_date:month'}"/>
                         <filter string="Stato" name="group_by_state" context="{'group_by': 'state'}"/>
                     </group>
                 </search>
@@ -109,6 +123,16 @@
             <field name="view_mode">tree,form</field>
             <field name="search_view_id" ref="view_logistic_fees_api_search"/>
             <field name="context">{'search_default_filter_not_sent': True}</field>
+        </record>
+        <record id="ir_pending_fees_order_server_action" model="ir.actions.server">
+            <field name="name">Ordini da scontrino</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="sale.model_sale_order" />
+            <field name="binding_model_id" ref="sale.model_sale_order" />
+            <field name="state">code</field>
+            <field name="code">
+                action = env['sale.order'].pending_fees_order()
+            </field>
         </record>
 
         <!-- WIZARD -->
@@ -166,9 +190,15 @@
                  />
              <menuitem
                  parent="menu_logistic_management_fees_root"
-                 id="menu_logistic_management_fees_api"
-                 name="Scontrini"
-                 action="action_logistic_fees_api"
+                 id="menu_logistic_management_order_for_fees_api"
+                 name="Ordini da Scontrino"
+                 action="ir_pending_fees_order_server_action"
                  sequence="20"/>
+             <menuitem
+                 parent="menu_logistic_management_fees_root"
+                 id="menu_logistic_management_fees_api"
+                 name="Scontrini fatti"
+                 action="action_logistic_fees_api"
+                 sequence="30"/>
     </data>
 </odoo>

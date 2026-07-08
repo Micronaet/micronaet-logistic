@@ -1087,8 +1087,7 @@ class StockPicking(models.Model):
             _logger.info('Fees operation in File CSV mode (or Excel report export)')
 
             # Create subfolder used:
-            path = os.path.join(
-                os.path.expanduser(company.logistic_root_folder), 'corrispettivi')
+            path = os.path.join(os.path.expanduser(company.logistic_root_folder), 'corrispettivi')
             try:
                 os.system('mkdir -p %s' % path)
                 os.system('mkdir -p %s' % os.path.join(path, 'reply'))
@@ -1200,6 +1199,7 @@ class StockPicking(models.Model):
                                     'date': now_date,  # Use now date not picking_date
                                     'state': 'draft',
                                     'team_id': order.team_id.id,
+                                    'payment_term_id': order.payment_term_id.id,
                                     'payment_code': payment_code,
                                     'extra_date': '',  # Check if in this fee there's also picking with different date
                                 },

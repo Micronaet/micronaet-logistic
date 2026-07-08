@@ -33,6 +33,68 @@ import requests
 _logger = logging.getLogger(__name__)
 
 
+class SaleOrderInherit(models.Model):
+    """ Object to link all stock picking for Fees API call
+    """
+    _inherit = 'sale.order'
+
+    # Server action:
+    @api.model
+    def pending_fees_order(self, mode):
+        """ Open pending sale order for corrispettivo
+        """
+        picking_pool = self.env['stock.picking']
+
+        company = self.env.user.company_id
+
+        # Duplicated code:
+        now = datetime.now()
+        min_date = '2026-07-07'  # Start using API procedure!
+
+        now_date = now.strftime('%Y-%m-%d')  # Used in various part (to_date in API, Feed date)
+        to_date = now_date
+        interval_days = company.api_fees_from_days or 0
+        if interval_days > 0:
+            from_date = (now - timedelta(days=interval_days)).strftime('%Y-%m-%d')
+            if from_date < min_date:
+                from_date = min_date
+        else:
+            from_date = to_date  # No need to be corrected
+
+        domain = [
+            # Period:
+            ('scheduled_date', '>=', '%s 00:00:00' % from_date),
+            ('scheduled_date', '<=', '%s 23:59:59' % to_date),
+            ('fees_api_id', '=', False),  # Unlinked
+        ]
+
+        # Collect order:
+        order_ids = []
+        for pickings in picking_pool.search(domain):
+            order_id = pickings.sale_order_id.id
+            if order_id:
+                order_ids.append(order_id)
+
+        tree_id = self.env.ref('sale.view_order_tree').id
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Ordini da Corrispettivo aperti',
+            'view_type': 'form',
+            'view_mode': 'tree,form,graph,pivot',
+            'res_model': 'sale.order',
+            'view_id': tree_id,
+            'views': [
+                (tree_id, 'tree'),
+                (False, 'form'),
+                (False, 'pivot'),
+                (False, 'graph'),
+            ],
+            'domain': ['id', 'in', order_ids],
+            'context': self.env.context,
+            'target': 'current',  # 'new'
+            'nodestroy': False,
+        }
+
 # API Object:
 class LogisticFeesHeader(models.Model):
     """ Object to link all stock picking for Fees API call
@@ -44,6 +106,7 @@ class LogisticFeesHeader(models.Model):
     def scheduled_api_sync(self):
         """ Update via schedules
         """
+        # Search only draft fees:
         fees = self.search([
             ('state', '=', 'draft'),
         ])
@@ -203,8 +266,12 @@ class LogisticFeesHeader(models.Model):
         ('manual', 'Manuale'),
     ], string='Stato', required=True, default='draft')
 
+    payment_term_id = fields.Many2one('account.payment.term', 'Pagamento')
     team_id = fields.Many2one('crm.team', 'Canale di vendita')
     payment_code = fields.Char('Codice pagamento', required=True, size=10)  # order.payment_term_id.account_ref
+
+    odoo_total = fields.Float('Totale ODOO', digits=(16, 2))
+    account_total = fields.Float('Totale ODOO', digits=(16, 2))
 
     # Check:
     extra_date = fields.Text(
