@@ -936,13 +936,13 @@
                      groups="tyres_logistic_management.group_logistic_account_manager,tyres_logistic_management.group_logistic_manager"
                      />
 
-             <!--<menuitem
+             <menuitem
                  parent="menu_logistic_delivery_management_root"
                  id="menu_my_stock_picking_delivery_tree"
                  action="action_my_stock_picking_delivery_tree"
                  sequence="20"
                  groups="tyres_logistic_management.group_logistic_account_manager,tyres_logistic_management.group_logistic_manager"
-                 />-->
+                 />
              <menuitem
                  parent="menu_logistic_delivery_management_root"
                  id="menu_stock_picking_delivery_tree"

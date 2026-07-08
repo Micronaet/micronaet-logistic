@@ -201,12 +201,12 @@
         </record>
 
 
-        <!--<menuitem
+        <menuitem
             id="menu_logistic_left_statistic_used_clean"
             parent="tyres_logistic_management.menu_logistic_left_statistic_root"
             action="action_sale_order_statistics_clean"
             sequence="10"
-            />-->
+            />
         <menuitem
             id="menu_logistic_left_statistic_all_order"
             parent="tyres_logistic_management.menu_logistic_left_statistic_root"
