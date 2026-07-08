@@ -7,12 +7,14 @@
             <field name="model">logistic.fees.api</field>
             <field name="arch" type="xml">
                 <tree string="Documenti API Fees" decoration-success="state == 'done'" decoration-danger="error == True">
-                    <field name="date" />
                     <field name="team_id" />
                     <field name="payment_term_id" />
                     <field name="payment_code" />
                     <field name="account_ref" />
-                    <field name="error" />
+                    <field name="account_date" />
+                    <field name="odoo_total" sum="odoo"/>
+                    <field name="account_total" sum="account"/>
+                    <field name="error" invisible="1"/>
                     <field name="state" />
                     <button name="api_sync" type="object" string="API Sync" confirm="Confermi chiamata API con gestionale?" attrs="{'invisible': [('state', '=', 'done')]}"/>
                 </tree>
@@ -122,7 +124,7 @@
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field name="search_view_id" ref="view_logistic_fees_api_search"/>
-            <field name="context">{'search_default_filter_not_sent': True}</field>
+            <field name="context">{'search_default_filter_today': True}</field>
         </record>
         <record id="ir_pending_fees_order_server_action" model="ir.actions.server">
             <field name="name">Ordini da scontrino</field>
