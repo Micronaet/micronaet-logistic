@@ -27,7 +27,7 @@ import logging
 from odoo import api, fields, models, tools, exceptions, SUPERUSER_ID
 from odoo.addons import decimal_precision as dp
 from odoo.tools.translate import _
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import requests
 
