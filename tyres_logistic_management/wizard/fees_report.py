@@ -89,7 +89,7 @@ class SaleOrderInherit(models.Model):
                 (False, 'pivot'),
                 (False, 'graph'),
             ],
-            'domain': ['id', 'in', order_ids],
+            'domain': [('id', 'in', order_ids)],
             'context': self.env.context,
             'target': 'current',  # 'new'
             'nodestroy': False,
