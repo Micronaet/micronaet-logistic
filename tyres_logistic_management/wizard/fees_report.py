@@ -250,7 +250,6 @@ class LogisticFeesHeader(models.Model):
                 _logger.info('SUCCESS: [Fees operation] Loaded correctly')
                 # Update ODOO Fees with returned data:
                 try:
-                    import pdb; pdb.set_trace()
                     fee.write({
                         'account_ref': reply_json['docNo'],
                         'account_date': reply_json['documentDate'][:10],
