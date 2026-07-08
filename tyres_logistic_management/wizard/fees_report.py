@@ -275,7 +275,7 @@ class LogisticFeesHeader(models.Model):
     payment_code = fields.Char('Codice pagamento', required=True, size=10)  # order.payment_term_id.account_ref
 
     odoo_total = fields.Float('Totale ODOO', digits=(16, 2))
-    account_total = fields.Float('Totale ODOO', digits=(16, 2))
+    account_total = fields.Float('Totale Gestionale', digits=(16, 2))
 
     # Check:
     extra_date = fields.Text(
