@@ -255,6 +255,7 @@ class LogisticFeesHeader(models.Model):
                         'error': reply_json['errorDetails'] or False,
                         'state': 'done',
                         'json_reply': reply.text,
+                        'account_total': reply['totalAmount'],
                     })
                     _logger.error('ODOO Fee updated')
                 except:
