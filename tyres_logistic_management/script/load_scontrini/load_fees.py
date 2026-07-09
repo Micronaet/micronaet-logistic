@@ -33,9 +33,9 @@ try:
 except:
     import configparser
 
-# -----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # Read configuration parameter:
-# -----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 cfg_file = os.path.expanduser('../odoo.cfg')
 
 config = configparser.ConfigParser()
@@ -46,9 +46,9 @@ pwd = config.get('dbaccess', 'pwd')
 server = config.get('dbaccess', 'server')
 port = config.get('dbaccess', 'port')  # verify if it's necessary: getint
 
-# =============================================================================
+# ======================================================================================================================
 # LOCK FILE Management
-# =============================================================================
+# ======================================================================================================================
 lock_file = './script_running.lock'
 if os.path.exists(lock_file):
     print("Script gia in esecuzione (Semaforo attivo). Uscita.")
@@ -58,6 +58,8 @@ if os.path.exists(lock_file):
 with open(lock_file, 'w') as f:
     f.write(str(datetime.now()))
 
+not_necessary = False
+pdb.set_trace()
 try:
     # ==================================================================================================================
     # Connect to ODOO:
@@ -77,19 +79,25 @@ try:
 
     if not fees_ids:
         print('Not necessary')
-        sys.exit()
+        not_necessary = True  # Segnaliamo che non c'è lavoro da fare senza chiamare sys.exit() qui
 
-    now = str(datetime.now()).replace('/', '_').replace('-', '').replace(':', '_')
-    log_f = codecs.open('./log/scontrino_%s.log' % now, 'w', 'utf-8')
-    for fee in fees_pool.browse(fees_ids):
-        fee_id = fee.id
-        fees_pool.api_sync([fee_id])
-        message = 'Caricato scontrino ID: {}'.format(fee_id)
-        print(message)
-        log_f.write(message)
-        log_f.write('\n')
-        log_f.flush()
+    # Eseguiamo l'elaborazione solo se ci sono dati
+    if not not_necessary:
+        now = str(datetime.now()).replace('/', '_').replace('-', '').replace(':', '_')
+        log_f = codecs.open('./log/scontrino_%s.log' % now, 'w', 'utf-8')
+        for fee in fees_pool.browse(fees_ids):
+            fee_id = fee.id
+            fees_pool.api_sync([fee_id])
+            message = 'Caricato scontrino ID: {}'.format(fee_id)
+            print(message)
+            log_f.write(message)
+            log_f.write('\n')
+            log_f.flush()
 finally:
-    # Clean operations:
+    # Pulizia del file semaforo: viene eseguita SEMPRE
     if os.path.exists(lock_file):
         os.remove(lock_file)
+
+# Se l'elaborazione non era necessaria, usciamo adesso, FUORI dal blocco try/finally
+if not_necessary:
+    sys.exit()
