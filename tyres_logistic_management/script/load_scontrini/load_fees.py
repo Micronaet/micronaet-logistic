@@ -97,7 +97,3 @@ finally:
     # Pulizia del file semaforo: viene eseguita SEMPRE
     if os.path.exists(lock_file):
         os.remove(lock_file)
-
-# Se l'elaborazione non era necessaria, usciamo adesso, FUORI dal blocco try/finally
-if not_necessary:
-    sys.exit()
