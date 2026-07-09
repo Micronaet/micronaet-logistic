@@ -33,7 +33,6 @@ try:
 except:
     import configparser
 
-
 # -----------------------------------------------------------------------------
 # Read configuration parameter:
 # -----------------------------------------------------------------------------
@@ -45,36 +44,52 @@ dbname = config.get('dbaccess', 'dbname')
 user = config.get('dbaccess', 'user')
 pwd = config.get('dbaccess', 'pwd')
 server = config.get('dbaccess', 'server')
-port = config.get('dbaccess', 'port')   # verify if it's necessary: getint
+port = config.get('dbaccess', 'port')  # verify if it's necessary: getint
 
-# -----------------------------------------------------------------------------
-# Connect to ODOO:
-# -----------------------------------------------------------------------------
-print('Connect to ODOO')
-odoo = erppeek.Client(
-    'http://%s:%s' % (server, port),
-    db=dbname,
-    user=user,
-    password=pwd,
-    )
-
-fees_pool = odoo.model('logistic.fees.api')
-partner_ids = partner_pool.search([
-    ('state', '=', 'draft'),
-    ])
-
-if not partner_ids:
-    print('Not necessary')
+# =============================================================================
+# LOCK FILE Management
+# =============================================================================
+lock_file = './script_running.lock'
+if os.path.exists(lock_file):
+    print("Script gia in esecuzione (Semaforo attivo). Uscita.")
     sys.exit()
 
-now = str(datetime.now()).replace('/', '_').replace('-', '').replace(':', '_')
-log_f = codecs.open('./log/partner_%s.log' % now, 'w', 'utf-8')
-for fee in fees_pool.browse(fees_pool):
-    fees_pool.api_sync([fee.id])
-    message = 'Caricato scontrino ID: {}'.format(fee.id)
-    print(message)
-    log_f.write(message)
-    log_f.write('\n')
-    log_f.flush()
+# Crea il file semaforo
+with open(lock_file, 'w') as f:
+    f.write(str(datetime.now()))
 
+try:
+    # ==================================================================================================================
+    # Connect to ODOO:
+    # ==================================================================================================================
+    print('Connect to ODOO')
+    odoo = erppeek.Client(
+        'http://%s:%s' % (server, port),
+        db=dbname,
+        user=user,
+        password=pwd,
+    )
 
+    fees_pool = odoo.model('logistic.fees.api')
+    fees_ids = fees_pool.search([
+        ('state', '=', 'draft'),
+    ])
+
+    if not fees_ids:
+        print('Not necessary')
+        sys.exit()
+
+    now = str(datetime.now()).replace('/', '_').replace('-', '').replace(':', '_')
+    log_f = codecs.open('./log/scontrino_%s.log' % now, 'w', 'utf-8')
+    for fee in fees_pool.browse(fees_ids):
+        fee_id = fee.id
+        fees_pool.api_sync([fee_id])
+        message = 'Caricato scontrino ID: {}'.format(fee_id)
+        print(message)
+        log_f.write(message)
+        log_f.write('\n')
+        log_f.flush()
+finally:
+    # Clean operations:
+    if os.path.exists(lock_file):
+        os.remove(lock_file)
