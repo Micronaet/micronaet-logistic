@@ -58,7 +58,6 @@ with open(lock_file, 'w') as f:
     f.write(str(datetime.now()))
 
 not_necessary = False
-pdb.set_trace()
 try:
     # ==================================================================================================================
     # Connect to ODOO:
