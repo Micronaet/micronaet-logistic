@@ -32,6 +32,18 @@ try:
 except:
     import configparser
 
+# ======================================================================================================================
+# LOCK FILE Management (first operation)
+# ======================================================================================================================
+lock_file = './script_running.lock'
+if os.path.exists(lock_file):
+    print("Script gia in esecuzione (Semaforo attivo). Uscita.")
+    sys.exit()
+
+# Crea il file semaforo
+with open(lock_file, 'w') as f:
+    f.write(str(datetime.now()))
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Read configuration parameter:
 # ----------------------------------------------------------------------------------------------------------------------
@@ -44,18 +56,6 @@ user = config.get('dbaccess', 'user')
 pwd = config.get('dbaccess', 'pwd')
 server = config.get('dbaccess', 'server')
 port = config.get('dbaccess', 'port')  # verify if it's necessary: getint
-
-# ======================================================================================================================
-# LOCK FILE Management
-# ======================================================================================================================
-lock_file = './script_running.lock'
-if os.path.exists(lock_file):
-    print("Script gia in esecuzione (Semaforo attivo). Uscita.")
-    sys.exit()
-
-# Crea il file semaforo
-with open(lock_file, 'w') as f:
-    f.write(str(datetime.now()))
 
 not_necessary = False
 try:
