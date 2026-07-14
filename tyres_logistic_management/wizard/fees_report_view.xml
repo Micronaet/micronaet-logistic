@@ -147,6 +147,7 @@
                       <button string="Cancel" class="btn-default" special="cancel" />
 
                       <button name="fees_report_button" string="Print report" type="object" class="btn-primary" colspan="1" icon="fa-file-text-o fa-2x"/>
+                      <button name="fees_report_button_v2" string="Stampa (v.2)" type="object" class="btn-primary" colspan="1" icon="fa-file-text-o fa-2x"/>
 
                       <button name="fees_extract_button" string="Extract fees" type="object" colspan="1"
                               groups="tyres_logistic_management.group_logistic_fee_manager"
