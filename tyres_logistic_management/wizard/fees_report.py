@@ -645,7 +645,6 @@ class LogisticFeesExtractWizard(models.TransientModel):
         # Get collected data:
         excel_row = stock_pool.csv_report_extract_accounting_fees(
             evaluation_date=self.evaluation_date, team_id=self.team_id.id, mode='data')
-
         filename = 'consegnato_il_giorno_v2_%s' % evaluation_date.replace('-', '_')
 
         # --------------------------------------------------------------------------------------------------------------
@@ -748,7 +747,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
             excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
             excel_pool.freeze_panes(ws_name, 2, 4)
-            from_row = row
+            from_row = row + 1
 
             total = 0.0  # final total
 
