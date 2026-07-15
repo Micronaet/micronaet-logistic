@@ -737,7 +737,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             row = 0
             excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
             excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
-            excel_pool.freeze_panes(ws_name, 4, 1)
+            excel_pool.freeze_panes(ws_name, 1, 4)
 
             total = 0.0  # final total
 
