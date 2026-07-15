@@ -152,7 +152,6 @@
                       <button name="fees_extract_button" string="Extract fees" type="object" colspan="1"
                               groups="tyres_logistic_management.group_logistic_fee_manager"
                               confirm="Program will generate the fees data in accounting, confirm?" icon="fa-exchange fa-2x"/>
-
                       <button name="fees_extract_api_button" string="Estrai corrispettivi API" type="object" class="btn-primary" colspan="1"
                               groups="tyres_logistic_management.group_logistic_fee_manager"
                               confirm="Il programma generera i corrispettivi tramite chiamata API, confermi?" icon="fa-exchange fa-2x"/>
