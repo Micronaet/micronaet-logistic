@@ -792,22 +792,6 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 total += subtotal
                 partial += subtotal
 
-                # if previous_mode == False:
-                #     previous_mode = mode
-
-                # ------------------------------------------------------------------------------------------------------
-                # Check partial:
-                # ------------------------------------------------------------------------------------------------------
-                # if previous_mode != mode:
-                #    # Write partial
-                #    excel_pool.write_xls_line(ws_name, row, [
-                #        'Parziale %s:' % previous_mode,
-                #        partial,
-                #        ], default_format=format_text['total'], col=5)
-                #    row += 1
-                #    previous_mode = mode
-                #    partial = 0.0
-
                 excel_pool.write_xls_line(ws_name, row, [
                     mode,      # Mode
                     line[3],   # Channel
@@ -821,20 +805,12 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     line[13],  # Type
                     line[14],  # Agent
                     ], default_format=format_text['text'])
+
+            # ----------------------------------------------------------------------------------------------------------
+            # Write subtotal (first line):
+            # ----------------------------------------------------------------------------------------------------------
             to_row = row
             row += 1
-
-            # ----------------------------------------------------------------------------------------------------------
-            # check last partial:
-            # ----------------------------------------------------------------------------------------------------------
-            # if previous_mode:  # Break mode when change previous mode (always present)
-            #    # Write partial
-            #    excel_pool.write_xls_line(ws_name, row, [
-            #        'Parziale %s:' % previous_mode, partial,
-            #        ], default_format=format_text['total'], col=7)
-            #    row += 1
-
-            # Write subtotal:
             formula = u"=SUBTOTAL(9,%s:%s)" % (
                 excel_pool.rowcol_to_cell(from_row, total_column),
                 excel_pool.rowcol_to_cell(to_row, total_column),
@@ -846,10 +822,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 format_text['number'], total,
             )
 
-            # excel_pool.write_xls_line(ws_name, row, ['Totale', total], format_text['total'], col=7)
-
         return excel_pool.return_attachment(filename)
-
 
     @api.multi
     def fees_extract_button(self):
