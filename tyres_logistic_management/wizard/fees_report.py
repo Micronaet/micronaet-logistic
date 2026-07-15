@@ -651,26 +651,35 @@ class LogisticFeesExtractWizard(models.TransientModel):
         }
         for line in sorted(excel_row):
             # Readability:
-            mode = line[0]
+            mode = line[0]  # Document type: CORR. / FATT.
+            customer_mode = line[1]  # b2b / b2c
             fiscal = line[2]
             order = line[6]
+            payment_code = line[9]
             total = line[12]
 
             # ----------------------------------------------------------------------------------------------------------
             # Page management:
             # ----------------------------------------------------------------------------------------------------------
-            if mode == 'CORR.':
+            if mode == 'CORR.':  # o FATT
                 page = 'Corrispettivo'
-            elif fiscal in page_selection:
-                page = fiscal  # Fiscal position
+            else:
+                if customer_mode == 'b2c':
+                    page = 'B2C'
+                elif customer_mode == 'b2b':
+                    if payment_code == '026':
+                        page = 'B2B SEPA'
+                    elif payment_code == '036':
+                        page = 'B2B RID 14 gg'
+                    else:
+                        _logger.error('B2B not in 036 / 026 Payment code')
+                        continue
+
                 # Check page only for invoice:
                 if order not in check_page['total']:
                     check_page['total'][order] = 0.0
                     check_page['lines'].append(line)  # only once!
                 check_page['total'][order] += total
-            else:
-                _logger.info('Remove fiscal position: {}'.format(fiscal))
-                continue
 
             if page not in pages:
                 pages[page] = {}
@@ -685,13 +694,15 @@ class LogisticFeesExtractWizard(models.TransientModel):
         # --------------------------------------------------------------------------------------------------------------
         header = [
             'Modo', 'Canale', 'Data',
-            'Cliente', 'Ordine', 'Pagamento', 'Totale',
+            'Pos. fiscale', 'Cliente', 'Ordine',
+            'Cod. Pag.', 'Desc. Pag.', 'Totale',
             'Tipo', 'Agente',
             ]
 
         width = [
             6, 10, 15,
-            30, 25, 10, 10,
+            20, 30, 25,
+            10, 10, 20,
             10, 10,
             ]
 
