@@ -738,6 +738,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             partial = 0.0
             previous_mode = False
 
+            import pdb; pdb.set_trace()
             if ws_name == 'Corrispettivo':
                 sorted_records = sorted(
                     pages[ws_name],
