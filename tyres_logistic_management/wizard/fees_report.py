@@ -685,7 +685,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 if customer_mode == 'b2c':
                     page = 'B2C'
                 elif customer_mode == 'b2b':
-                    total += vat  # In B2B integrate VAT
+                    total += total * vat / 100.0  # In B2B integrate VAT
 
                     if payment_code == '026':
                         page = 'B2B SEPA'
@@ -760,9 +760,6 @@ class LogisticFeesExtractWizard(models.TransientModel):
 
             total = 0.0  # final total
 
-            # Partial management:
-            partial = 0.0
-
             # ----------------------------------------------------------------------------------------------------------
             # Sort record:
             # ----------------------------------------------------------------------------------------------------------
@@ -798,8 +795,6 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 mode = line[1]
 
                 total += subtotal
-                partial += subtotal
-
                 excel_pool.write_xls_line(ws_name, row, [
                     mode,      # Mode
                     line[3],   # Channel
