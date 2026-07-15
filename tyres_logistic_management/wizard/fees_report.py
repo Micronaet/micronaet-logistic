@@ -630,6 +630,12 @@ class LogisticFeesExtractWizard(models.TransientModel):
         """
         stock_pool = self.env['stock.picking']
         excel_pool = self.env['excel.writer']
+        payment_pool = self.env['account.payment.term']
+
+        # Preload payment terms
+        payment_terms = {}
+        for payment in payment_pool.search([]):
+            payment_terms[payment.account_ref] = payment.id
 
         evaluation_date = self.evaluation_date
         excel_row = stock_pool.csv_report_extract_accounting_fees(
@@ -764,13 +770,15 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     format_color = format_text['red']
 
                 excel_pool.write_xls_line(ws_name, row, [
-                    mode,  # Mode
-                    line[3],  # Channel
-                    line[4],  # Date
-                    line[5],  # Customer
+                    mode,      # Mode
+                    line[3],   # Channel
+                    line[4],   # Date
+                    line[2],   # Fiscal position
+                    line[5],   # Customer
                     order,
-                    line[9],  # Payment
-                    subtotal,
+                    line[9],   # Payment code
+                    payment_terms.get(line[9], ''), # Payment desc.
+                    subtotal,  # Subtotal
                     line[13],  # Type
                     line[14],  # Agent
                     ], default_format=format_color)
@@ -782,13 +790,11 @@ class LogisticFeesExtractWizard(models.TransientModel):
             if previous_mode:  # always present
                 # Write partial
                 excel_pool.write_xls_line(ws_name, row, [
-                    'Parziale %s:' % previous_mode,
-                    partial,
-                    ], default_format=format_text['total'], col=5)
+                    'Parziale %s:' % previous_mode, partial,
+                    ], default_format=format_text['total'], col=7)
                 row += 1
 
-            excel_pool.write_xls_line(
-                ws_name, row, ['Totale', total], format_text['total'], col=5)
+            excel_pool.write_xls_line(ws_name, row, ['Totale', total], format_text['total'], col=7)
 
         return excel_pool.return_attachment(filename)
 
