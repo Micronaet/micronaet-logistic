@@ -653,12 +653,6 @@ class LogisticFeesExtractWizard(models.TransientModel):
             'B2B SEPA': {},
             'B2B RID 14 gg': {},
         }
-        sort_record_pages = {
-            'Corrispettivo': lambda x: (pages['Corrispettivo'][x][1][1], pages['Corrispettivo'][x][1][7], x),
-            'B2C': lambda x: (pages['B2C'][x][1][1], x),
-            'B2B SEPA': lambda x: (pages['B2B SEPA'][x][1][1], x),
-            'B2B RID 14 gg': lambda x: (pages['B2B RID 14 gg'][x][1][1], x),
-        }
         check_page = {
             'lines': [],
             'total': {},
@@ -743,8 +737,29 @@ class LogisticFeesExtractWizard(models.TransientModel):
             # Partial management:
             partial = 0.0
             previous_mode = False
-            sort_mode = sort_record_pages[page]
-            for order in sorted(pages[ws_name], key=sort_mode):
+
+            if ws_name == 'Corrispettivo':
+                sorted_records = sorted(
+                    pages[ws_name],
+                    key=lambda x: (pages['Corrispettivo'][x][1][1], pages['Corrispettivo'][x][1][7])
+                )
+            elif ws_name == 'B2C':
+                sorted_records = sorted(
+                    pages[ws_name],
+                    key=lambda x: pages['Corrispettivo'][x][1][1]
+                )
+            elif ws_name == 'B2B SEPA':
+                sorted_records = sorted(
+                    pages[ws_name],
+                    key=lambda x: pages['Corrispettivo'][x][1][1]
+                )
+            else:  # ws_name == 'B2B RID 14 gg':
+                sorted_records = sorted(
+                    pages[ws_name],
+                    key=lambda x: pages['Corrispettivo'][x][1][1]
+                )
+
+            for order in sorted_records:
                 row += 1
                 subtotal, line = pages[ws_name][order]
                 mode = line[1]
