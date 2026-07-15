@@ -714,7 +714,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             10, 10, 20,
             10, 10,
             ]
-        total_column = 0
+        total_column = 8
 
         format_text = False  # Load when create first sheet!
         for ws_name in pages:
