@@ -632,9 +632,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
 
         evaluation_date = self.evaluation_date
         excel_row = stock_pool.csv_report_extract_accounting_fees(
-            evaluation_date=self.evaluation_date,
-            team_id=self.team_id.id,
-            mode='data')
+            evaluation_date=self.evaluation_date, team_id=self.team_id.id, mode='data')
 
         date = evaluation_date.replace('-', '_')
         filename = 'consegnato_il_giorno_%s' % evaluation_date
