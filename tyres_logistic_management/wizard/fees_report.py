@@ -614,13 +614,14 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 (order_total, format_text['number']) if triangle else '',
 
             ], default_format=format_text['text'])
+
         # Total line:
         if check_page['lines']:
             row += 1
             excel_pool.write_xls_line(
-                ws_name, row, ['Totale', master_total, triangle_total],
-                format_text['total'], col=8)
+                ws_name, row, ['Totale', master_total, triangle_total], format_text['total'], col=8)
         return excel_pool.return_attachment(filename)
+
 
     @api.multi
     def fees_report_button_v2(self):
@@ -635,61 +636,20 @@ class LogisticFeesExtractWizard(models.TransientModel):
             evaluation_date=self.evaluation_date, team_id=self.team_id.id, mode='data')
 
         date = evaluation_date.replace('-', '_')
-        filename = 'consegnato_il_giorno_%s' % evaluation_date
+        filename = 'consegnato_il_giorno_v2_%s' % date
 
         # --------------------------------------------------------------------------------------------------------------
-        #                               BUTTON EVENT:
+        #                            First loop to collect data:
         # --------------------------------------------------------------------------------------------------------------
-        ws_name = 'Consegnato giornaliero'
-        excel_pool.create_worksheet(ws_name)
-
-        excel_pool.set_format()
-        format_text = {
-            'title': excel_pool.get_format('title'),
-            'header': excel_pool.get_format('header'),
-            'text': excel_pool.get_format('text'),
-            'number': excel_pool.get_format('number'),
-            'total': excel_pool.get_format('text_total'),
-            'red': excel_pool.get_format('text_red'),
-            }
-
-        header = [
-            'Tipo', 'Modo', 'Pos. fisc.', 'Canale',
-            'Data', 'Cliente', 'Ordine',
-            'SKU', 'Descrizione',
-            'Pagamento', 'Contropartita',
-            'Q.', 'Totale',
-            'Tipo', 'Agente', 'IVA', 'Triang.',
-            ]
-        width = [
-            6, 6, 20, 10,
-            15, 30, 25,
-            15, 40,
-            10, 11,
-            5, 12,
-            5, 10, 5, 10,
-            ]
-        excel_pool.column_width(ws_name, width)
-
-        row = 0
-        excel_pool.write_xls_line(
-            ws_name, row,
-            [
-               'Corrispettivi e fatture del giorno: %s' % date,
-            ], default_format=format_text['title'])
-
-        row += 2
-        excel_pool.write_xls_line(
-            ws_name, row, header,
-            default_format=format_text['header'])
+        page_selection = [
+            'B2C', 'B2B',
+        ]
         pages = {}
         check_page = {
             'lines': [],
             'total': {},
         }
         for line in sorted(excel_row):
-            row += 1
-
             # Readability:
             mode = line[0]
             fiscal = line[2]
@@ -701,13 +661,16 @@ class LogisticFeesExtractWizard(models.TransientModel):
             # ----------------------------------------------------------------------------------------------------------
             if mode == 'CORR.':
                 page = 'Corrispettivo'
-            else:  # invoice:
+            elif fiscal in page_selection:
                 page = fiscal  # Fiscal position
                 # Check page only for invoice:
                 if order not in check_page['total']:
                     check_page['total'][order] = 0.0
                     check_page['lines'].append(line)  # only once!
                 check_page['total'][order] += total
+            else:
+                _logger.info('Remove fiscal position: {}'.format(fiscal))
+                continue
 
             if page not in pages:
                 pages[page] = {}
@@ -717,34 +680,39 @@ class LogisticFeesExtractWizard(models.TransientModel):
             else:
                 pages[page][order] = [total, line]
 
-            if line[12]:
-                format_color = format_text['text']
-            else:
-                format_color = format_text['red']
-            # Write formatted with color
-            excel_pool.write_xls_line(ws_name, row, line, default_format=format_color)
-
         # --------------------------------------------------------------------------------------------------------------
-        # Extra pages:
+        # Generate Excel pages:
         # --------------------------------------------------------------------------------------------------------------
         header = [
-            'Modo',
-            'Canale',
-            'Data',
-            'Cliente',
-            'Ordine',
-            'Pagamento',
-            'Totale',
-            'Tipo',
-            'Agente',
+            'Modo', 'Canale', 'Data',
+            'Cliente', 'Ordine', 'Pagamento', 'Totale',
+            'Tipo', 'Agente',
             ]
 
         width = [
-            6, 10, 15, 30, 25, 10, 10, 10, 10,
+            6, 10, 15,
+            30, 25, 10, 10,
+            10, 10,
             ]
 
+        format_text = False  # Load when create first sheet!
         for ws_name in sorted(pages):
             excel_pool.create_worksheet(ws_name)
+
+            # ----------------------------------------------------------------------------------------------------------
+            # Format setup:
+            # ----------------------------------------------------------------------------------------------------------
+            if not format_text:
+                excel_pool.set_format()
+                format_text = {
+                    'title': excel_pool.get_format('title'),
+                    'header': excel_pool.get_format('header'),
+                    'text': excel_pool.get_format('text'),
+                    'number': excel_pool.get_format('number'),
+                    'total': excel_pool.get_format('text_total'),
+                    'red': excel_pool.get_format('text_red'),
+                }
+
             excel_pool.column_width(ws_name, width)
             row = 0
             excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
@@ -811,77 +779,8 @@ class LogisticFeesExtractWizard(models.TransientModel):
             excel_pool.write_xls_line(
                 ws_name, row, ['Totale', total], format_text['total'], col=5)
 
-        # --------------------------------------------------------------------------------------------------------------
-        #                         Extra page:
-        # --------------------------------------------------------------------------------------------------------------
-        ws_name = 'Controllo fatturato'
-        header = [
-            'Modo',
-            'Posizione fiscale',
-            'Canale',
-            'Data',
-            'Cliente',
-            'Agente',
-            'Ordine',
-            'Pagamento',
-            'Triangol.',
-            'Totale',
-            'Totale trian.'
-        ]
-
-        width = [
-            6, 25, 10, 15, 35, 10, 25, 10, 10, 10, 10,
-        ]
-
-        excel_pool.create_worksheet(ws_name)
-        excel_pool.column_width(ws_name, width)
-        row = 0
-        excel_pool.write_xls_line(
-            ws_name, row, header,
-            default_format=format_text['header'])
-        triangle_total = master_total = 0.0  # final total
-        for line in sorted(
-                check_page['lines'],
-                # key=lambda x: (check_page['lines'][x][1], x),
-                ):
-            (mode, market, fiscal_position, channel, date, partner, order,
-             default_code, name, payment, account, qty, total, expense,
-             agent, vat, triangle) = line
-
-            # TODO bad, better use: .partner_private:
-            if fiscal_position == 'B2C':
-                # Remove B2C fiscal position
-                continue
-            row += 1
-
-            order_total = check_page['total'][order]
-            if vat:
-                order_total += order_total * vat / 100.0
-            if triangle:
-                triangle_total += order_total
-
-            master_total += order_total
-            excel_pool.write_xls_line(ws_name, row, [
-                mode,
-                fiscal_position,
-                channel,
-                date,
-                partner,
-                agent,
-                order,
-                payment,
-                triangle,
-                (order_total, format_text['number']),
-                (order_total, format_text['number']) if triangle else '',
-
-            ], default_format=format_text['text'])
-        # Total line:
-        if check_page['lines']:
-            row += 1
-            excel_pool.write_xls_line(
-                ws_name, row, ['Totale', master_total, triangle_total],
-                format_text['total'], col=8)
         return excel_pool.return_attachment(filename)
+
 
     @api.multi
     def fees_extract_button(self):
