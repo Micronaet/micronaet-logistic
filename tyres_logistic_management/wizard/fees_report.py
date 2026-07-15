@@ -738,16 +738,17 @@ class LogisticFeesExtractWizard(models.TransientModel):
             partial = 0.0
             previous_mode = False
 
-            import pdb; pdb.set_trace()
             if ws_name == 'Corrispettivo':
                 sorted_records = sorted(
                     pages[ws_name],
-                    key=lambda x: (pages[ws_name][x][1][1], pages[ws_name][x][1][7])
+                    # Canale, Pagamento, Importo
+                    key=lambda x: (pages[ws_name][x][1][3], pages[ws_name][x][1][9])
                 )
             elif ws_name == 'B2C':
                 sorted_records = sorted(
                     pages[ws_name],
-                    key=lambda x: pages[ws_name][x][1][1]
+                    # Pos. fiscale, Pagamento, Importo
+                    key=lambda x: (pages[ws_name][x][1][2], pages[ws_name][x][1][9], pages[ws_name][x][0])
                 )
             elif ws_name == 'B2B SEPA':
                 sorted_records = sorted(
