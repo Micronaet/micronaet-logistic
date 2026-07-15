@@ -718,6 +718,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
         format_text = False  # Load when create first sheet!
         for ws_name in pages:
             excel_pool.create_worksheet(ws_name)
+            excel_pool.column_width(ws_name, width)
 
             # ----------------------------------------------------------------------------------------------------------
             # Format setup:
@@ -733,11 +734,19 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     'red': excel_pool.get_format('text_red'),
                 }
 
-            excel_pool.column_width(ws_name, width)
+            # ----------------------------------------------------------------------------------------------------------
+            # Title rows:
+            # ----------------------------------------------------------------------------------------------------------
+            # 1. Subtotal row:
             row = 0
+            excel_pool.write_xls_line(
+                ws_name, row, ['' for i in range(len(header))] , default_format=format_text['number'])
+
+            # 2. Header row:
+            row += 1
             excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
             excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
-            excel_pool.freeze_panes(ws_name, 1, 4)
+            excel_pool.freeze_panes(ws_name, 2, 4)
 
             total = 0.0  # final total
 
@@ -772,7 +781,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 )
 
             # ----------------------------------------------------------------------------------------------------------
-            # Write record lines:
+            # Data rows:
             # ----------------------------------------------------------------------------------------------------------
             for order in sorted_records:
                 row += 1
@@ -798,11 +807,6 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     previous_mode = mode
                     partial = 0.0
 
-                if subtotal:
-                    format_color = format_text['text']
-                else:
-                    format_color = format_text['red']
-
                 excel_pool.write_xls_line(ws_name, row, [
                     mode,      # Mode
                     line[3],   # Channel
@@ -812,10 +816,10 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     order,
                     line[9],   # Payment code
                     payment_terms.get(line[9], ''), # Payment desc.
-                    subtotal,  # Subtotal
+                    (subtotal, format_text['number']),  # Subtotal
                     line[13],  # Type
                     line[14],  # Agent
-                    ], default_format=format_color)
+                    ], default_format=format_text['text'])
             row += 1
 
             # ----------------------------------------------------------------------------------------------------------
