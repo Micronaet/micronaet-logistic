@@ -741,22 +741,22 @@ class LogisticFeesExtractWizard(models.TransientModel):
             if ws_name == 'Corrispettivo':
                 sorted_records = sorted(
                     pages[ws_name],
-                    key=lambda x: (pages['Corrispettivo'][x][1][1], pages['Corrispettivo'][x][1][7])
+                    key=lambda x: (pages[ws_name][x][1][1], pages[ws_name][x][1][7])
                 )
             elif ws_name == 'B2C':
                 sorted_records = sorted(
                     pages[ws_name],
-                    key=lambda x: pages['Corrispettivo'][x][1][1]
+                    key=lambda x: pages[ws_name][x][1][1]
                 )
             elif ws_name == 'B2B SEPA':
                 sorted_records = sorted(
                     pages[ws_name],
-                    key=lambda x: pages['Corrispettivo'][x][1][1]
+                    key=lambda x: pages[ws_name][x][1][1]
                 )
             else:  # ws_name == 'B2B RID 14 gg':
                 sorted_records = sorted(
                     pages[ws_name],
-                    key=lambda x: pages['Corrispettivo'][x][1][1]
+                    key=lambda x: pages[ws_name][x][1][1]
                 )
 
             for order in sorted_records:
