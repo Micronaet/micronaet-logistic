@@ -642,7 +642,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
         #                            First loop to collect data:
         # --------------------------------------------------------------------------------------------------------------
         page_selection = [
-            'B2C', 'B2B',
+            'B2C', 'Italia B2B',
         ]
         pages = {}
         check_page = {
