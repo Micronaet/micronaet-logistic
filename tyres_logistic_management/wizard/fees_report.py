@@ -636,7 +636,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             evaluation_date=self.evaluation_date, team_id=self.team_id.id, mode='data')
 
         date = evaluation_date.replace('-', '_')
-        filename = 'consegnato_il_giorno_v2_%s' % date
+        filename = 'consegnato_il_giorno_v2_%s' % evaluation_date
 
         # --------------------------------------------------------------------------------------------------------------
         #                            First loop to collect data:
