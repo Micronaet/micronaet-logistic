@@ -710,7 +710,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
         width = [
             6, 10, 15,
             20, 30, 25,
-            10, 10, 20,
+            10, 25, 10,
             10, 10,
             ]
         total_column = 8
