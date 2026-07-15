@@ -363,6 +363,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
     @api.multi
     def fees_report_button(self):
         """ Account fees report ["PRINT" button]
+            OLD VERSION!
         """
         stock_pool = self.env['stock.picking']
         excel_pool = self.env['excel.writer']
@@ -579,10 +580,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             ws_name, row, header,
             default_format=format_text['header'])
         triangle_total = master_total = 0.0  # final total
-        for line in sorted(
-                check_page['lines'],
-                # key=lambda x: (check_page['lines'][x][1], x),
-                ):
+        for line in sorted(check_page['lines']):
             (mode, market, fiscal_position, channel, date, partner, order,
              default_code, name, payment, account, qty, total, expense,
              agent, vat, triangle) = line
@@ -650,6 +648,14 @@ class LogisticFeesExtractWizard(models.TransientModel):
         # --------------------------------------------------------------------------------------------------------------
         #                            First loop to collect data:
         # --------------------------------------------------------------------------------------------------------------
+        page_sort = [
+            'B2C',
+            'Corrispettivo',
+
+            'B2B RID 14 gg',
+            'B2B SEPA',
+        ]
+
         pages = {
             'Corrispettivo': {},
             'B2C': {},
@@ -664,10 +670,11 @@ class LogisticFeesExtractWizard(models.TransientModel):
             # Readability:
             mode = line[0]  # Document type: CORR. / FATT.
             customer_mode = line[1]  # b2b / b2c
-            fiscal = line[2]
+            # fiscal = line[2]
             order = line[6]
             payment_code = line[9]
             total = line[12]
+            vat = line[15]
 
             # ----------------------------------------------------------------------------------------------------------
             # Page management:
@@ -678,6 +685,8 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 if customer_mode == 'b2c':
                     page = 'B2C'
                 elif customer_mode == 'b2b':
+                    total += vat  # In B2B integrate VAT
+
                     if payment_code == '026':
                         page = 'B2B SEPA'
                     elif payment_code == '036':
@@ -716,7 +725,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
         total_column = 8
 
         format_text = False  # Load when create first sheet!
-        for ws_name in pages:
+        for ws_name in page_sort:
             excel_pool.create_worksheet(ws_name)
             excel_pool.column_width(ws_name, width)
 
@@ -753,7 +762,6 @@ class LogisticFeesExtractWizard(models.TransientModel):
 
             # Partial management:
             partial = 0.0
-            # previous_mode = False
 
             # ----------------------------------------------------------------------------------------------------------
             # Sort record:
@@ -773,12 +781,12 @@ class LogisticFeesExtractWizard(models.TransientModel):
             elif ws_name == 'B2B SEPA':
                 sorted_records = sorted(
                     pages[ws_name],
-                    key=lambda x: pages[ws_name][x][0]  # pages[ws_name][x][1][1]
+                    key=lambda x: pages[ws_name][x][0]
                 )
             else:  # ws_name == 'B2B RID 14 gg':
                 sorted_records = sorted(
                     pages[ws_name],
-                    key=lambda x: pages[ws_name][x][0]  # pages[ws_name][x][1][1]
+                    key=lambda x: pages[ws_name][x][0]
                 )
 
             # ----------------------------------------------------------------------------------------------------------
