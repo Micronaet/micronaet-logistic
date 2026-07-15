@@ -635,21 +635,18 @@ class LogisticFeesExtractWizard(models.TransientModel):
         # Preload payment terms
         payment_terms = {}
         for payment in payment_pool.search([]):
-            payment_terms[payment.account_ref] = payment.id
+            payment_terms[payment.account_ref] = payment.name
 
         evaluation_date = self.evaluation_date
         excel_row = stock_pool.csv_report_extract_accounting_fees(
             evaluation_date=self.evaluation_date, team_id=self.team_id.id, mode='data')
 
-        date = evaluation_date.replace('-', '_')
+        date = evaluation_date.replace('-', '_')  # TODO correct!
         filename = 'consegnato_il_giorno_v2_%s' % evaluation_date
 
         # --------------------------------------------------------------------------------------------------------------
         #                            First loop to collect data:
         # --------------------------------------------------------------------------------------------------------------
-        page_selection = [
-            'B2C', 'Italia B2B',
-        ]
         pages = {}
         check_page = {
             'lines': [],
