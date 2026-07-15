@@ -632,17 +632,21 @@ class LogisticFeesExtractWizard(models.TransientModel):
         excel_pool = self.env['excel.writer']
         payment_pool = self.env['account.payment.term']
 
+        # --------------------------------------------------------------------------------------------------------------
         # Preload payment terms
+        # --------------------------------------------------------------------------------------------------------------
         payment_terms = {}
         for payment in payment_pool.search([]):
             payment_terms[payment.account_ref] = payment.name
 
+        # Filename:
         evaluation_date = self.evaluation_date
+
+        # Get collected data:
         excel_row = stock_pool.csv_report_extract_accounting_fees(
             evaluation_date=self.evaluation_date, team_id=self.team_id.id, mode='data')
 
-        date = evaluation_date.replace('-', '_')  # TODO correct!
-        filename = 'consegnato_il_giorno_v2_%s' % evaluation_date
+        filename = 'consegnato_il_giorno_v2_%s' % evaluation_date.replace('-', '_')
 
         # --------------------------------------------------------------------------------------------------------------
         #                            First loop to collect data:
@@ -732,12 +736,18 @@ class LogisticFeesExtractWizard(models.TransientModel):
             excel_pool.column_width(ws_name, width)
             row = 0
             excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
+            excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
+            excel_pool.freeze_panes(ws_name, 4, 1)
+
             total = 0.0  # final total
 
             # Partial management:
             partial = 0.0
             previous_mode = False
 
+            # ----------------------------------------------------------------------------------------------------------
+            # Sort record:
+            # ----------------------------------------------------------------------------------------------------------
             if ws_name == 'Corrispettivo':
                 sorted_records = sorted(
                     pages[ws_name],
@@ -761,6 +771,9 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     key=lambda x: pages[ws_name][x][1][1]
                 )
 
+            # ----------------------------------------------------------------------------------------------------------
+            # Write record lines:
+            # ----------------------------------------------------------------------------------------------------------
             for order in sorted_records:
                 row += 1
                 subtotal, line = pages[ws_name][order]
