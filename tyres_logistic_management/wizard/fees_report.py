@@ -714,6 +714,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             10, 10, 20,
             10, 10,
             ]
+        total_column = 0
 
         format_text = False  # Load when create first sheet!
         for ws_name in pages:
@@ -747,12 +748,13 @@ class LogisticFeesExtractWizard(models.TransientModel):
             excel_pool.write_xls_line(ws_name, row, header, default_format=format_text['header'])
             excel_pool.autofilter(ws_name, row, 0, row, len(header) - 1)
             excel_pool.freeze_panes(ws_name, 2, 4)
+            from_row = row
 
             total = 0.0  # final total
 
             # Partial management:
             partial = 0.0
-            previous_mode = False
+            # previous_mode = False
 
             # ----------------------------------------------------------------------------------------------------------
             # Sort record:
@@ -791,21 +793,21 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 total += subtotal
                 partial += subtotal
 
-                if previous_mode == False:
-                    previous_mode = mode
+                # if previous_mode == False:
+                #     previous_mode = mode
 
                 # ------------------------------------------------------------------------------------------------------
                 # Check partial:
                 # ------------------------------------------------------------------------------------------------------
-                if previous_mode != mode:
-                    # Write partial
-                    excel_pool.write_xls_line(ws_name, row, [
-                        'Parziale %s:' % previous_mode,
-                        partial,
-                        ], default_format=format_text['total'], col=5)
-                    row += 1
-                    previous_mode = mode
-                    partial = 0.0
+                # if previous_mode != mode:
+                #    # Write partial
+                #    excel_pool.write_xls_line(ws_name, row, [
+                #        'Parziale %s:' % previous_mode,
+                #        partial,
+                #        ], default_format=format_text['total'], col=5)
+                #    row += 1
+                #    previous_mode = mode
+                #    partial = 0.0
 
                 excel_pool.write_xls_line(ws_name, row, [
                     mode,      # Mode
@@ -820,19 +822,32 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     line[13],  # Type
                     line[14],  # Agent
                     ], default_format=format_text['text'])
+            to_row = row
             row += 1
 
             # ----------------------------------------------------------------------------------------------------------
             # check last partial:
             # ----------------------------------------------------------------------------------------------------------
-            if previous_mode:  # always present
-                # Write partial
-                excel_pool.write_xls_line(ws_name, row, [
-                    'Parziale %s:' % previous_mode, partial,
-                    ], default_format=format_text['total'], col=7)
-                row += 1
+            # if previous_mode:  # Break mode when change previous mode (always present)
+            #    # Write partial
+            #    excel_pool.write_xls_line(ws_name, row, [
+            #        'Parziale %s:' % previous_mode, partial,
+            #        ], default_format=format_text['total'], col=7)
+            #    row += 1
 
-            excel_pool.write_xls_line(ws_name, row, ['Totale', total], format_text['total'], col=7)
+            # Write subtotal:
+            formula = u"=SUBTOTAL(9,%s:%s)" % (
+                excel_pool.rowcol_to_cell(from_row, total_column),
+                excel_pool.rowcol_to_cell(to_row, total_column),
+            )
+            excel_pool.write_formula(
+                ws_name,
+                0, total_column,
+                formula,
+                format_text['number'], total,
+            )
+
+            # excel_pool.write_xls_line(ws_name, row, ['Totale', total], format_text['total'], col=7)
 
         return excel_pool.return_attachment(filename)
 
