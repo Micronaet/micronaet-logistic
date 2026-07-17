@@ -285,7 +285,7 @@ class LogisticFeesHeader(models.Model):
         return True
 
     # Header data:
-    direct_fee = field.Boolean(
+    direct_fee = fields.Boolean(
         string='Scontrino diretto',
         help='Scontrino singolo mandato direttamente, non passa dalla procedura di generazione automatica')
     date = fields.Date(string='Data scontrino', required=True)
