@@ -104,6 +104,10 @@
                     <filter string="Sincronizzati" name="filter_done" domain="[('state', '=', 'done')]"/>
                     <separator/>
 
+                    <filter string="Diretti" name="filter_direct_fee" domain="[('direct_fee', '=', True)]"/>
+                    <filter string="Automatici" name="filter_automatic_fee" domain="[('direct_fee', '=', False)]"/>
+                    <separator/>
+
                     <filter string="Con Errore" name="filter_error" domain="[('error', '=', True)]"/>
                     <filter string="Da inviare" name="filter_not_sent" domain="[('state', '!=', 'done')]"/>
 
@@ -112,6 +116,7 @@
                         <filter string="Pagamento" name="group_by_payment" context="{'group_by': 'payment_term_id'}"/>
                         <filter string="Data ins. - Giorno" name="group_by_date" context="{'group_by': 'account_date:day'}"/>
                         <filter string="Data ins. - Mese" name="group_by_date" context="{'group_by': 'account_date:month'}"/>
+                        <filter string="Modalità" name="group_direct_fee" context="{'group_by': 'direct_fee'}"/>
                         <filter string="Stato" name="group_by_state" context="{'group_by': 'state'}"/>
                     </group>
                 </search>

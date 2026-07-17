@@ -73,6 +73,7 @@ try:
     fees_pool = odoo.model('logistic.fees.api')
     fees_ids = fees_pool.search([
         ('state', '=', 'draft'),
+        ('direct_fee', '=', False),
     ])
 
     if not fees_ids:
