@@ -941,9 +941,9 @@ class LogisticFeesExtractWizard(models.TransientModel):
 
                 # Color setup:
                 if subtotal > 0:  # NC IN
-                    format_color = format['red']
+                    format_color = format_text['red']
                 else:  # FT OUT
-                    format_color = format['white']
+                    format_color = format_text['white']
 
                 excel_pool.write_xls_line(ws_name, row, [
                     mode,      # Mode
