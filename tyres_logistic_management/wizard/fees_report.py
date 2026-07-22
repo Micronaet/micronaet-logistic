@@ -957,7 +957,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     (-subtotal, format_color['number']),  # Subtotal  (only this in colored setup), reverse sign
                     line[13],  # Type
                     line[14],  # Agent
-                    ], default_format=format_text['white']['text'])
+                    ], default_format=format_color['text'])
 
             # ----------------------------------------------------------------------------------------------------------
             # Write subtotal (first line):
