@@ -129,6 +129,16 @@ class LogisticFeesHeader(models.Model):
     _order = 'date desc'
     _rec_name = 'account_ref'
 
+    # ==================================================================================================================
+    # Workflow:
+    # ==================================================================================================================
+    def wfk_manual(self):
+        """ Set as manual
+        """
+        self.write({
+            'state': 'manual',
+        })
+
     def scheduled_api_sync(self):
         """ Update via schedules
         """

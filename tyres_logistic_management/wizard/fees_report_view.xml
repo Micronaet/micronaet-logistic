@@ -28,6 +28,8 @@
                 <form string="Documento API Fees">
                     <header>
                         <button name="api_sync" type="object" string="API Sync" confirm="Confermi chiamata API con gestionale?" attrs="{'invisible': [('state', '=', 'done')]}"/>
+                        <button name="wfk_manual" type="object" string="Porta in Manuale" confirm="Attenzione, passare a stato nanuale vuol dire sbloccare la parte dello scontrino per compilare a mano i valori, Confermi?"
+                                attrs="{'invisible': [('state', '=', 'manual')]}"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,done,manual"/>
                     </header>
                     <sheet>
@@ -37,12 +39,12 @@
 
                         <group>
                             <group string="Risposta gestionale">
-                                <field name="account_ref" placeholder="Rif. scontrino" readonly="1"/>
-                                <field name="account_date" readonly="1"/>
+                                <field name="account_ref" placeholder="Rif. scontrino" attrs="{'readonly': [('state', '!=', 'manual')]}"/>
+                                <field name="account_date" attrs="{'readonly': [('state', '!=', 'manual')]}"/>
                             </group>
                             <group string="Totali">
-                                <field name="odoo_total" readonly="1"/>
-                                <field name="account_total" readonly="1"/>
+                                <field name="odoo_total" attrs="{'readonly': [('state', '!=', 'manual')]}"/>
+                                <field name="account_total" attrs="{'readonly': [('state', '!=', 'manual')]}"/>
                                 <field name="direct_fee" readonly="1" />
                             </group>
                         </group>
