@@ -940,7 +940,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 total += subtotal
 
                 # Color setup:
-                if subtotal <= 0:  # NC IN
+                if subtotal > 0:  # NC IN
                     format_color = format_text['red']
                 else:  # FT OUT
                     format_color = format_text['white']
@@ -954,10 +954,10 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     order,
                     line[9],   # Payment code
                     payment_terms.get(line[9], ''), # Payment desc.
-                    (subtotal, format_color['number']),  # Subtotal
+                    (subtotal, format_color['number']),  # Subtotal  (only this in colored setup)
                     line[13],  # Type
                     line[14],  # Agent
-                    ], default_format=format_color['text'])
+                    ], default_format=format_color['white']['text'])
 
             # ----------------------------------------------------------------------------------------------------------
             # Write subtotal (first line):
