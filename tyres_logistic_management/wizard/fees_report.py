@@ -940,7 +940,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 total += subtotal
 
                 # Color setup:
-                if subtotal > 0:  # NC IN
+                if subtotal <= 0:  # NC IN
                     format_color = format_text['red']
                 else:  # FT OUT
                     format_color = format_text['white']
