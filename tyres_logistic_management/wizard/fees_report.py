@@ -422,7 +422,7 @@ class LogisticFeesHeaderInerit(models.Model):
             is_fees = not need_invoice
 
             qty = 1  # Always 1
-            total = fee.account_total  # TODO need to be populated
+            total = -fee.account_total
 
             # Team:
             if team_id and order.team_id.id != team_id:
@@ -489,7 +489,6 @@ class LogisticFeesExtractWizard(models.TransientModel):
         """ Account fees report ["PRINT" button]
             OLD VERSION!
         """
-        fees_pool = self.env['logistic.fees.api']
         stock_pool = self.env['stock.picking']
         excel_pool = self.env['excel.writer']
 
@@ -644,9 +643,9 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     previous_mode = mode
                     partial = 0.0
 
-                if subtotal:
+                if subtotal < 0:  # Sale
                     format_color = format_text['text']
-                else:
+                else:  # > 0 Refund
                     format_color = format_text['red']
 
                 excel_pool.write_xls_line(ws_name, row, [
@@ -875,10 +874,16 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 format_text = {
                     'title': excel_pool.get_format('title'),
                     'header': excel_pool.get_format('header'),
-                    'text': excel_pool.get_format('text'),
-                    'number': excel_pool.get_format('number'),
+
+                    'white': {
+                        'text': excel_pool.get_format('text'),
+                        'number': excel_pool.get_format('number'),
+                    },
+                    'red': {
+                        'text': excel_pool.get_format('text_red'),
+                        'number': excel_pool.get_format('number_red'),
+                    },
                     'total': excel_pool.get_format('text_total'),
-                    'red': excel_pool.get_format('text_red'),
                 }
 
             # ----------------------------------------------------------------------------------------------------------
@@ -887,7 +892,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             # 1. Subtotal row:
             row = 0
             excel_pool.write_xls_line(
-                ws_name, row, ['' for i in range(len(header))] , default_format=format_text['number'])
+                ws_name, row, ['' for i in range(len(header))] , default_format=format_text['white']['number'])
 
             # 2. Header row:
             row += 1
@@ -933,6 +938,13 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 mode = line[1]
 
                 total += subtotal
+
+                # Color setup:
+                if subtotal > 0:  # NC IN
+                    format_color = format['red']
+                else:  # FT OUT
+                    format_color = format['white']
+
                 excel_pool.write_xls_line(ws_name, row, [
                     mode,      # Mode
                     line[3],   # Channel
@@ -942,10 +954,10 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     order,
                     line[9],   # Payment code
                     payment_terms.get(line[9], ''), # Payment desc.
-                    (subtotal, format_text['number']),  # Subtotal
+                    (subtotal, format_color['number']),  # Subtotal
                     line[13],  # Type
                     line[14],  # Agent
-                    ], default_format=format_text['text'])
+                    ], default_format=format_color['text'])
 
             # ----------------------------------------------------------------------------------------------------------
             # Write subtotal (first line):
@@ -960,7 +972,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 ws_name,
                 0, total_column,
                 formula,
-                format_text['number'], total,
+                format_text['white']['number'], total,
             )
         return excel_pool.return_attachment(filename)
 
