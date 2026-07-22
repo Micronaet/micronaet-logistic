@@ -1151,7 +1151,7 @@ class StockPicking(models.Model):
                 order_line = move.logistic_unload_id  # Could be empty?
                 try:
                     order = order_line.order_id
-                    if team_id and order.team_id != team_id:
+                    if team_id and order.team_id.id != team_id:
                         continue  # Not for selected team!
                     channel = order.team_id.channel_ref
                 except:
@@ -2533,8 +2533,7 @@ class StockPicking(models.Model):
             no_print_invoice = \
                 order.fiscal_position_id.external_invoice_management
             need_invoice = \
-                partner.property_account_position_id.need_invoice or \
-                partner.need_invoice or order.need_invoice
+                partner.property_account_position_id.need_invoice or partner.need_invoice or order.need_invoice
             is_fees = True  # default
 
             # Invoice procedure (check rules):

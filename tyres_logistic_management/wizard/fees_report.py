@@ -127,6 +127,7 @@ class LogisticFeesHeader(models.Model):
     _name = 'logistic.fees.api'
     _description = 'Fees API Document'
     _order = 'date desc'
+    _rec_name = 'account_ref'
 
     def scheduled_api_sync(self):
         """ Update via schedules
@@ -350,6 +351,116 @@ class LogisticFeesHeaderInerit(models.Model):
     """ Object to link all stock picking for Fees API call
     """
     _inherit = 'logistic.fees.api'
+
+    @api.model
+    def csv_report_extract_accounting_fees_nc(self, evaluation_date, team_id=False):
+        """ Extract file account fees in CSV for accounting
+        """
+        # Pool used:
+        reso_pool = self.env['mmac.reso']  # TODO Need dependency but recurrency error!
+        nc_pool = self.env['mmac.nc']  # TODO Need dependency but recurrency error!
+        company_pool = self.env['res.company']   # For utility function
+        company = self.env.user.company_id
+
+        # ==============================================================================================================
+        #                                       Extract 2 cases:
+        # ==============================================================================================================
+        # 1. Search NC with fees report
+        # --------------------------------------------------------------------------------------------------------------
+        fee_back_trace = {}  # Link refund order to fees
+
+        # Find NC linked to Fees document in selected date:
+        nc_docs = nc_pool.search([
+            ('fees_api_id.account_date', '=', '{}'.format(evaluation_date)),
+        ])
+
+        # --------------------------------------------------------------------------------------------------------------
+        # 2. Reso linked to nc > order linked
+        # --------------------------------------------------------------------------------------------------------------
+        nc_order_ids = []  # Refund order to search RESO
+        for nc_doc in nc_docs:
+            # Fees ID:
+            fee = nc_doc.fees_api_id
+
+            # Refund sale order:
+            refund_sale_id = nc_doc.order_id.id
+            if refund_sale_id:
+                fee_back_trace[refund_sale_id] = fee  # Save Fees ID from Refund sale ID
+                nc_order_ids.append(refund_sale_id)  # Used for filter RESO (Sale order linked to NC)
+
+        # --------------------------------------------------------------------------------------------------------------
+        # 3. Generate needed data:
+        # --------------------------------------------------------------------------------------------------------------
+        reso_docs = reso_pool.search([
+            ('reso_order_id', 'in', nc_order_ids),
+        ])
+
+        excel_row = []  # Populate (externally updated list)
+        product_account_ref = company.product_account_ref
+        for reso in reso_docs:  # Master loop on RESO
+            order = reso.order_id
+            reso_order = reso.reso_order_id
+            if not order or not reso_order:
+                _logger.warning('No order or reso order linked to RESO')
+                continue
+
+            # Params readability:
+            fee = fee_back_trace[reso_order.id]
+            partner = order.partner_invoice_id or order.partner_id
+            need_invoice = (
+                partner.property_account_position_id.need_invoice or partner.need_invoice or order.need_invoice)
+            is_fees = not need_invoice
+
+            qty = 1  # Always 1
+            total = fee.account_total  # TODO need to be populated
+
+            # Team:
+            if team_id and order.team_id.id != team_id:
+                _logger.warning('Jump order, not Team selected on Wizard')
+                continue  # Not for selected team!
+
+            # Channel:
+            try:
+                channel = order.team_id.channel_ref or ''
+            except:
+                channel = ''
+
+            # Customer code (Team's Customer code used in Accounting!)
+            try:
+                code_ref = order.team_id.team_code_ref
+            except:
+                code_ref = ''
+
+            # Different country:
+            shipping_code = order.partner_shipping_id.country_id.code
+            invoice_code = order.partner_invoice_id.country_id.code
+            if shipping_code != invoice_code:
+                triangle_invoice = '%s >> %s' % (invoice_code, shipping_code)
+            else:
+                triangle_invoice = ''
+
+            excel_row.append((
+                'CORR. RESO' if is_fees else 'NOTA DI CRED.',
+                order.team_id.market_type or '',
+                partner.property_account_position_id.name or '',
+                channel,
+                company_pool.formatLang(scheduled_date, date=True),
+                partner.name or '',
+                reso_order.name or '',  # TODO refund order!
+                'RESO',
+                'Reso cliente',
+                order.payment_term_id.account_ref or '',
+                product_account_ref or '',  # TODO check data!
+                qty or 0.0,
+                total or 0.0,
+                'S',  # TODO or 'M',
+                code_ref or '',  # Agent code
+                '/',  # vat_excluded_rate,
+                triangle_invoice,
+                ))
+
+        # Return collected NC list:
+        return excel_row
 
     picking_ids = fields.One2many('stock.picking', 'fees_api_id', string='Picking collegati')
     move_ids = fields.One2many('stock.move', 'fees_api_id', string='Movimenti collegati')
@@ -632,6 +743,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
         stock_pool = self.env['stock.picking']
         excel_pool = self.env['excel.writer']
         payment_pool = self.env['account.payment.term']
+        fees_pool = self.env['logistic.fees.api']  # Used for NC
 
         # --------------------------------------------------------------------------------------------------------------
         # Preload payment terms
@@ -643,10 +755,17 @@ class LogisticFeesExtractWizard(models.TransientModel):
         # Filename:
         evaluation_date = self.evaluation_date
 
-        # Get collected data:
+        # PART 1: Get collected data from sale picking:
         excel_row = stock_pool.csv_report_extract_accounting_fees(
             evaluation_date=self.evaluation_date, team_id=self.team_id.id, mode='data')
-        filename = 'consegnato_il_giorno_v2_%s' % evaluation_date.replace('-', '_')
+
+        # PART 2: Integrate with NC from account
+        excel_row_nc = stock_pool.csv_report_extract_accounting_fees_nc(
+            evaluation_date=self.evaluation_date, team_id=self.team_id.id)  # mode always = 'data'
+        if excel_row_nc:
+            excel_row.extend(excel_row_nc)  # Extend data with
+
+        filename = 'consegnato_il_giorno_v2.1_%s' % evaluation_date.replace('-', '_')
 
         # --------------------------------------------------------------------------------------------------------------
         #                            First loop to collect data:
@@ -682,7 +801,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             # ----------------------------------------------------------------------------------------------------------
             # Page management:
             # ----------------------------------------------------------------------------------------------------------
-            if mode == 'CORR.':  # o FATT
+            if mode in ('CORR.', 'CORR. RESO'):  # o FATT
                 page = 'Corrispettivo'
             else:
                 if customer_mode == 'b2c':
@@ -827,7 +946,6 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 formula,
                 format_text['number'], total,
             )
-
         return excel_pool.return_attachment(filename)
 
     @api.multi
