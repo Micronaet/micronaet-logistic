@@ -489,6 +489,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
         """ Account fees report ["PRINT" button]
             OLD VERSION!
         """
+        fees_pool = self.env['logistic.fees.api']
         stock_pool = self.env['stock.picking']
         excel_pool = self.env['excel.writer']
 
@@ -766,14 +767,19 @@ class LogisticFeesExtractWizard(models.TransientModel):
         evaluation_date = self.evaluation_date
 
         # PART 1: Get collected data from sale picking:
+        _logger.info('Collect normal out data (invoice, fees)')
         excel_row = stock_pool.csv_report_extract_accounting_fees(
             evaluation_date=self.evaluation_date, team_id=self.team_id.id, mode='data')
 
         # PART 2: Integrate with NC from account
-        excel_row_nc = stock_pool.csv_report_extract_accounting_fees_nc(
+        _logger.info('Collect normal in data (refund, nc)')
+        excel_row_nc = fees_pool.csv_report_extract_accounting_fees_nc(
             evaluation_date=self.evaluation_date, team_id=self.team_id.id)  # mode always = 'data'
         if excel_row_nc:
+            _logger.info('Found: IN data (refund, nc)')
             excel_row.extend(excel_row_nc)  # Extend data with
+        else:
+            _logger.warninf('Not Found: IN data (refund, nc)')
 
         filename = 'consegnato_il_giorno_v2.1_%s' % evaluation_date.replace('-', '_')
 
