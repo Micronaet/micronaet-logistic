@@ -779,7 +779,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             _logger.info('Found: IN data (refund, nc)')
             excel_row.extend(excel_row_nc)  # Extend data with
         else:
-            _logger.warninf('Not Found: IN data (refund, nc)')
+            _logger.warning('Not Found: IN data (refund, nc)')
 
         filename = 'consegnato_il_giorno_v2.1_%s' % evaluation_date.replace('-', '_')
 
