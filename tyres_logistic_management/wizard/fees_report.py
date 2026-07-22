@@ -454,7 +454,7 @@ class LogisticFeesHeaderInerit(models.Model):
                 order.team_id.market_type or '',
                 partner.property_account_position_id.name or '',
                 channel,
-                company_pool.formatLang(scheduled_date, date=True),
+                company_pool.formatLang(evaluation_date, date=True),
                 partner.name or '',
                 reso_order.name or '',  # TODO refund order!
                 'RESO',
