@@ -954,7 +954,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     order,
                     line[9],   # Payment code
                     payment_terms.get(line[9], ''), # Payment desc.
-                    (subtotal, format_color['number']),  # Subtotal  (only this in colored setup)
+                    (-subtotal, format_color['number']),  # Subtotal  (only this in colored setup), reverse sign
                     line[13],  # Type
                     line[14],  # Agent
                     ], default_format=format_color['white']['text'])
@@ -972,7 +972,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 ws_name,
                 0, total_column,
                 formula,
-                format_text['white']['number'], total,
+                format_text['white']['number'], -total,  # Reverse total
             )
         return excel_pool.return_attachment(filename)
 
