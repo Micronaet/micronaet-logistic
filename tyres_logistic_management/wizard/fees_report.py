@@ -373,7 +373,7 @@ class LogisticFeesHeaderInerit(models.Model):
         company = self.env.user.company_id
 
         # ==============================================================================================================
-        #                                       Extract 2 cases:
+        #                                     Extract Fee - Not Invoice partner:
         # ==============================================================================================================
         # 1. Search NC with fees report
         # --------------------------------------------------------------------------------------------------------------
@@ -461,7 +461,7 @@ class LogisticFeesHeaderInerit(models.Model):
                 'Reso cliente',
                 order.payment_term_id.account_ref or '',
                 product_account_ref or '',  # TODO check data!
-                qty or 0.0,
+                qty,
                 total or 0.0,
                 'S',  # TODO or 'M',
                 code_ref or '',  # Agent code
@@ -478,42 +478,61 @@ class LogisticFeesHeaderInerit(models.Model):
         """
         # Pool used:
         reso_pool = self.env['mmac.reso']  # TODO Need dependency but recurrency error!
+        nc_pool = self.env['mmac.nc']  # TODO Need dependency but recurrency error!
         company_pool = self.env['res.company']   # For utility function
         company = self.env.user.company_id
 
         # ==============================================================================================================
-        #                                       Extract 2 cases:
+        #                                       Extract NC - Invoice partner:
         # ==============================================================================================================
-        # 1. Get reso data filtering NC
+        # 1. Get Refund order from NC (filtering NC)
         # --------------------------------------------------------------------------------------------------------------
-        reso_docs = reso_pool.search([
-            ('reso_order_id', 'in', nc_order_ids),
-            ('reso_order_id.nc_date', '>=', '{} 00:00:00'.format(evaluation_date)),
-            ('reso_order_id.nc_date', '<=', '{} 23:59:00'.format(evaluation_date)),
-            ('reso_order_id.fees_api_id', '=', False),  # Not consider feed (need to be filtered after)
+        nc_docs = nc_pool.search([
+            ('nc_date', '>=', '{} 00:00:00'.format(evaluation_date)),
+            ('nc_date', '<=', '{} 23:59:00'.format(evaluation_date)),
+            ('fees_api_id', '=', False),  # Not consider feed (need to be filtered after)
         ])
 
         excel_row = []  # Populate (externally updated list)
         product_account_ref = company.product_account_ref
+
+        # Extract NC orders from NC:
+        nc_back_trace = {}  # Link refund order to NC
+        nc_order_ids = []
+        for nc_doc in nc_docs:
+            refund_sale_id = nc_doc.order_id.id
+            if refund_sale_id:
+                nc_back_trace[refund_sale_id] = nc_doc  # Save NC to get from Refund sale ID
+                nc_order_ids.append(refund_sale_id)  # Used for filter RESO (Sale order linked to NC)
+
+        # --------------------------------------------------------------------------------------------------------------
+        # 2. Get reso data filtering NC
+        # --------------------------------------------------------------------------------------------------------------
+        reso_docs = reso_pool.search([
+            ('reso_order_id', 'in', nc_order_ids),
+        ])
         for reso in reso_docs:  # Master loop on RESO
-            order = reso.order_id
-            reso_order = reso.reso_order_id
+            order = reso.order_id  # Sale order
+            reso_order = reso.reso_order_id  # Refund order
             if not order or not reso_order:
                 _logger.warning('No order or reso order linked to RESO')
                 continue
 
             # Params readability:
+            nc_doc = nc_back_trace[reso_order.id]
             partner = order.partner_invoice_id or order.partner_id
             need_invoice = (
                 partner.property_account_position_id.need_invoice or partner.need_invoice or order.need_invoice)
+
+            # Filter: Only partner invoice:
             if not need_invoice:
                 _logger.warning('Jump NC that will generate Fees')
                 continue
 
             qty = 1  # Always 1
-            total = -fee.amount_total
+            total = -nc_doc.amount_total
 
-            # Team:
+            # Filter: Team (wizard filter):
             if team_id and order.team_id.id != team_id:
                 _logger.warning('Jump order, not Team selected on Wizard')
                 continue  # Not for selected team!
@@ -545,12 +564,12 @@ class LogisticFeesHeaderInerit(models.Model):
                 channel,
                 company_pool.formatLang(evaluation_date, date=True),
                 partner.name or '',
-                reso_order.name or '',  # TODO refund order!
-                'RESO',
-                'Reso cliente',
+                reso_order.name or '',  # Ref. from refund order!
+                'NC',
+                'Nota di credito',
                 order.payment_term_id.account_ref or '',
                 product_account_ref or '',  # TODO check data!
-                qty or 0.0,
+                qty,
                 total or 0.0,
                 'S',  # TODO or 'M',
                 code_ref or '',  # Agent code
@@ -924,7 +943,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
             # ----------------------------------------------------------------------------------------------------------
             if mode in ('CORR.', 'CORR. RESO'):  # o FATT
                 page = 'Corrispettivo'
-            else:
+            else:  # "FATTURA" "NOTA DI CRED"
                 if customer_mode == 'b2c':
                     page = 'B2C'
                 elif customer_mode == 'b2b':
