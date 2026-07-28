@@ -24,6 +24,7 @@
 import os
 import sys
 import logging
+import pdb
 from odoo import api, fields, models, tools, exceptions, SUPERUSER_ID
 from odoo.addons import decimal_precision as dp
 from odoo.tools.translate import _
@@ -950,6 +951,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     try:
                         total += total * vat / 100.0  # In B2B integrate VAT
                     except:
+                        pdb.set_trace()
                         # Vat is not a number so no update VAT
                         pass
 
