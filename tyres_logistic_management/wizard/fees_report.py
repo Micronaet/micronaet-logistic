@@ -951,7 +951,6 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     try:
                         total += total * vat / 100.0  # In B2B integrate VAT
                     except:
-                        _logger.info('Partner {}'.format(order.partner_id.name))
                         pdb.set_trace()
                         # Vat is not a number so no update VAT
                         pass
