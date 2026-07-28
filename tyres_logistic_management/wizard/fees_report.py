@@ -947,6 +947,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
                 if customer_mode == 'b2c':
                     page = 'B2C'
                 elif customer_mode == 'b2b':
+                    pdb.set_trace()
                     total += total * vat / 100.0  # In B2B integrate VAT
 
                     if payment_code == '026':
