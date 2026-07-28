@@ -585,6 +585,7 @@ class LogisticFeesHeaderInerit(models.Model):
                 vat_excluded_rate,
                 triangle_invoice,
                 ))
+            pdb.set_trace()
 
         # Return collected NC list:
         return excel_row
