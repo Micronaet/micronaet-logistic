@@ -953,12 +953,10 @@ class LogisticFeesExtractWizard(models.TransientModel):
             if mode in ('CORR.', 'CORR. RESO'):  # o FATT
                 page = 'Corrispettivo'
             else:  # "FATTURA" "NOTA DI CRED"
-                total += total * vat / 100.0  # In B2B integrate VAT
+                total += total * vat / 100.0  # 28/07/2026 Moved here from ID 'b2b' block
                 if customer_mode == 'b2c':
                     page = 'B2C'
                 elif customer_mode == 'b2b':
-                    # total += total * vat / 100.0  # In B2B integrate VAT
-
                     if payment_code == '026':
                         page = 'B2B SEPA'
                     elif payment_code == '036':
