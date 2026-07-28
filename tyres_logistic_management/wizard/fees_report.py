@@ -528,8 +528,7 @@ class LogisticFeesHeaderInerit(models.Model):
             vat_excluded_rate = 0.0
             try:
                 # Use a check that is not the correct named field:
-                if partner.property_account_position_id.pfu_invoice_enable:
-                    vat_excluded_rate = order_line.tax_id[0].amount
+                vat_excluded_rate = partner.property_account_position_id.tax_ids[0].tax_dest_id.amount or 0.0
             except:
                 _logger.error('Error calculation VAT tax (use 0)!')
 
@@ -586,7 +585,6 @@ class LogisticFeesHeaderInerit(models.Model):
                 triangle_invoice,
                 ))
             _logger.info('{} {}'.format(partner.name, vat_excluded_rate))
-            pdb.set_trace()
 
         # Return collected NC list:
         return excel_row
