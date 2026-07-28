@@ -525,6 +525,14 @@ class LogisticFeesHeaderInerit(models.Model):
             need_invoice = (
                 partner.property_account_position_id.need_invoice or partner.need_invoice or order.need_invoice)
 
+            vat_excluded_rate = 0.0
+            try:
+                # Use a check that is not the correct named field:
+                if partner.property_account_position_id.pfu_invoice_enable:
+                    vat_excluded_rate = order_line.tax_id[0].amount
+            except:
+                _logger.error('Error calculation VAT tax (use 0)!')
+
             # Filter: Only partner invoice:
             if not need_invoice:
                 _logger.warning('Jump NC that will generate Fees')
@@ -574,7 +582,7 @@ class LogisticFeesHeaderInerit(models.Model):
                 total or 0.0,
                 'S',  # TODO or 'M',
                 code_ref or '',  # Agent code
-                '/',  # vat_excluded_rate,
+                vat_excluded_rate,
                 triangle_invoice,
                 ))
 
