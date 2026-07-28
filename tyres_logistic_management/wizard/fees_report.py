@@ -950,7 +950,8 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     try:
                         total += total * vat / 100.0  # In B2B integrate VAT
                     except:
-                        import pdb; pdb.set_trace()
+                        # Vat is not a number so no update VAT
+                        pass
 
                     if payment_code == '026':
                         page = 'B2B SEPA'
