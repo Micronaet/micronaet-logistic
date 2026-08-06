@@ -565,7 +565,19 @@ class LogisticFeesHeaderInerit(models.Model):
 
                 # Update total with PFU value:
                 pfu_line = pfu_lines[0]
-                total += pfu_line.price_unit * product_uom_qty
+
+                # VAT check:
+                pfu_amount = pfu_line.price_unit
+                try:
+                    vat = pfu_line.tax_id[0]
+                    if vat.price_include:  # Scorporo
+                        vat_amount = vat.amount or 0.0
+                        pfu_amount = pfu_amount * 100 / (100.0 + vat_amount)
+                except:
+                    _logger.error('VAT not found, no remove operation, use price list as is')
+
+                total += pfu_amount * product_uom_qty
+            # ----------------------------------------------------------------------------------------------------------
 
             # Filter: Team (wizard filter):
             if team_id and order.team_id.id != team_id:
