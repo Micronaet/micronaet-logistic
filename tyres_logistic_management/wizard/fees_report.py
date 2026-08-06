@@ -211,7 +211,7 @@ class LogisticFeesHeader(models.Model):
             api_fees['Details'].append(
                 {
                     "LineType": 'S' if product.is_expence else 'M', # Row type ex: "M", Tipologia della riga
-                    "Item": product.default_code or '', # ex: "VALVOLAMOTO113_ARGENTO",  Codice articolo
+                    "Item": product.default_code or '', # ex: "VALVOLAMOTO113_ARGENTO", Codice articolo
                     "Quantity": qty, # es: 3.0, # Quantità della riga
                     "Total": -total, # es: -10.0, # Totale (espresso in negativo)
                 }
@@ -475,7 +475,7 @@ class LogisticFeesHeaderInerit(models.Model):
 
     @api.model
     def csv_report_extract_accounting_fees_nc_invoice(self, evaluation_date, team_id=False):
-        """ Extract file account NC - Inveoice for report only
+        """ Extract file account NC - Invoice for report only
         """
         # Pool used:
         reso_pool = self.env['mmac.reso']  # TODO Need dependency but recurrency error!
@@ -519,7 +519,9 @@ class LogisticFeesHeaderInerit(models.Model):
                 _logger.warning('No order or reso order linked to RESO')
                 continue
 
+            # ----------------------------------------------------------------------------------------------------------
             # Params readability:
+            # ----------------------------------------------------------------------------------------------------------
             nc_doc = nc_back_trace[reso_order.id]
             partner = order.partner_invoice_id or order.partner_id
             need_invoice = (
@@ -539,6 +541,27 @@ class LogisticFeesHeaderInerit(models.Model):
 
             qty = 1  # Always 1
             total = -nc_doc.amount_total
+
+            # ----------------------------------------------------------------------------------------------------------
+            # Integrate total with PFU (extract from reso line > sale line > PFU linked)
+            # ----------------------------------------------------------------------------------------------------------
+            for reso_line in reso.reso_line:
+                order_line_id = reso_line.orderline_id.id
+                if not order_line_id:
+                    # Sale order line not present
+                    continue
+
+                # Search sale order line (PFU line) linked to refund line:
+                pfu_lines = sale_line_pool.search([
+                    ('mmac_pfu_line_id', '=', order_line_id),
+                ])
+                if not pfu_lines:
+                    # PFU line linked to Sale order line not present
+                    continue
+
+                # Update total with PFU value:
+                pfu_line = pfu_lines[0]
+                total -= pfu_line.price_unit * pfu_line.product_uom_qty
 
             # Filter: Team (wizard filter):
             if team_id and order.team_id.id != team_id:
