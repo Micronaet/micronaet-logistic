@@ -481,6 +481,7 @@ class LogisticFeesHeaderInerit(models.Model):
         reso_pool = self.env['mmac.reso']  # TODO Need dependency but recurrency error!
         nc_pool = self.env['mmac.nc']  # TODO Need dependency but recurrency error!
         company_pool = self.env['res.company']   # For utility function
+        sale_line_pool = self.env['sale.order.line']   # For utility function
         company = self.env.user.company_id
 
         # ==============================================================================================================
