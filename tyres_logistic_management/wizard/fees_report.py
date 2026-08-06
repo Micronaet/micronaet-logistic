@@ -544,7 +544,8 @@ class LogisticFeesHeaderInerit(models.Model):
             total = -nc_doc.amount_total
 
             # ----------------------------------------------------------------------------------------------------------
-            # Integrate total with PFU (extract from reso line > sale line > PFU linked)
+            # Integrate total with PFU
+            # (extract from reso line > sale line > PFU linked)
             # ----------------------------------------------------------------------------------------------------------
             for reso_line in reso.reso_line:
                 product_uom_qty = reso_line.product_qty  # Used for total PFU
