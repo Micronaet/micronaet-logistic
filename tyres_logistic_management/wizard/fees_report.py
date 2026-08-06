@@ -574,7 +574,8 @@ class LogisticFeesHeaderInerit(models.Model):
                         vat_amount = vat.amount or 0.0
                         pfu_amount = pfu_amount * 100 / (100.0 + vat_amount)
                 except:
-                    _logger.error('VAT not found, no remove operation, use price list as is')
+                    _logger.error('VAT not found, consider 22% included!')
+                    pfu_amount /= 1.22
 
                 total += pfu_amount * product_uom_qty
             # ----------------------------------------------------------------------------------------------------------
