@@ -514,6 +514,9 @@ class LogisticFeesHeaderInerit(models.Model):
             ('reso_order_id', 'in', nc_order_ids),
         ])
         for reso in reso_docs:  # Master loop on RESO
+            _logger.info('Reso {}'.format(reso.name))
+            pdb.set_trace()
+
             order = reso.order_id  # Sale order
             reso_order = reso.reso_order_id  # Refund order
             if not order or not reso_order:
