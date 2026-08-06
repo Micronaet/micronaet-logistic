@@ -546,6 +546,8 @@ class LogisticFeesHeaderInerit(models.Model):
             # Integrate total with PFU (extract from reso line > sale line > PFU linked)
             # ----------------------------------------------------------------------------------------------------------
             for reso_line in reso.reso_line:
+                product_uom_qty = reso_line.product_qty  # Used for total PFU
+
                 order_line_id = reso_line.orderline_id.id
                 if not order_line_id:
                     # Sale order line not present
@@ -561,7 +563,7 @@ class LogisticFeesHeaderInerit(models.Model):
 
                 # Update total with PFU value:
                 pfu_line = pfu_lines[0]
-                total -= pfu_line.price_unit * pfu_line.product_uom_qty
+                total -= pfu_line.price_unit * product_uom_qty
 
             # Filter: Team (wizard filter):
             if team_id and order.team_id.id != team_id:
