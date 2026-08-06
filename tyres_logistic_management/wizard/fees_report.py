@@ -514,8 +514,8 @@ class LogisticFeesHeaderInerit(models.Model):
             ('reso_order_id', 'in', nc_order_ids),
         ])
         for reso in reso_docs:  # Master loop on RESO
-            _logger.info('Reso {}'.format(reso.name))
-            pdb.set_trace()
+            # _logger.info('Reso {}'.format(reso.name))
+            # pdb.set_trace()
 
             order = reso.order_id  # Sale order
             reso_order = reso.reso_order_id  # Refund order
@@ -568,7 +568,7 @@ class LogisticFeesHeaderInerit(models.Model):
 
                 # Update total with PFU value:
                 pfu_line = pfu_lines[0]
-                total -= pfu_line.price_unit * product_uom_qty
+                total += pfu_line.price_unit * product_uom_qty
 
             # Filter: Team (wizard filter):
             if team_id and order.team_id.id != team_id:
