@@ -38,6 +38,7 @@
     'data': [
         # Report:
         'reports/receive_report.xml',
+        'views/order_view.xml,'
         ],
     'demo': [],
     'css': [],
