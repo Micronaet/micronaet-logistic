@@ -2,153 +2,153 @@
 <openerp>
    <data>
         <!--Report template:-->
-<template id="report_confirmation_delivery_template">
-    <t t-call="web.html_container">
-        <t t-foreach="docs" t-as="doc">
-            <t t-foreach="doc.get_custom_delivery_missed_report_data()" t-as="parcel">
-                <!-- Sostituito web.external_layout con web.internal_layout (o rimosso il layout standard) per evitare l'intestazione aziendale automatica -->
-                <t t-call="web.internal_layout">
-                    <div class="page" style="font-size: 13px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+       <template id="report_confirmation_delivery_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-foreach="doc.get_custom_delivery_missed_report_data()" t-as="parcel">
+                        <!-- Usiamo web.basic_layout che è pulito e privo di righe nere o spazi di intestazione -->
+                        <t t-call="web.basic_layout">
+                            <div class="page" style="font-size: 13px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin-top: 0px !important;">
 
-                        <!-- Tuo HeaderLogo.png in alto a sinistra -->
-                        <div class="row mb-4">
-                            <div class="col-xs-12">
-                                <img src="/tyres_receive_confirm_report/static/src/img/HeaderLogo.png" style="max-height: 50px; float: left;" alt="Header Logo"/>
-                            </div>
-                        </div>
-
-                        <!-- Titolo Principale in Rosso -->
-                        <div class="row text-center mb-3" style="clear: both; padding-top: 15px;">
-                            <div class="col-xs-12">
-                                <h3 style="font-weight: bold; font-size: 16px; color: #d9534f;">Conferma di ricevimento / Dichiarazione di mancato ricevimento della spedizione</h3>
-                                <p style="font-style: italic; color: #555; font-size: 12px;">(Confirmation of Receipt / Declaration of Non-Receipt)</p>
-                            </div>
-                        </div>
-
-                        <!-- Indirizzo di restituzione -->
-                        <div class="row mb-3" style="background-color: #f8f9fa; padding: 8px; border: 1px solid #ddd;">
-                            <div class="col-xs-12">
-                                <strong>SI PREGA DI RESTITUIRE IL MODULO COMPILATO AL SEGUENTE INDIRIZZO:</strong><br/>
-                                <span style="color: #666; font-size: 11px;">(Please return the completed form to)</span><br/>
-                                <span t-esc="parcel.get('return_address', '[ indirizzo / dettagli BU origine ]')"/>
-                            </div>
-                        </div>
-
-                        <!-- Tabella 6x2 (Dati di spedizione) -->
-                        <table class="table table-bordered" style="width: 100%; margin-bottom: 15px;">
-                            <tbody>
-                                <tr>
-                                    <td style="width: 50%;"><strong>Data di spedizione</strong><br/><span style="font-size: 11px; color:#666;">(Date of dispatch)</span></td>
-                                    <td style="width: 50%;"><span t-esc="parcel.get('date_dispatch', '')"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Numero identificativo del/i pacco/i (14 cifre)</strong><br/><span style="font-size: 11px; color:#666;">(Parcel number(s) 14-digits)</span></td>
-                                    <td><span t-esc="parcel.get('parcel_number', '')"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Mittente</strong><br/><span style="font-size: 11px; color:#666;">(Sender)</span></td>
-                                    <td><span t-esc="parcel.get('sender', '')"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Nome del destinatario ed indirizzo</strong><br/><span style="font-size: 11px; color:#666;">(Receiver’s name + address)</span></td>
-                                    <td><span t-esc="parcel.get('receiver_address', '')"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>E-mail del destinatario</strong><br/><span style="font-size: 11px; color:#666;">(Receiver’s email)</span></td>
-                                    <td><span t-esc="parcel.get('receiver_email', '')"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Numero di telefono del destinatario</strong><br/><span style="font-size: 11px; color:#666;">(Receiver’s phone number)</span></td>
-                                    <td><span t-esc="parcel.get('receiver_phone', '')"/></td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <!-- Sezione Selezione -->
-                        <div class="mb-2">
-                            <strong>Prego selezionare:</strong> <span style="font-size: 11px; color:#666;">(Please select)</span>
-                        </div>
-
-                        <!-- Box 1: Conferma -->
-                        <div style="border: 1px solid #999; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
-                            <div style="font-weight: bold; margin-bottom: 5px;">
-                                <input type="checkbox" style="margin-right: 5px;"/> Conferma legalmente vincolante di ricevimento del pacco
-                            </div>
-                            <div style="font-size: 11px; color: #555; margin-bottom: 8px;">(Legally binding confirmation of receipt)</div>
-                            <div>
-                                Con la presente confermiamo la ricezione del pacco di cui sopra in data: ___________________________
-                                <br/><span style="font-size: 11px; color: #555;">(I / We hereby confirm receipt of the above parcel on) (date)</span>
-                            </div>
-                        </div>
-
-                        <!-- Box 2: Mancato Ricevimento -->
-                        <div style="border: 1px solid #999; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
-                            <div style="font-weight: bold; margin-bottom: 5px;">
-                                <input type="checkbox" style="margin-right: 5px;"/> Dichiarazione legalmente vincolante di mancato ricevimento del pacco
-                            </div>
-                            <div style="font-size: 11px; color: #555; margin-bottom: 8px;">(Legally Binding Declaration of Non-Receipt)</div>
-                            <div style="font-size: 11px; line-height: 1.3;">
-                                Dichiaro/dichiariamo che il suddetto pacco non è entrato in mio/nostro possesso e non è entrato in possesso di una persona a me/noi nota.
-                                <br/><span style="font-style: italic; color: #666;">(I /We hereby declare that the above-mentioned parcel has not come into my/our possession and has not come into the possession of a person known to me/us)</span>
-                            </div>
-                        </div>
-
-                        <!-- Nota legale con ParagraphLogo a sinistra -->
-                        <div style="font-size: 10px; color: #444; background-color: #fff3cd; padding: 8px; border: 1px solid #ffeeba; margin-bottom: 20px;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <td style="width: 40px; vertical-align: middle; padding-right: 10px;">
-                                        <img src="/tyres_receive_confirm_report/static/src/img/ParagraphLogo.png" style="max-height: 30px; display: block;" alt="Paragraph Logo"/>
-                                    </td>
-                                    <td style="vertical-align: middle;">
-                                        Si prega di notare che, se si dichiara il falso in questa “Dichiarazione Legalmente Vincolante”, si potrebbe commettere un reato perseguibile per legge.<br/>
-                                        <span style="font-style: italic; color: #666;">(Please note that, if you make a false statement in this Legally Binding Declaration, you may be committing a crime punishable by law)</span>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <!-- Sezione Firme -->
-                        <div style="margin-top: 25px;">
-                            <table style="width: 100%; border-collapse: separate; border-spacing: 20px;">
-                                <tr>
-                                    <td style="width: 50%; vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 15px;">
-                                        <strong>Data della firma:</strong> <span style="font-size: 11px; color:#666;">(Date of signing):</span>
-                                    </td>
-                                    <td style="width: 50%; vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 15px;">
-                                        <strong>Nome e posizione del firmatario:</strong> <span style="font-size: 11px; color:#666;">(Name and Position):</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 35px;">
-                                        <strong>Nome dell’Azienda:</strong> <span style="font-size: 11px; color:#666;">(Name of Company):</span>
-                                    </td>
-                                    <td style="vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 35px;">
-                                        <strong>Firma:</strong> <span style="font-size: 11px; color:#666;">(Signature):</span>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <!-- Footer con FooterLogo.png in basso a destra -->
-                        <div class="footer" style="margin-top: 40px; border-top: 1px solid #ccc; padding-top: 10px;">
-                            <div class="row">
-                                <div class="col-xs-6" style="font-size: 9px; color: #777;">
-                                    Documento generato automaticamente da Odoo - Ordine: <span t-esc="doc.name"/>
+                                <!-- Logo iniziale in alto a sinistra (senza spazi vuoti sopra) -->
+                                <div class="row mb-4" style="margin-top: 0px;">
+                                    <div class="col-xs-12">
+                                        <img src="/tyres_receive_confirm_report/static/src/img/HeaderLogo.png" style="max-height: 50px; float: left;" alt="Header Logo"/>
+                                    </div>
                                 </div>
-                                <div class="col-xs-6 text-right">
-                                    <img src="/tyres_receive_confirm_report/static/src/img/FooterLogo.png" style="max-height: 25px;" alt="Footer Logo"/>
-                                </div>
-                            </div>
-                        </div>
 
-                    </div>
+                                <!-- Titolo Principale in Rosso -->
+                                <div class="row text-center mb-3" style="clear: both; padding-top: 15px;">
+                                    <div class="col-xs-12">
+                                        <h3 style="font-weight: bold; font-size: 16px; color: #d9534f; margin-top: 5px;">Conferma di ricevimento / Dichiarazione di mancato ricevimento della spedizione</h3>
+                                        <p style="font-style: italic; color: #555; font-size: 12px;">(Confirmation of Receipt / Declaration of Non-Receipt)</p>
+                                    </div>
+                                </div>
+
+                                <!-- Indirizzo di restituzione -->
+                                <div class="row mb-3" style="background-color: #f8f9fa; padding: 8px; border: 1px solid #ddd;">
+                                    <div class="col-xs-12">
+                                        <strong>SI PREGA DI RESTITUIRE IL MODULO COMPILATO AL SEGUENTE INDIRIZZO:</strong><br/>
+                                        <span style="color: #666; font-size: 11px;">(Please return the completed form to)</span><br/>
+                                        <span t-esc="parcel.get('return_address', '[ indirizzo / dettagli BU origine ]')"/>
+                                    </div>
+                                </div>
+
+                                <!-- Tabella 6x2 (Dati di spedizione) -->
+                                <table class="table table-bordered" style="width: 100%; margin-bottom: 15px;">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width: 50%;"><strong>Data di spedizione</strong><br/><span style="font-size: 11px; color:#666;">(Date of dispatch)</span></td>
+                                            <td style="width: 50%;"><span t-esc="parcel.get('date_dispatch', '')"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Numero identificativo del/i pacco/i (14 cifre)</strong><br/><span style="font-size: 11px; color:#666;">(Parcel number(s) 14-digits)</span></td>
+                                            <td><span t-esc="parcel.get('parcel_number', '')"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Mittente</strong><br/><span style="font-size: 11px; color:#666;">(Sender)</span></td>
+                                            <td><span t-esc="parcel.get('sender', '')"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Nome del destinatario ed indirizzo</strong><br/><span style="font-size: 11px; color:#666;">(Receiver’s name + address)</span></td>
+                                            <td><span t-esc="parcel.get('receiver_address', '')"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>E-mail del destinatario</strong><br/><span style="font-size: 11px; color:#666;">(Receiver’s email)</span></td>
+                                            <td><span t-esc="parcel.get('receiver_email', '')"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Numero di telefono del destinatario</strong><br/><span style="font-size: 11px; color:#666;">(Receiver’s phone number)</span></td>
+                                            <td><span t-esc="parcel.get('receiver_phone', '')"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Sezione Selezione -->
+                                <div class="mb-2">
+                                    <strong>Prego selezionare:</strong> <span style="font-size: 11px; color:#666;">(Please select)</span>
+                                </div>
+
+                                <!-- Box 1: Conferma -->
+                                <div style="border: 1px solid #999; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+                                    <div style="font-weight: bold; margin-bottom: 5px;">
+                                        <input type="checkbox" style="margin-right: 5px;"/> Conferma legalmente vincolante di ricevimento del pacco
+                                    </div>
+                                    <div style="font-size: 11px; color: #555; margin-bottom: 8px;">(Legally binding confirmation of receipt)</div>
+                                    <div>
+                                        Con la presente confermiamo la ricezione del pacco di cui sopra in data: ___________________________
+                                        <br/><span style="font-size: 11px; color: #555;">(I / We hereby confirm receipt of the above parcel on) (date)</span>
+                                    </div>
+                                </div>
+
+                                <!-- Box 2: Mancato Ricevimento -->
+                                <div style="border: 1px solid #999; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+                                    <div style="font-weight: bold; margin-bottom: 5px;">
+                                        <input type="checkbox" style="margin-right: 5px;"/> Dichiarazione legalmente vincolante di mancato ricevimento del pacco
+                                    </div>
+                                    <div style="font-size: 11px; color: #555; margin-bottom: 8px;">(Legally Binding Declaration of Non-Receipt)</div>
+                                    <div style="font-size: 11px; line-height: 1.3;">
+                                        Dichiaro/dichiariamo che il suddetto pacco non è entrato in mio/nostro possesso e non è entrato in possesso di una persona a me/noi nota.
+                                        <br/><span style="font-style: italic; color: #666;">(I /We hereby declare that the above-mentioned parcel has not come into my/our possession and has not come into the possession of a person known to me/us)</span>
+                                    </div>
+                                </div>
+
+                                <!-- Nota legale con ParagraphLogo a sinistra -->
+                                <div style="font-size: 10px; color: #444; background-color: #fff3cd; padding: 8px; border: 1px solid #ffeeba; margin-bottom: 20px;">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <tr>
+                                            <td style="width: 40px; vertical-align: middle; padding-right: 10px;">
+                                                <img src="/tyres_receive_confirm_report/static/src/img/ParagraphLogo.png" style="max-height: 30px; display: block;" alt="Paragraph Logo"/>
+                                            </td>
+                                            <td style="vertical-align: middle;">
+                                                Si prega di notare che, se si dichiara il falso in questa “Dichiarazione Legalmente Vincolante”, si potrebbe commettere un reato perseguibile per legge.<br/>
+                                                <span style="font-style: italic; color: #666;">(Please note that, if you make a false statement in this Legally Binding Declaration, you may be committing a crime punishable by law)</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- Sezione Firme -->
+                                <div style="margin-top: 25px;">
+                                    <table style="width: 100%; border-collapse: separate; border-spacing: 20px;">
+                                        <tr>
+                                            <td style="width: 50%; vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 15px;">
+                                                <strong>Data della firma:</strong> <span style="font-size: 11px; color:#666;">(Date of signing):</span>
+                                            </td>
+                                            <td style="width: 50%; vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 15px;">
+                                                <strong>Nome e posizione del firmatario:</strong> <span style="font-size: 11px; color:#666;">(Name and Position):</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 35px;">
+                                                <strong>Nome dell’Azienda:</strong> <span style="font-size: 11px; color:#666;">(Name of Company):</span>
+                                            </td>
+                                            <td style="vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 35px;">
+                                                <strong>Firma:</strong> <span style="font-size: 11px; color:#666;">(Signature):</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- Footer con FooterLogo.png in basso a destra -->
+                                <div class="footer" style="margin-top: 40px; border-top: 1px solid #ccc; padding-top: 10px;">
+                                    <div class="row">
+                                        <div class="col-xs-6" style="font-size: 9px; color: #777;">
+                                            Documento generato automaticamente da Odoo - Ordine: <span t-esc="doc.name"/>
+                                        </div>
+                                        <div class="col-xs-6 text-right">
+                                            <img src="/tyres_receive_confirm_report/static/src/img/FooterLogo.png" style="max-height: 25px;" alt="Footer Logo"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </t>
+                        <p style="page-break-after:always;"></p>
+                    </t>
                 </t>
-                <p style="page-break-after:always;"></p>
             </t>
-        </t>
-    </t>
-</template>
+        </template>
 
         <!--<template id="report_free_export_lang">
             <t t-call="web.html_container">
