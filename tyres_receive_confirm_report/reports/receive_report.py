@@ -50,6 +50,7 @@ class SaleOrderInherit(models.Model):
         # Loop for report page:
         # --------------------------------------------------------------------------------------------------------------
         order = self
+        parcels_data = []
         for report_page in (order.carrier_tracking_ids_dpd or [False]):
             if not report_page:  # Empty report
                 parcels_data.append({
