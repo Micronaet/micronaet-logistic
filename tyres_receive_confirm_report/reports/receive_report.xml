@@ -113,7 +113,7 @@
                                 </div>
 
                                 <!-- Nota legale con ParagraphLogo a sinistra -->
-                                <div style="font-size: 10px; color: #444; padding: 8px; border: 1px solid #ffeeba; margin-bottom: 20px;"> <!--background-color: #fff3cd; -->
+                                <div style="font-size: 10px; color: #444; padding: 8px; margin-bottom: 20px;"> <!--background-color: #fff3cd; border: 1px solid #ffeeba; -->
                                     <table style="width: 100%; border-collapse: collapse;">
                                         <tr>
                                             <td style="width: 40px; vertical-align: middle; padding-right: 10px;">
