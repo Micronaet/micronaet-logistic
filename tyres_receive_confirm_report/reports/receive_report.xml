@@ -29,8 +29,8 @@
                                 <div class="row mb-3" style="padding: 8px; "><!-- background-color: #f8f9fa; padding: 8px; border: 1px solid #ddd; -->
                                     <div class="col-xs-14">
                                         <strong>SI PREGA DI RESTITUIRE IL MODULO COMPILATO AL SEGUENTE INDIRIZZO:</strong><br/>
-                                        <span style="color: #666; font-size: 13px;">(Please return the completed form to)</span><br/>
-                                        <span t-esc="parcel.get('return_address', '[ indirizzo / dettagli BU origine ]')"/>
+                                        <span style="color: #666; font-size: 13px;">(Please return the completed form to) [ indirizzo / dettagli BU origine ]</span><br/>
+                                        <!--<span t-esc="parcel.get('return_address', '[ indirizzo / dettagli BU origine ]')"/>-->
                                     </div>
                                 </div>
 
