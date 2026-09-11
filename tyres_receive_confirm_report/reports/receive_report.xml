@@ -113,18 +113,22 @@
                                     <table style="width: 100%; border-collapse: separate; border-spacing: 20px;">
                                         <tr>
                                             <td style="width: 50%; vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 15px;">
-                                                <strong>Data della firma:</strong> <span style="font-size: 11px; color:#666;">(Date of signing):</span>
+                                                <strong>Data della firma:</strong>
+                                                <span style="font-size: 11px; color:#666;">(Date of signing):</span>
                                             </td>
                                             <td style="width: 50%; vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 15px;">
-                                                <strong>Nome e posizione del firmatario:</strong> <span style="font-size: 11px; color:#666;">(Name and Position):</span>
+                                                <strong>Nome e posizione del firmatario:</strong>
+                                                <span style="font-size: 11px; color:#666;">(Name and Position):</span>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td style="vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 35px;">
-                                                <strong>Nome dell’Azienda:</strong> <span style="font-size: 11px; color:#666;">(Name of Company):</span>
+                                                <strong>Nome dell’Azienda:</strong>
+                                                <span style="font-size: 11px; color:#666;">(Name of Company):</span>
                                             </td>
                                             <td style="vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 35px;">
-                                                <strong>Firma:</strong> <span style="font-size: 11px; color:#666;">(Signature):</span>
+                                                <strong>Firma:</strong>
+                                                <span style="font-size: 11px; color:#666;">(Signature):</span>
                                             </td>
                                         </tr>
                                     </table>
@@ -134,7 +138,7 @@
                                 <div class="footer" style="margin-top: 40px; border-top: 1px solid #ccc; padding-top: 10px;">
                                     <div class="row">
                                         <div class="col-xs-6" style="font-size: 9px; color: #777;">
-                                            Documento generato automaticamente da Odoo - Ordine: <span t-esc="doc.name"/>
+                                            Documento generato automaticamente da Ordine: <span t-esc="doc.name"/>
                                         </div>
                                         <div class="col-xs-6 text-right">
                                             <img src="/tyres_receive_confirm_report/static/src/img/FooterLogo.png" style="max-height: 25px;" alt="Footer Logo"/>
