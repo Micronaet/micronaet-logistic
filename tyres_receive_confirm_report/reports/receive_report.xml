@@ -113,7 +113,7 @@
                                 </div>
 
                                 <!-- Nota legale con ParagraphLogo a sinistra -->
-                                <div style="font-size: 10px; color: #444; background-color: #fff3cd; padding: 8px; border: 1px solid #ffeeba; margin-bottom: 20px;">
+                                <div style="font-size: 10px; color: #444; padding: 8px; border: 1px solid #ffeeba; margin-bottom: 20px;"> <!--background-color: #fff3cd; -->
                                     <table style="width: 100%; border-collapse: collapse;">
                                         <tr>
                                             <td style="width: 40px; vertical-align: middle; padding-right: 10px;">
@@ -131,22 +131,22 @@
                                 <div style="margin-top: 25px;">
                                     <table style="width: 100%; border-collapse: separate; border-spacing: 20px;">
                                         <tr>
-                                            <td style="width: 50%; vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 15px;">
+                                            <td style="width: 50%; vertical-align: bottom; border-bottom: 1px solid #333; padding-bottom: 5px; padding-top: 15px;">
                                                 <strong>Data della firma:</strong>
                                                 <span style="font-size: 11px;">(Date of signing):</span><br/>
                                             </td>
-                                            <td style="width: 50%; vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 15px;">
+                                            <td style="width: 50%; vertical-align: bottom; border-bottom: 1px solid #333; padding-bottom: 5px; padding-top: 15px;">
                                                 <strong>Nome e posizione del firmatario:</strong>
                                                 <span style="font-size: 11px;">(Name and Position):</span><br/>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td style="vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 35px;">
+                                            <td style="vertical-align: bottom; border-bottom: 1px solid #333; padding-bottom: 5px; padding-top: 35px;">
                                                 <strong>Nome dell’Azienda:</strong>
                                                 <span style="font-size: 11px;">(Name of Company):</span><br/>
 
                                             </td>
-                                            <td style="vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 35px;">
+                                            <td style="vertical-align: bottom; border-bottom: 1px solid #333; padding-bottom: 5px; padding-top: 35px;">
                                                 <strong>Firma:</strong>
                                                 <span style="font-size: 11px;">(Signature):</span><br/>
                                             </td>
@@ -157,7 +157,7 @@
                                 <!-- Footer con FooterLogo.png in basso a destra -->
                                 <div class="footer" style="padding-top: 0px;">
                                     <div class="row">
-                                        <div class="col-xs-12 text-right">
+                                        <div class="text-right"><!--col-xs-12 -->
                                             <img src="/tyres_receive_confirm_report/static/src/img/FooterLogo.png" style="max-height: 50px;" alt="Logo"/>
                                         </div>
                                     </div>
