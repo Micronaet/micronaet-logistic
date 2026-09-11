@@ -128,25 +128,24 @@
                                 </div>
 
                                 <!-- Sezione Firme -->
-                                <div style="margin-top: 25px;">
+                                <div style="margin-top: 15px;">
                                     <table style="width: 100%; border-collapse: separate; border-spacing: 20px;">
                                         <tr>
-                                            <td style="width: 50%; vertical-align: bottom; border-bottom: 1px solid #333; padding-bottom: 5px; padding-top: 15px;">
+                                            <td style="width: 50%; vertical-align: bottom; border-bottom: 1px solid #333; padding-bottom: 8px; padding-top: 55px;">
                                                 <strong>Data della firma:</strong>
                                                 <span style="font-size: 11px;">(Date of signing):</span><br/>
                                             </td>
-                                            <td style="width: 50%; vertical-align: bottom; border-bottom: 1px solid #333; padding-bottom: 5px; padding-top: 15px;">
+                                            <td style="width: 50%; vertical-align: bottom; border-bottom: 1px solid #333; padding-bottom: 8px; padding-top: 55px;">
                                                 <strong>Nome e posizione del firmatario:</strong>
                                                 <span style="font-size: 11px;">(Name and Position):</span><br/>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td style="vertical-align: bottom; border-bottom: 1px solid #333; padding-bottom: 5px; padding-top: 35px;">
+                                            <td style="vertical-align: bottom; border-bottom: 1px solid #333; padding-bottom: 8px; padding-top: 55px;">
                                                 <strong>Nome dell’Azienda:</strong>
                                                 <span style="font-size: 11px;">(Name of Company):</span><br/>
-
                                             </td>
-                                            <td style="vertical-align: bottom; border-bottom: 1px solid #333; padding-bottom: 5px; padding-top: 35px;">
+                                            <td style="vertical-align: bottom; border-bottom: 1px solid #333; padding-bottom: 8px; padding-top: 55px;">
                                                 <strong>Firma:</strong>
                                                 <span style="font-size: 11px;">(Signature):</span><br/>
                                             </td>
