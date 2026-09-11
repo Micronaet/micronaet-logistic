@@ -144,6 +144,7 @@
                                             <td style="vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 35px;">
                                                 <strong>Nome dell’Azienda:</strong>
                                                 <span style="font-size: 11px;">(Name of Company):</span><br/>
+
                                             </td>
                                             <td style="vertical-align: bottom; border-bottom: 1px dashed #333; padding-bottom: 5px; padding-top: 35px;">
                                                 <strong>Firma:</strong>
@@ -153,17 +154,13 @@
                                     </table>
                                 </div>
 
-                                <!-- Footer con FooterLogo.png in basso a destra -->
-                                <div class="footer" style="padding-top: 10px;">
+                                <div class="footer" style="padding-top: 0px;">
                                     <div class="row">
-                                        <div class="col-xs-6" style="font-size: 9px; color: #777;">
-                                        </div>
                                         <div class="col-xs-6 text-right">
                                             <img src="/tyres_receive_confirm_report/static/src/img/FooterLogo.png" style="max-height: 50px;" alt="Logo"/>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </t>
                         <p style="page-break-after:always;"></p>
