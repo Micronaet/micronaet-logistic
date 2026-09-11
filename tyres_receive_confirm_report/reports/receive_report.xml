@@ -6,7 +6,7 @@
             <t t-call="web.html_container">
                 <!-- t-foreach gestisce la stampa di N moduli partendo dai dati passati dal Python -->
                 <t t-foreach="docs" t-as="doc">
-                    <t t-foreach="doc.get_custom_parcels_data()" t-as="parcel">
+                    <t t-foreach="doc.get_custom_delivery_missed_report_data()" t-as="parcel">
                         <t t-call="web.external_layout">
                             <div class="page" style="font-size: 13px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
 
