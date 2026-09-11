@@ -51,31 +51,31 @@ class SaleOrderInherit(models.Model):
         # --------------------------------------------------------------------------------------------------------------
         order = self
         parcels_data = []
+
+        if order.logistic_picking_ids:
+            picking = order.logistic_picking_ids[0]
+            delivery_date = (picking.scheduled_date or picking.invoice_date or '')[:10]
         for report_page in (order.carrier_tracking_ids_dpd or [False]):
-            if not report_page:  # Empty report
-                parcels_data.append({
-                    'return_address': self.company_id.partner_id.contact_address or 'Indirizzo Sede Centrale',
-                    'date_dispatch': self.confirmation_date or '',
-                    'parcel_number': 'N/D',
-                    'sender': self.company_id.name,
-                    'receiver_address': self.partner_id.contact_address or '',
-                    'receiver_email': self.partner_id.email or '',
-                    'receiver_phone': self.partner_id.phone or '',
-                    'middle_logo_base64': False,  # Eventuale logo
+            # Common data:
+            order_partner = order.partner_id
+            shipping_partner = order.partner_shipping_id or order.partner_id
+
+            shipping_partner = order.partner_shipping_id or order.partner_id
+            report_data = {
+                'return_address': self.company_id.partner_id.contact_address or 'Indirizzo Sede Centrale',
+                'date_dispatch': delivery_date,
+                'parcel_number': '',  # Empty track
+                'sender': self.company_id.partner_id.contact_address or 'Indirizzo Sede Centrale',
+                'receiver_address': shipping_partner.contact_address or '',
+                'receiver_email': shipping_partner.email or order_partner.email or '',
+                'receiver_phone': shipping_partner.phone or order_partner.phone or '',
+            }
+            if report_page:  # Report page if present
+                report_data.update({
+                    'parcel_number': report_page.name,  # Tracking
                 })
-            else:
-                # Every report has one page:
-                # TODO put right data:
-                parcels_data.append({
-                    'return_address': self.company_id.partner_id.contact_address or 'Indirizzo Sede Centrale',
-                    'date_dispatch': self.confirmation_date or '',
-                    'parcel_number': 'N/D',
-                    'sender': self.company_id.name,
-                    'receiver_address': self.partner_id.contact_address or '',
-                    'receiver_email': self.partner_id.email or '',
-                    'receiver_phone': self.partner_id.phone or '',
-                    'middle_logo_base64': False,  # Eventuale logo
-                })
+
+            parcels_data.append(report_data)
         return parcels_data  # Always present!
 
     '''@api.multi
