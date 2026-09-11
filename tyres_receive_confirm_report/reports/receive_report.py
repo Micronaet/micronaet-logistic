@@ -61,8 +61,6 @@ class SaleOrderInherit(models.Model):
             # Common data:
             order_partner = order.partner_id
             shipping_partner = order.partner_shipping_id or order.partner_id
-
-            shipping_partner = order.partner_shipping_id or order.partner_id
             report_data = {
                 'return_address': self.company_id.partner_id.contact_address or 'Indirizzo Sede Centrale',
                 'date_dispatch': delivery_date,
