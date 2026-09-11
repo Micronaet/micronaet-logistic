@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_order_form_inherit_confirmation_delivery" model="ir.ui.view">
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='state']" position="before">
+                    <button name="%(tyres_receive_confirm_report.action_report_DPD_export)s"
+                            string="Report DPD"
+                            type="action"
+                            class="btn-primary"
+                    />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
