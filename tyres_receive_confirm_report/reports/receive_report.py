@@ -55,6 +55,8 @@ class SaleOrderInherit(models.Model):
         if order.logistic_picking_ids:
             picking = order.logistic_picking_ids[0]
             delivery_date = (picking.scheduled_date or picking.invoice_date or '')[:10]
+        else:
+            delivery_date = ''
         for report_page in (order.carrier_tracking_ids_dpd or [False]):
             # Common data:
             order_partner = order.partner_id
