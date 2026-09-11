@@ -101,9 +101,9 @@
                                 </div>
 
                                 <!-- Box 2: Mancato Ricevimento -->
-                                <div style="border: 1px solid #999; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+                                <div style="padding: 10px; margin-bottom: 15px;"><!--border: 1px solid #999; border-radius: 4px; -->
                                     <div style="font-weight: bold; margin-bottom: 5px;">
-                                        <input type="checkbox" style="margin-right: 5px;"/> Dichiarazione legalmente vincolante di mancato ricevimento del pacco
+                                        <input type="checkbox" style="margin-right: 5px;" checked="checked"/> Dichiarazione legalmente vincolante di mancato ricevimento del pacco
                                     </div>
                                     <div style="font-size: 11px; color: #555; margin-bottom: 8px;">(Legally Binding Declaration of Non-Receipt)</div>
                                     <div style="font-size: 11px; line-height: 1.3;">
