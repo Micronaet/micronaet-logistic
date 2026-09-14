@@ -21,6 +21,9 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="tyres_logistic_carrier.view_sale_order_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//group[5]/separator[1]" position="attributes">
+                        <attribute name="colspan">2</attribute>
+                </xpath>
                     <!--<separator string="Request:" position="attributes">
                         <attribute name="colspan">2</attribute>
                     </separator>
