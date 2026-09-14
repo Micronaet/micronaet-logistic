@@ -22,7 +22,7 @@
             <field name="inherit_id" ref="tyres_logistic_carrier.view_sale_order_form"/>
             <field name="arch" type="xml">
         			<button name="set_default_carrier_description" position="before">
-                        <div class="o_form_buttons_view" modifiers="{}">
+                        <div class="o_form_buttons_view">
                             <button name="%(tyres_receive_confirm_report.action_report_DPD_export)s"
                                 string="Report DPD"
                                 type="action"
