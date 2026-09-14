@@ -33,6 +33,7 @@
                             <button name="%(tyres_receive_confirm_report.action_report_DPD_export)s"
                                 string="Modulo Disconoscimento"
                                 type="action"
+                                 icon="fa-print"
                                 class="btn-primary" />
                         </div>
         			</button>
