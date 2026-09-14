@@ -70,7 +70,7 @@
                                                 <strong>E-mail del destinatario</strong><br/>
                                                 <span style="font-size: 11px; color:#666;">(Receiver’s email)</span>
                                             </td>
-                                            <td><span t-esc="parcel.get('receiver_email', '')"/></td>
+                                            <td></td> <!--<span t-esc="parcel.get('receiver_email', '')"/>-->
                                         </tr>
                                         <tr>
                                             <td>

@@ -34,7 +34,8 @@
         'sale',
         'web',  # Reporting qweb
         'mmac_odoo4',  # Tracking DPD
-        ],
+        'tyres_logistic_carrier',
+    ],
     'data': [
         # Report:
         'reports/receive_report.xml',

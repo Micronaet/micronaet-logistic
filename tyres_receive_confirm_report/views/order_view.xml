@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!--
         <record id="view_order_form_inherit_confirmation_delivery" model="ir.ui.view">
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
@@ -14,5 +15,21 @@
                 </xpath>
             </field>
         </record>
+        -->
+        <record model="ir.ui.view" id="view_sale_order_form">
+            <field name="name">sale.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="tyres_logistic_carrier.view_sale_order_form"/>
+            <field name="arch" type="xml">
+        			<button name="set_default_carrier_description" position="before">
+                        <div class="o_form_buttons_view" modifiers="{}">
+                            <button name="%(tyres_receive_confirm_report.action_report_DPD_export)s"
+                                string="Report DPD"
+                                type="action"
+                                class="btn-primary" />
+                        </div>
+        			</button>
+    			</field>
+		</record>
     </data>
 </odoo>
