@@ -2038,7 +2038,7 @@ class StockPicking(models.Model):
         for detail_note in split_note(order.note_invoice or '', max_char=128):
             invoice_call['details'].append({
                 'type': 'D',
-                # 'sku': '',
+                'sku': '',
                 # 'item': '',
                 'description': detail_note,
                 'quantity': 0,
