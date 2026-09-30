@@ -2035,7 +2035,7 @@ class StockPicking(models.Model):
         # --------------------------------------------------------------------------------------------------------------
         # Integrate Note multiline (if present)
         # --------------------------------------------------------------------------------------------------------------
-        if False:   # order.note_invoice:
+        if False:  # order.note_invoice:
             for detail_note in split_note(order.note_invoice or '', max_char=128):
                 invoice_call['details'].append({
                     'type': 'D',
