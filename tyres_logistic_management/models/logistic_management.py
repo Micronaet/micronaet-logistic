@@ -1912,6 +1912,18 @@ class StockPicking(models.Model):
                 date[:10], date[11:])
             return zulu_date
 
+        def split_note(note, max_char=128):
+            """ Split note in a list of max X char
+            """
+            split_note = []
+            while note:
+                split_note.append(note[:max_char])
+                note = note[max_char:]
+            return split_note
+
+        # ==============================================================================================================
+        #                                          PROCEDURE:
+        # ==============================================================================================================
         self.ensure_one()
 
         # Readability:
@@ -1975,7 +1987,7 @@ class StockPicking(models.Model):
             'vatIncluded': vat_included,
             'noOfPack': parcel,
             'grossWeight': weight,
-            'notes': order.note_invoice or '',
+            'notes': '',  # Note: passed as detail lines! (ex. invoice_note),
             'customer': partner_block,
             'destination': destination_block,
             # 'address': get_partner_block(address),  # todo
@@ -2017,6 +2029,21 @@ class StockPicking(models.Model):
                 'quantity': move.product_uom_qty,
                 'unitValue': unit_value,
                 'taxCode': line.tax_id[0].account_ref or '',
+                'note': '',  # TODO comment
+            })
+
+        # --------------------------------------------------------------------------------------------------------------
+        # Integrate Note multiline (if present)
+        # --------------------------------------------------------------------------------------------------------------
+        for detail_note in split_note(order.note_invoice or '', max_char=128):
+            invoice_call['details'].append({
+                'type': 'D',
+                # 'sku': '',
+                # 'item': '',
+                'description': detail_note,
+                'quantity': 0,
+                'unitValue': 0,
+                'taxCode': '',
                 'note': '',  # TODO comment
             })
 
