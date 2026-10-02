@@ -1974,6 +1974,7 @@ class StockPicking(models.Model):
         partner_block['payment'] = payment_code
         destination_block = get_address_block(address)
 
+        note_invoice = (order.note_invoice or '').strip()
         invoice_call = {
             'documentNo': '',  # Empty, returned from procedure
             # 'documentDate': '',  # Empty, returned from procedure
@@ -1987,7 +1988,7 @@ class StockPicking(models.Model):
             'vatIncluded': vat_included,
             'noOfPack': parcel,
             'grossWeight': weight,
-            'notes': '', # order.note_invoice or '',  # Note: passed as detail lines!
+            'notes': note_invoice,  # Note: passed as detail lines!
             'customer': partner_block,
             'destination': destination_block,
             # 'address': get_partner_block(address),  # todo
@@ -2035,8 +2036,7 @@ class StockPicking(models.Model):
         # --------------------------------------------------------------------------------------------------------------
         # Integrate Note multiline (if present)
         # --------------------------------------------------------------------------------------------------------------
-        note_invoice = (order.note_invoice or '').strip()
-        if note_invoice:
+        if False and note_invoice:  # TODO not used for now
             for detail_note in split_note(note_invoice, max_char=128):
                 invoice_call['details'].append({
                     'type': 'D',
