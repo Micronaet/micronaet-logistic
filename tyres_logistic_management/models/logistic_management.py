@@ -1988,7 +1988,7 @@ class StockPicking(models.Model):
             'vatIncluded': vat_included,
             'noOfPack': parcel,
             'grossWeight': weight,
-            'notes': note_invoice,  # Note: passed as detail lines!
+            'notes': '',  # note_invoice,  # Note: passed as detail lines!
             'customer': partner_block,
             'destination': destination_block,
             # 'address': get_partner_block(address),  # todo
@@ -2036,7 +2036,7 @@ class StockPicking(models.Model):
         # --------------------------------------------------------------------------------------------------------------
         # Integrate Note multiline (if present)
         # --------------------------------------------------------------------------------------------------------------
-        if False and note_invoice:  # TODO not used for now
+        if note_invoice:  # TODO not used for now
             for detail_note in split_note(note_invoice, max_char=128):
                 invoice_call['details'].append({
                     'type': 'D',
@@ -2077,12 +2077,10 @@ class StockPicking(models.Model):
             }
 
             # Send invoice:
-            _logger.info('Calling: %s\nJSON: %s [Attempt: %s]' % (
-                location, json_dumps, loop_times))
-            reply = requests.post(
-                location, data=json_dumps, headers=header)
-            _logger.info('Calling: %s\nJSON: %s\nReply: %s' % (
-                location, json_dumps, reply))
+            _logger.info('Calling: %s\nJSON: %s [Attempt: %s]' % (location, json_dumps, loop_times))
+            pdb.set_trace()
+            reply = requests.post(location, data=json_dumps, headers=header)
+            _logger.info('Calling: %s\nJSON: %s\nReply: %s' % (location, json_dumps, reply))
             if reply.ok:
                 # Manage API reply:
                 reply_json = reply.json()
