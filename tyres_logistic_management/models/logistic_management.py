@@ -1988,7 +1988,7 @@ class StockPicking(models.Model):
             'vatIncluded': vat_included,
             'noOfPack': parcel,
             'grossWeight': weight,
-            'notes': '',  # note_invoice,  # Note: passed as detail lines!
+            'notes': note_invoice,  # Note: passed as detail lines!
             'customer': partner_block,
             'destination': destination_block,
             # 'address': get_partner_block(address),  # todo
@@ -2036,18 +2036,20 @@ class StockPicking(models.Model):
         # --------------------------------------------------------------------------------------------------------------
         # Integrate Note multiline (if present)
         # --------------------------------------------------------------------------------------------------------------
-        if note_invoice:  # TODO not used for now
+        if False and note_invoice:  # TODO not used for now
             for detail_note in split_note(note_invoice, max_char=128):
                 invoice_call['details'].append({
                     'type': 'D',
                     'sku': '',
-                    # 'item': '',
                     'description': detail_note,
                     'quantity': 0,
                     'unitValue': 0,
                     'taxCode': '',
                     'note': '',
-                    # 'notes': '',
+
+                    # No remove:
+                    'item': '',
+                    'notes': '',
                 })
 
         # --------------------------------------------------------------------------------------------------------------
