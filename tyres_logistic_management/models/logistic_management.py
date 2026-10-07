@@ -2078,6 +2078,7 @@ class StockPicking(models.Model):
 
             # Send invoice:
             _logger.info('Calling: %s\nJSON: %s [Attempt: %s]' % (location, json_dumps, loop_times))
+            pdb.set_trace()
             reply = requests.post(location, data=json_dumps, headers=header)
             _logger.info('Calling: %s\nJSON: %s\nReply: %s' % (location, json_dumps, reply))
             if reply.ok:
