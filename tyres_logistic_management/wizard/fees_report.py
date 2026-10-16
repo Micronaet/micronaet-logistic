@@ -997,7 +997,7 @@ class LogisticFeesExtractWizard(models.TransientModel):
                     total += total * vat / 100.0  # 28/07/2026 Moved here from ID 'b2b' block
                 except:
                     _logger.error('Error on order: {}'.format(order))
-                    pdb.set_trace()
+
                 if customer_mode == 'b2c':
                     page = 'B2C'
                 elif customer_mode == 'b2b':
