@@ -977,18 +977,24 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             10, 8,
             )
 
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         # Write detail:
-        # ---------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
         setup_complete = False  # For initial setup:
         for supplier in sorted(supplier_category_move, key=lambda x: x.name):
             ipcode_cache = {}
             ws_name = supplier.name.strip()
 
-            # -----------------------------------------------------------------
+            # ----------------------------------------------------------------------------------------------------------
             # Excel sheet creation:
-            # -----------------------------------------------------------------
-            excel_pool.create_worksheet(ws_name)
+            # ----------------------------------------------------------------------------------------------------------
+            try:
+                excel_pool.create_worksheet(ws_name)  # TODO Debug Inter-Drive GmBH
+            except:
+                _logger.error('Supplier "{}" yet present, new page with ID'.format(ws_name))
+                ws_name = 'ID-{}'.format(supplier.id)
+                excel_pool.create_worksheet(ws_name)  # TODO Debug Inter-Drive GmBH
+
             excel_pool.column_width(ws_name, column_width)
             if not setup_complete:  # First page only:
                 setup_complete = True
