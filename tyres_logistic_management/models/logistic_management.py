@@ -2113,6 +2113,7 @@ class StockPicking(models.Model):
             else:
                 _logger.error('Invoice not received: \n%s!' % reply.text)
                 return False
+        return False  # Not passed from here!
 
     @api.multi
     def api_print_ddt_pdf(self):
