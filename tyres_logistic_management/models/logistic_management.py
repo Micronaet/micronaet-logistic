@@ -3877,8 +3877,7 @@ class SaleOrder(models.Model):
     exported_date = fields.Date('Exported date')
     undo_comment = fields.Text('Undo comment', compute=_get_undo_comment)
 
-    note_invoice = fields.Text(
-        'Invoice note', help='Note for invoice document')
+    note_invoice = fields.Text('Invoice note', help='Note for invoice document')
     note_ddt = fields.Text(
         'DDT Note', help='Note for DDT document')
     note_picking = fields.Text(
