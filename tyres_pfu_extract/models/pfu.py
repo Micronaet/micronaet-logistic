@@ -989,11 +989,11 @@ class StockPickingPfuExtractWizard(models.TransientModel):
             # Excel sheet creation:
             # ----------------------------------------------------------------------------------------------------------
             try:
-                excel_pool.create_worksheet(ws_name)  # TODO Debug Inter-Drive GmBH
+                excel_pool.create_worksheet(ws_name)
             except:
                 _logger.error('Supplier "{}" yet present, new page with ID'.format(ws_name))
                 ws_name = 'ID-{}'.format(supplier.id)
-                excel_pool.create_worksheet(ws_name)  # TODO Debug Inter-Drive GmBH
+                excel_pool.create_worksheet(ws_name)
 
             excel_pool.column_width(ws_name, column_width)
             if not setup_complete:  # First page only:
